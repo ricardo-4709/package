@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>旅程打包清單</title>
+    <style>
+        /* 低飽和度、乾淨的日系/北歐風配色 */
+        :root {
+            --bg-color: #f7f8f6;       /* 柔和米白 */
+            --card-bg: #ffffff;        /* 純白卡片 */
+            --text-main: #3a3f47;      /* 深灰（比純黑溫和） */
+            --text-muted: #8e949f;     /* 淺灰 */
+            --accent: #9aa899;         /* 莫蘭迪鼠尾草綠 */
+            --accent-light: #e8ebe7;   /* 極淺綠 */
+            --border-color: #e4e7e4;   /* 邊框線 */
+            --danger: #cca4a4;         /* 低飽和粉紅（刪除用） */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px; /* 限制最大寬度，在手機上完美呈現 */
+            margin-bottom: 80px; /* 留空間給底部固定輸入欄 */
+        }
+
+        header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-main);
+        }
+
+        .stats {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* 列表區塊 */
+        .item-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .item-node {
+            background: var(--card-bg);
+            padding: 14px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        /* 自訂手機好點擊的大 Checkbox */
+        .checkbox-wrapper {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            background-color: transparent;
+            border: 2px solid var(--accent);
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-wrapper input:checked ~ .checkmark {
+            background-color: var(--accent);
+        }
+
+        .checkbox-wrapper input:checked ~ .checkmark:after {
+            content: "";
+            position: absolute;
+            left: 8px;
+            top: 4px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        /* 可編輯的文字區域 */
+        .item-text {
+            font-size: 1rem;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            width: 100%;
+            outline: none;
+            padding: 2px 0;
+            transition: all 0.2s ease;
+        }
+
+        /* 已完成的樣式 */
+        .item-node.completed {
+            opacity: 0.6;
+            background-color: #fafafa;
+        }
+        
+        .item-node.completed .item-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        /* 刪除按鈕（手機版寬容度高、好觸控） */
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 4px 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .delete-btn:active {
+            color: var(--danger);
+        }
+
+        /* 底部固定輸入欄（針對手機優化，單手好操作） */
+        .input-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(247, 248, 246, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            gap: 8px;
+        }
+
+        #item-input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            font-size: 1rem;
+            outline: none;
+            color: var(--text-main);
+        }
+
+        #item-input:focus {
+            border-color: var(--accent);
+        }
+
+        #add-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        #add-btn:active {
+            opacity: 0.8;
+        }
+
+        /* 提示空白狀態 */
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 40px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>打包清單</h1>
+            <div class="stats" id="stats-text">0 / 0 已打包</div>
+        </header>
+
+        <ul class="item-list" id="item-list">
+            </ul>
+
+        <div class="empty-state" id="empty-state" style="display: none;">
+            現在空空如也，加點行李吧！
+        </div>
+    </div>
+
+    <div class="input-panel">
+        <div class="input-container">
+            <input type="text" id="item-input" placeholder="新增行李項目... (如：護照)" autocomplete="off">
+            <button id="add-btn">新增</button>
+        </div>
+    </div>
+
+    <script>
+        // 預設初始資料（如果使用者第一次打開）
+        const defaultItems = [
+            { id: 1, text: '行動電源與充電線', completed: false },
+            { id: 2, text: '換洗衣物', completed: false },
+            { id: 3, text: '盥洗用品及保養品', completed: true },
+            { id: 4, text: '錢包、證件與護照', completed: false }
+        ];
+
+        // 從 LocalStorage 讀取資料，如果沒有就用預設值
+        let items = JSON.parse(localStorage.getItem('packing_items')) || defaultItems;
+
+        const itemList = document.getElementById('item-list');
+        const itemInput = document.getElementById('item-input');
+        const addBtn = document.getElementById('add-btn');
+        const statsText = document.getElementById('stats-text');
+        const emptyState = document.getElementById('empty-state');
+
+        // 儲存資料並重新渲染畫面
+        function saveDataAndRender() {
+            localStorage.setItem('packing_items', JSON.stringify(items));
+            renderList();
+        }
+
+        // 渲染清單
+        function renderList() {
+            itemList.innerHTML = '';
+            
+            if (items.length === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+                
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = `item-node ${item.completed ? 'completed' : ''}`;
+                    
+                    li.innerHTML = `
+                        <div class="item-left">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleComplete(${item.id})">
+                                <span class="checkmark"></span>
+                            </label>
+                            <input type="text" class="item-text" value="${item.text}" onchange="editItem(${item.id}, this.value)">
+                        </div>
+                        <button class="delete-btn" onclick="deleteItem(${item.id})">✕</button>
+                    `;
+                    itemList.appendChild(li);
+                });
+            }
+            
+            updateStats();
+        }
+
+        // 更新進度文字
+        function updateStats() {
+            const total = items.length;
+            const completedCount = items.filter(item => item.completed).length;
+            statsText.innerText = `${completedCount} / ${total} 已打包`;
+        }
+
+        // 新增項目
+        function addItem() {
+            const text = itemInput.value.trim();
+            if (text === '') return;
+
+            const newItem = {
+                id: Date.now(), // 用時間戳當唯一 ID
+                text: text,
+                completed: false
+            };
+
+            items.push(newItem);
+            itemInput.value = '';
+            saveDataAndRender();
+            
+            // 讓手機輸入完後保持聚焦，方便連續輸入
+            itemInput.focus();
+        }
+
+        // 切換勾選狀態
+        function toggleComplete(id) {
+            items = items.map(item => {
+                if (item.id === id) {
+                    return { ...item, completed: !item.completed };
+                }
+                return item;
+            });
+            saveDataAndRender();
+        }
+
+        // 編輯文字內容
+        function editItem(id, newText) {
+            items = items.map(item => {
+                if (item.id === id) {
+                    return { ...item, text: newText.trim() };
+                }
+                return item;
+            });
+            saveDataAndRender();
+        }
+
+        // 刪除項目
+        function deleteItem(id) {
+            items = items.filter(item => item.id !== id);
+            saveDataAndRender();
+        }
+
+        // 綁定事件
+        addBtn.addEventListener('click', addItem);
+        itemInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addItem();
+            }
+        });
+
+        // 初始渲染
+        renderList();
+    </script>
+</body>
+</html>
