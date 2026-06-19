@@ -18,6 +18,9 @@
             --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
+        /* --------------------------
+           字體：主字體套用裝置預設字體
+        -------------------------- */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -119,7 +122,7 @@
         }
 
         /* --------------------------
-           簡化打包清單（標籤模式）
+           優化：打包清單標籤靠右排版
         -------------------------- */
         .group-container {
             display: flex;
@@ -154,10 +157,10 @@
             flex: 1;
         }
 
-        /* 標籤排版：水平排列，空間不足時自動折行至右下方 */
+        /* 標籤排版：窄螢幕強制靠右，超長時才在右下方折行 */
         .item-content {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* 支援極窄寬度或超長字元時折行 */
             align-items: center;
             justify-content: space-between;
             gap: 6px 12px;
@@ -167,7 +170,7 @@
 
         .item-text-row {
             flex: 1;
-            min-width: 130px; /* 保證輸入框的最小寬度 */
+            min-width: 120px; /* 確保輸入框最少保有的空間，避免標籤過度壓縮它 */
             display: flex;
             align-items: center;
         }
@@ -227,35 +230,28 @@
             font-weight: 500;
         }
 
-        /* 標籤設計與右推效果 */
+        /* 標籤群組：強制往最右方推移 */
         .item-tags {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap; /* 保持兩個標籤在同一排 */
             gap: 6px;
-            margin-left: auto; /* 將標籤向右側推擠 */
+            margin-left: auto; /* 將標籤強制推至整個彈性盒的最右側 */
+            flex-shrink: 0; /* 標籤不因空間不足被擠壓 */
         }
 
+        /* 標籤設計：特用 Inter 以提升小字易讀性，無 Emoji 圖示 */
         .tag {
+            font-family: 'Inter', -apple-system, sans-serif;
             font-size: 0.72rem;
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 2px;
             white-space: nowrap;
-        }
-
-        .tag-location {
-            background-color: var(--accent-light);
-            color: #5c665b;
-            border: 1px solid #dcdfdc;
-        }
-
-        .tag-category {
-            background-color: #f0f1f4;
-            color: #626a75;
-            border: 1px solid #e1e3e6;
+            letter-spacing: 0.02em;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+            transition: all 0.2s ease;
         }
 
         /* 已完成樣式 */
@@ -582,11 +578,11 @@
         }
 
         .archive-item-tag {
+            font-family: 'Inter', -apple-system, sans-serif;
             font-size: 0.65rem;
-            background: #f2f3f1;
-            padding: 1px 4px;
-            border-radius: 3px;
-            color: var(--text-muted);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
         }
 
         /* --------------------------
@@ -929,6 +925,28 @@
         let currentPageIndex = 0;
 
         // --------------------------
+        // 智慧配色：根據標籤文字動態產生低飽和、和諧的莫蘭迪粉彩色系
+        // --------------------------
+        function getTagStyle(text) {
+            if (!text) return '';
+            let hash = 0;
+            for (let i = 0; i < text.length; i++) {
+                hash = text.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            
+            // 使用 HSL 色彩模式，鎖定在低飽和度 (Morandi / Pastel系)
+            const h = Math.abs(hash) % 360;             // 隨機色相
+            const s = 14 + (Math.abs(hash >> 1) % 12);  // 限制飽和度在 14% - 26%
+            const l = 91 + (Math.abs(hash >> 2) % 4);   // 限制亮度在 91% - 95%，確保粉彩質感
+            
+            const bgColor = `hsl(${h}, ${s}%, ${l}%)`;
+            const borderColor = `hsl(${h}, ${s}%, ${l - 12}%)`; // 微深的邊框線
+            const textColor = `hsl(${h}, ${s + 18}%, ${l - 58}%)`; // 足夠深以提供易讀性與對比度
+
+            return `background-color: ${bgColor}; border: 1px solid ${borderColor}; color: ${textColor};`;
+        }
+
+        // --------------------------
         // 儲存與同步
         // --------------------------
         function saveState() {
@@ -1082,7 +1100,7 @@
         }
 
         // --------------------------
-        // 渲染主清單 (智慧排序 + 標籤右推佈局)
+        // 渲染主清單 (智慧排序 + 標籤極窄螢幕靠右版面)
         // --------------------------
         function renderGroupedList() {
             groupedItemsContainer.innerHTML = '';
@@ -1119,6 +1137,10 @@
                 const li = document.createElement('li');
                 li.className = `item-node ${item.completed ? 'completed' : ''}`;
 
+                // 根據文字生成獨特低飽和莫蘭迪色 HSL 樣式
+                const locTagStyle = getTagStyle(item.location);
+                const catTagStyle = getTagStyle(item.category);
+
                 li.innerHTML = `
                     <div class="item-left">
                         <label class="checkbox-wrapper">
@@ -1130,8 +1152,8 @@
                                 <input type="text" class="item-text" value="${escapeHtml(item.text)}" onchange="editItem(${item.id}, this.value)">
                             </div>
                             <div class="item-tags">
-                                <span class="tag tag-location">📍 ${escapeHtml(item.location)}</span>
-                                <span class="tag tag-category">📁 ${escapeHtml(item.category)}</span>
+                                <span class="tag" style="${locTagStyle}">${escapeHtml(item.location)}</span>
+                                <span class="tag" style="${catTagStyle}">${escapeHtml(item.category)}</span>
                             </div>
                         </div>
                     </div>
@@ -1217,6 +1239,9 @@
                 // 建立極簡條列式呈現 (bullet list)
                 let itemsListHtml = '';
                 arc.items.forEach(item => {
+                    const locStyle = getTagStyle(item.location);
+                    const catStyle = getTagStyle(item.category);
+
                     itemsListHtml += `
                         <li class="archive-item-bullet">
                             <div class="archive-item-left">
@@ -1226,8 +1251,8 @@
                                 <span>${escapeHtml(item.text)}</span>
                             </div>
                             <div class="archive-item-tags">
-                                <span class="archive-item-tag">📍 ${escapeHtml(item.location)}</span>
-                                <span class="archive-item-tag">📁 ${escapeHtml(item.category)}</span>
+                                <span class="archive-item-tag" style="${locStyle}">${escapeHtml(item.location)}</span>
+                                <span class="archive-item-tag" style="${catStyle}">${escapeHtml(item.category)}</span>
                             </div>
                         </li>
                     `;
