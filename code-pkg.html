@@ -140,7 +140,7 @@
         }
 
         /* --------------------------
-           打包清單位置群組 (改為無外框極簡左側標示線)
+           打包清單位置群組 (無外框極簡左側標示線)
         -------------------------- */
         .grouped-container {
             display: flex;
@@ -775,7 +775,7 @@
         }
 
         /* --------------------------
-           底部導覽列 (全新改進：非絕對定位，與內容完美分離)
+           底部導覽列
         -------------------------- */
         .bottom-nav {
             height: 56px;
@@ -935,17 +935,18 @@
                 <div class="page" id="page-settings">
                     <header class="form-title" style="display: flex; justify-content: space-between; align-items: center;">
                         <h1>設定</h1>
-                        <!-- 新增返回打包清單按鈕 -->
+                        <!-- 返回打包清單按鈕 -->
                         <button class="btn-custom" onclick="switchPage(0)">返回清單</button>
                     </header>
 
-                    <!-- 設定細項面板卡片 1：自選裝置與導入字型 (分離包裝 1) -->
+                    <!-- 設定細項面板卡片 1：自選網頁內建字型 -->
                     <div class="form-card" style="margin-bottom: 16px;">
                         <div class="form-group">
                             <label class="form-label" style="font-size: 0.95rem; font-weight: 700;">字型風格設定</label>
                             <div class="select-wrapper">
                                 <select id="font-family-select" class="form-select" onchange="changeAppFont(this.value)">
                                     <option value="system">系統預設 (Sans-serif)</option>
+                                    <option value="hanzong_ming">王漢宗粗明體繁 (Ming Bold)</option>
                                     <option value="serif">優雅明體 / 宋體 (Serif)</option>
                                     <option value="jhenghei">微軟正黑體 (Modern)</option>
                                     <option value="kaiti">經典標楷體 (Kaiti)</option>
@@ -955,20 +956,9 @@
                             </div>
                             <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">字型變更將套用至除「分類標籤」外的所有介面文字。</p>
                         </div>
-
-                        <!-- 導入字型功能區塊 -->
-                        <div class="form-group" style="margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 14px;">
-                            <label class="form-label">導入裝置字型 (.ttf, .otf, .woff, .woff2)</label>
-                            <div style="display: flex; gap: 8px; margin-top: 6px;">
-                                <button class="btn-custom" onclick="document.getElementById('font-file-input').click()" style="flex: 1; text-align: center;">選擇自訂字型檔案</button>
-                                <input type="file" id="font-file-input" accept=".ttf,.otf,.woff,.woff2" style="display: none;" onchange="handleFontUpload(event)">
-                            </div>
-                            <!-- 導入的自訂字體管理清單 -->
-                            <div id="uploaded-fonts-list" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;"></div>
-                        </div>
                     </div>
 
-                    <!-- 設定細項面板卡片 2：一鍵打包封存 (分離包裝 2) -->
+                    <!-- 設定細項面板卡片 2：一鍵打包封存 -->
                     <div class="form-card" style="margin-bottom: 24px;">
                         <div class="form-group">
                             <label class="form-label" style="font-size: 0.95rem; font-weight: 700;">打包封存當前旅程</label>
@@ -1001,7 +991,7 @@
             </div>
         </div>
 
-        <!-- 底部微型導覽列 (只留下清單與新增，移除設定頁按鈕) -->
+        <!-- 底部微型導覽列 (清單與新增) -->
         <div class="bottom-nav">
             <button class="nav-item active" onclick="switchPage(0)">
                 <span>【清單】</span>
@@ -1044,14 +1034,14 @@
             ],
             locations: ['大行李箱', '後背包', '隨身包包'],
             categories: ['貴重證件', '衣物鞋包', '電子配件', '盥洗用品', '其他備用'],
-            archives: [], // 用於儲存歷史封存
-            selectedFont: 'system', // 保存使用者選擇的字型設定
-            customFontRecords: [] // 自訂導入字型的註冊名稱記錄
+            archives: [], 
+            selectedFont: 'system' 
         };
 
         // 支援 Traditional Chinese 常見字體降級策略
         const FONT_MAP = {
             system: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+            hanzong_ming: '"HanWangMingBold", "HanWangMingMedium", "王漢宗粗明體繁", "Noto Serif TC", serif',
             serif: 'Georgia, Cambria, "Times New Roman", Times, "Noto Serif TC", "PMingLiU", "MingLiU", serif',
             jhenghei: '"Microsoft JhengHei", "Apple LiGothic Medium", sans-serif',
             kaiti: '"DFKai-SB", "BiauKai", "Noto Serif CJK TC", serif',
@@ -1066,63 +1056,9 @@
                 appState = JSON.parse(savedState);
                 if (!appState.archives) appState.archives = [];
                 if (!appState.selectedFont) appState.selectedFont = 'system';
-                if (!appState.customFontRecords) appState.customFontRecords = [];
             }
         } catch (e) {
             console.warn("LocalStorage 存取失敗：", e);
-        }
-
-        // ----------------------------------------------------
-        // IndexedDB 技術：高容量永久字型儲存 (完美解決 LocalStorage 5MB 限制)
-        // ----------------------------------------------------
-        function openDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('PackingAppDB', 1);
-                request.onupgradeneeded = (e) => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains('fonts')) {
-                        db.createObjectStore('fonts', { keyPath: 'id' });
-                    }
-                };
-                request.onsuccess = (e) => resolve(e.target.result);
-                request.onerror = (e) => reject(e.target.error);
-            });
-        }
-
-        function saveFontToDB(name, blob) {
-            return openDB().then(db => {
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction('fonts', 'readwrite');
-                    const store = transaction.objectStore('fonts');
-                    store.put({ id: name, data: blob }); // 直接存入 Blob/File 物件
-                    transaction.oncomplete = () => resolve();
-                    transaction.onerror = () => reject(transaction.error);
-                });
-            });
-        }
-
-        function loadFontsFromDB() {
-            return openDB().then(db => {
-                return new Promise((resolve) => {
-                    const transaction = db.transaction('fonts', 'readonly');
-                    const store = transaction.objectStore('fonts');
-                    const getRequest = store.getAll();
-                    getRequest.onsuccess = () => resolve(getRequest.result || []);
-                    getRequest.onerror = () => resolve([]);
-                });
-            });
-        }
-
-        function deleteFontFromDB(name) {
-            return openDB().then(db => {
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction('fonts', 'readwrite');
-                    const store = transaction.objectStore('fonts');
-                    const delRequest = store.delete(name);
-                    delRequest.onsuccess = () => resolve();
-                    delRequest.onerror = () => reject(delRequest.error);
-                });
-            });
         }
 
         // 綁定 DOM 元素
@@ -1184,140 +1120,13 @@
         }
 
         // --------------------------
-        // 字型更新與動態載入機制
+        // 字型更新
         // --------------------------
         function changeAppFont(fontKey) {
-            let fontValue = FONT_MAP[fontKey];
-            if (!fontValue) {
-                // 如果在內建映射表找不到，代表是自訂載入的字體
-                fontValue = `"${fontKey}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-            }
+            const fontValue = FONT_MAP[fontKey] || FONT_MAP.system;
             document.documentElement.style.setProperty('--font-family', fontValue);
             appState.selectedFont = fontKey;
             saveState();
-        }
-
-        function addFontOptionToSelect(fontId, fontName) {
-            // 檢查是否已經存在此選項，沒有則新增
-            if (!fontFamilySelect.querySelector(`option[value="${fontId}"]`)) {
-                const opt = document.createElement('option');
-                opt.value = fontId;
-                opt.innerText = fontName;
-                fontFamilySelect.appendChild(opt);
-            }
-        }
-
-        function handleFontUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // 1. 限制單次導入字型的體積 (大於 12MB 的字型在手機解碼容易崩潰)
-            const MAX_SIZE = 12 * 1024 * 1024;
-            if (file.size > MAX_SIZE) {
-                showToast("字型檔案過大（請小於 12MB），建議改用 WOFF2 高壓縮格式！");
-                event.target.value = '';
-                return;
-            }
-
-            // 2. 顯示處理中狀態，防止使用者瘋狂重複點按
-            const uploadBtn = document.querySelector('button[onclick*="font-file-input"]');
-            const originalBtnText = uploadBtn.innerText;
-            uploadBtn.innerText = "字型解析編譯中...";
-            uploadBtn.disabled = true;
-
-            if (file.size > 5 * 1024 * 1024) {
-                showToast("大字型解析中，手機效能不同可能耗時數秒，請稍候...");
-            }
-
-            let rawName = file.name.substring(0, file.name.lastIndexOf('.'));
-            let fontName = 'CustomFont_' + rawName.replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now();
-
-            // 3. 捨棄 FileReader，直接存儲 File (Blob) 到 IndexedDB
-            saveFontToDB(fontName, file).then(() => {
-                // 4. 利用 Object URL 技術將字體傳遞給瀏覽器核心進行多執行緒解碼
-                const url = URL.createObjectURL(file);
-                const fontFace = new FontFace(fontName, `url(${url})`);
-
-                return fontFace.load().then(loadedFace => {
-                    document.fonts.add(loadedFace);
-                    URL.revokeObjectURL(url); // 解碼完畢，立即銷毀快取釋放記憶體
-
-                    // 寫入 Select 選單
-                    addFontOptionToSelect(fontName, rawName + ' (自訂)');
-
-                    // 保存記錄至 AppState
-                    if (!appState.customFontRecords) appState.customFontRecords = [];
-                    if (!appState.customFontRecords.some(r => r.id === fontName)) {
-                        appState.customFontRecords.push({ id: fontName, name: rawName });
-                        saveState();
-                    }
-
-                    // 自動套用當前新載入字型
-                    fontFamilySelect.value = fontName;
-                    changeAppFont(fontName);
-
-                    renderUploadedFontsList();
-                    showToast(`成功導入字型：${rawName}`);
-                }).catch(err => {
-                    URL.revokeObjectURL(url); // 發生異常也要確實釋放
-                    throw err;
-                });
-            }).catch(err => {
-                console.error("導入自訂字型出錯: ", err);
-                showToast("字型導入失敗，建議更換 woff/woff2 格式");
-            }).finally(() => {
-                // 還原按鈕狀態
-                uploadBtn.innerText = originalBtnText;
-                uploadBtn.disabled = false;
-                event.target.value = ''; // 重置 file input
-            });
-        }
-
-        // 渲染已導入字型的管理清單
-        function renderUploadedFontsList() {
-            const container = document.getElementById('uploaded-fonts-list');
-            container.innerHTML = '';
-            const records = appState.customFontRecords || [];
-
-            if (records.length === 0) {
-                container.innerHTML = `<p style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; text-align: center; margin-top: 4px;">尚未導入任何外部裝置字型</p>`;
-                return;
-            }
-
-            records.forEach(rec => {
-                const row = document.createElement('div');
-                row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: var(--bg-color); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);';
-                row.innerHTML = `
-                    <span style="font-size: 0.8rem; font-weight: 500; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 260px;">${escapeHtml(rec.name)}</span>
-                    <button onclick="deleteCustomFont('${rec.id}')" style="background:none; border:none; color:var(--danger); font-size:0.85rem; cursor:pointer; padding:2px 6px;" aria-label="刪除此字體">✕</button>
-                `;
-                container.appendChild(row);
-            });
-        }
-
-        // 刪除自訂字型
-        function deleteCustomFont(fontId) {
-            deleteFontFromDB(fontId).then(() => {
-                // 從選單移除
-                const opt = fontFamilySelect.querySelector(`option[value="${fontId}"]`);
-                if (opt) opt.remove();
-
-                // 從紀錄移除
-                appState.customFontRecords = (appState.customFontRecords || []).filter(r => r.id !== fontId);
-
-                // 如果目前剛好在使用該被刪除字型，切換回系統字型
-                if (appState.selectedFont === fontId) {
-                    fontFamilySelect.value = 'system';
-                    changeAppFont('system');
-                }
-
-                saveState();
-                renderUploadedFontsList();
-                showToast("自訂字型已成功刪除");
-            }).catch(err => {
-                console.error("刪除自訂字型失敗: ", err);
-                showToast("刪除自訂字型失敗");
-            });
         }
 
         // --------------------------
@@ -1336,7 +1145,7 @@
             });
         }
 
-        // 手勢左右滑動切換 (限定只在打包清單 0 與新增行李 1 之間切換，不能滑入設定 2)
+        // 手勢左右滑動切換
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -1354,9 +1163,9 @@
             const swipeThreshold = 60;
 
             if (swipeDistance > swipeThreshold && currentPageIndex === 0) {
-                switchPage(1); // 只能往右滑到新增行李
+                switchPage(1); 
             } else if (swipeDistance < -swipeThreshold && currentPageIndex === 1) {
-                switchPage(0); // 只能往左滑回打包清單
+                switchPage(0); 
             }
         }
 
@@ -1687,7 +1496,6 @@
         // --------------------------
         // 功能操作與安全防護
         // --------------------------
-
         function escapeHtml(text) {
             return text
                 .replace(/&/g, "&amp;")
@@ -1797,44 +1605,15 @@
             }
         });
 
-        // 初始化載入 (優先載入自訂 IndexedDB 內的字體檔案)
         populateSelects();
         renderGroupedList();
         renderArchiveRecords();
 
-        loadFontsFromDB().then(savedFonts => {
-            savedFonts.forEach(f => {
-                // 使用 Blob URL 技術，在冷啟動時極速且安全地還原使用者自訂字型
-                const url = URL.createObjectURL(f.data);
-                const fontFace = new FontFace(f.id, `url(${url})`);
-                
-                fontFace.load().then(loadedFace => {
-                    document.fonts.add(loadedFace);
-                    URL.revokeObjectURL(url); // 載入完成立即釋放
-
-                    const rec = (appState.customFontRecords || []).find(r => r.id === f.id);
-                    const displayName = rec ? rec.name : '未命名自訂字型';
-                    addFontOptionToSelect(f.id, displayName + ' (自訂)');
-
-                    // 如果使用者前一次選擇的是此字型，自動套用
-                    if (appState.selectedFont === f.id) {
-                        fontFamilySelect.value = f.id;
-                        changeAppFont(f.id);
-                    }
-                }).catch(err => {
-                    console.warn("啟動載入自訂字體出錯:", err);
-                    URL.revokeObjectURL(url); // 防漏水
-                });
-            });
-
-            // 如果選中的是內建系統字體
-            if (FONT_MAP[appState.selectedFont] || appState.selectedFont === 'system') {
-                fontFamilySelect.value = appState.selectedFont;
-                changeAppFont(appState.selectedFont);
-            }
-
-            renderUploadedFontsList();
-        });
+        // 載入使用者保存的字型
+        if (FONT_MAP[appState.selectedFont] || appState.selectedFont === 'system') {
+            fontFamilySelect.value = appState.selectedFont;
+            changeAppFont(appState.selectedFont);
+        }
     </script>
 </body>
 </html>
