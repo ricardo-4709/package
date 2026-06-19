@@ -52,14 +52,14 @@
         .pages-container {
             flex: 1;
             display: flex;
-            width: 200%; /* 兩頁寬度 */
-            height: calc(100vh - 60px); /* 扣除底部導覽列 */
+            width: 300%; /* 三頁寬度 */
+            height: calc(100vh - 48px); /* 扣除降低後的底部導覽列高 */
             transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         /* 單個獨立頁面 */
         .page {
-            width: 50%;
+            width: 33.333%;
             height: 100%;
             overflow-y: auto;
             padding: 24px 20px;
@@ -72,8 +72,14 @@
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
             flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         h1 {
@@ -91,55 +97,34 @@
             padding: 4px 10px;
             border-radius: 20px;
             font-weight: 500;
+            align-self: flex-start;
+        }
+
+        /* 一鍵封存觸發按鈕 */
+        .archive-trigger-btn {
+            background-color: var(--accent-light);
+            color: #5c665b;
+            border: 1px solid #dcdfdc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .archive-trigger-btn:active {
+            background-color: var(--accent);
+            color: white;
         }
 
         /* --------------------------
-           分組清單樣式
+           簡化打包清單（標籤模式）
         -------------------------- */
         .group-container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-        }
-
-        /* 放置位置區塊 (大群組) */
-        .location-section {
-            background: transparent;
-            display: flex;
-            flex-direction: column;
             gap: 12px;
-        }
-
-        .location-header {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #5c665b;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 2px;
-            border-bottom: 1px solid var(--border-color);
-            margin-top: 4px;
-        }
-
-        /* 物品分類區塊 (小群組) */
-        .category-section {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-left: 4px;
-        }
-
-        .category-header {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-bottom: 2px;
         }
 
         /* 行李項目樣式 */
@@ -165,15 +150,33 @@
         .item-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             flex: 1;
+        }
+
+        /* 標籤排版：水平排列，空間不足時自動折行至右下方 */
+        .item-content {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px 12px;
+            flex: 1;
+            width: 100%;
+        }
+
+        .item-text-row {
+            flex: 1;
+            min-width: 130px; /* 保證輸入框的最小寬度 */
+            display: flex;
+            align-items: center;
         }
 
         /* 自訂複選框 */
         .checkbox-wrapper {
             position: relative;
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             cursor: pointer;
             flex-shrink: 0;
         }
@@ -188,8 +191,8 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             background-color: transparent;
             border: 2px solid var(--accent);
             border-radius: 6px;
@@ -203,8 +206,8 @@
         .checkbox-wrapper input:checked ~ .checkmark:after {
             content: "";
             position: absolute;
-            left: 7px;
-            top: 3px;
+            left: 6px;
+            top: 2px;
             width: 4px;
             height: 8px;
             border: solid white;
@@ -220,7 +223,39 @@
             color: var(--text-main);
             width: 100%;
             outline: none;
-            padding: 2px 0;
+            padding: 0;
+            font-weight: 500;
+        }
+
+        /* 標籤設計與右推效果 */
+        .item-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-left: auto; /* 將標籤向右側推擠 */
+        }
+
+        .tag {
+            font-size: 0.72rem;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            white-space: nowrap;
+        }
+
+        .tag-location {
+            background-color: var(--accent-light);
+            color: #5c665b;
+            border: 1px solid #dcdfdc;
+        }
+
+        .tag-category {
+            background-color: #f0f1f4;
+            color: #626a75;
+            border: 1px solid #e1e3e6;
         }
 
         /* 已完成樣式 */
@@ -243,6 +278,7 @@
             font-size: 1rem;
             cursor: pointer;
             transition: color 0.2s ease;
+            margin-left: 8px;
         }
         
         .delete-btn:active {
@@ -250,7 +286,7 @@
         }
 
         /* --------------------------
-           新增行李頁面樣式
+           新增行李頁面與選項管理
         -------------------------- */
         .form-title {
             margin-bottom: 24px;
@@ -283,6 +319,68 @@
             align-items: center;
         }
 
+        /* 管理按鈕 */
+        .manage-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .manage-btn:active {
+            background-color: var(--accent-light);
+        }
+
+        /* 展開的管理區塊 */
+        .manager-container {
+            display: none;
+            background: #fafbfa;
+            border: 1px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-top: 4px;
+            max-height: 130px;
+            overflow-y: auto;
+            animation: slideDown 0.25s ease-out forwards;
+        }
+
+        .manager-container.show {
+            display: block;
+        }
+
+        .manager-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f0f2f0;
+        }
+
+        .manager-item:last-child {
+            border-bottom: none;
+        }
+
+        .manager-del-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            padding: 2px 6px;
+            transition: opacity 0.2s;
+        }
+
+        .manager-del-btn:active {
+            opacity: 0.6;
+        }
+
         .form-input, .form-select {
             width: 100%;
             padding: 12px 14px;
@@ -293,7 +391,7 @@
             outline: none;
             color: var(--text-main);
             transition: border-color 0.2s;
-            appearance: none; /* 去除原生箭頭以便客製 */
+            appearance: none;
         }
 
         .select-wrapper {
@@ -315,7 +413,7 @@
             background-color: #fff;
         }
 
-        /* 即時自訂輸入欄位（隱藏/顯示動畫） */
+        /* 自訂新增動畫 */
         .custom-input-container {
             display: none;
             margin-top: 8px;
@@ -352,6 +450,247 @@
             opacity: 0.9;
         }
 
+        /* --------------------------
+           歷史封存頁面樣式
+        -------------------------- */
+        .archive-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .archive-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .archive-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .archive-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .archive-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .archive-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .archive-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .archive-action-btn {
+            background: none;
+            border: none;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .archive-btn-restore {
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .archive-btn-delete {
+            color: #b08585;
+            background: #f7eded;
+        }
+
+        .archive-details-toggle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0;
+            align-self: flex-start;
+            font-weight: 500;
+        }
+
+        /* 條列式行李呈現 */
+        .archive-items-list {
+            display: none;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 10px;
+            margin-top: 4px;
+            list-style: none;
+        }
+
+        .archive-items-list.show {
+            display: block;
+            animation: slideDown 0.25s ease-out forwards;
+        }
+
+        .archive-item-bullet {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #fafbfa;
+        }
+
+        .archive-item-bullet:last-child {
+            border-bottom: none;
+        }
+
+        .archive-item-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .archive-item-checked {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .archive-item-unchecked {
+            color: var(--text-muted);
+        }
+
+        .archive-item-tags {
+            display: flex;
+            gap: 4px;
+        }
+
+        .archive-item-tag {
+            font-size: 0.65rem;
+            background: #f2f3f1;
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: var(--text-muted);
+        }
+
+        /* --------------------------
+           自訂彈窗與提示樣式
+        -------------------------- */
+        /* 封存輸入彈窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            animation: modalFadeIn 0.25s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .modal-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .modal-btn-cancel {
+            background: var(--accent-light);
+            color: #5c665b;
+        }
+
+        .modal-btn-confirm {
+            background: var(--accent);
+            color: white;
+        }
+
+        .modal-btn:active {
+            opacity: 0.85;
+        }
+
+        /* Toast 輕提示 */
+        .toast-container {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(58, 63, 71, 0.95);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+            opacity: 0;
+            z-index: 2000;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .toast-container.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
         /* 提示空白狀態 */
         .empty-state {
             text-align: center;
@@ -371,17 +710,17 @@
         }
 
         /* --------------------------
-           底部固定導覽列 (小小字樣式)
+           底部微型導覽列 (降低列高、無圖示)
         -------------------------- */
         .bottom-nav {
-            height: 60px;
+            height: 48px; /* 降低高度 */
             background: rgba(247, 248, 246, 0.95);
             backdrop-filter: blur(8px);
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding-bottom: env(safe-area-inset-bottom); /* 支援 iPhone 底部安全區 */
+            padding-bottom: env(safe-area-inset-bottom);
             position: absolute;
             bottom: 0;
             left: 0;
@@ -394,32 +733,22 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: center; /* 居中對齊 */
             align-items: center;
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 0.75rem; /* 小小字風格 */
+            font-size: 0.85rem;
             font-weight: 500;
             letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.25s ease;
         }
 
-        .nav-item .icon {
-            font-size: 1.1rem;
-            margin-bottom: 2px;
-            transition: transform 0.2s;
-        }
-
         /* 啟用狀態 */
         .nav-item.active {
             color: var(--accent);
             font-weight: 600;
-        }
-
-        .nav-item.active .icon {
-            transform: scale(1.1);
         }
     </style>
 </head>
@@ -432,8 +761,12 @@
             <!-- 第一頁：打包清單 -->
             <div class="page" id="page-list">
                 <header>
-                    <h1>打包清單</h1>
-                    <div class="stats" id="stats-text">0 / 0 已打包</div>
+                    <div class="header-left">
+                        <h1>打包清單</h1>
+                        <div class="stats" id="stats-text">0 / 0 已打包</div>
+                    </div>
+                    <!-- 一鍵封存 -->
+                    <button class="archive-trigger-btn" onclick="openArchiveModal()">一鍵封存</button>
                 </header>
 
                 <div id="empty-state" class="empty-state" style="display: none;">
@@ -441,7 +774,7 @@
                     <div>清單空空的，滑到右邊新增行李吧！</div>
                 </div>
 
-                <!-- 分類顯示群組 -->
+                <!-- 統一主清單容器 -->
                 <div class="group-container" id="grouped-items"></div>
             </div>
 
@@ -460,7 +793,14 @@
 
                     <!-- 放置位置 -->
                     <div class="form-group">
-                        <label class="form-label">放置位置</label>
+                        <div class="form-label">
+                            <span>放置位置</span>
+                            <button class="manage-btn" onclick="toggleManager('location')">⚙️ 管理選項</button>
+                        </div>
+                        
+                        <!-- 放置位置刪除管理區塊 -->
+                        <div id="location-manager" class="manager-container"></div>
+
                         <div class="select-wrapper">
                             <select id="location-select" class="form-select" onchange="handleSelectChange(this, 'location-custom')"></select>
                         </div>
@@ -472,7 +812,14 @@
 
                     <!-- 物品分類 -->
                     <div class="form-group">
-                        <label class="form-label">物品分類</label>
+                        <div class="form-label">
+                            <span>物品分類</span>
+                            <button class="manage-btn" onclick="toggleManager('category')">⚙️ 管理選項</button>
+                        </div>
+
+                        <!-- 物品分類刪除管理區塊 -->
+                        <div id="category-manager" class="manager-container"></div>
+
                         <div class="select-wrapper">
                             <select id="category-select" class="form-select" onchange="handleSelectChange(this, 'category-custom')"></select>
                         </div>
@@ -488,20 +835,55 @@
                 </div>
             </div>
 
+            <!-- 第三頁：封存歷史紀錄 -->
+            <div class="page" id="page-archive">
+                <header class="form-title">
+                    <h1>封存紀錄</h1>
+                </header>
+
+                <div id="archive-empty-state" class="empty-state" style="display: none;">
+                    <div class="empty-icon">📦</div>
+                    <div>目前沒有任何歷史封存紀錄。</div>
+                </div>
+
+                <!-- 封存紀錄列表 -->
+                <div class="archive-list-container" id="archive-list"></div>
+            </div>
+
         </div>
 
-        <!-- 底部微型導覽列 -->
+        <!-- 底部微型導覽列 (無圖示、低列高) -->
         <div class="bottom-nav">
             <button class="nav-item active" onclick="switchPage(0)">
-                <span class="icon">📋</span>
                 <span>【清單】</span>
             </button>
             <button class="nav-item" onclick="switchPage(1)">
-                <span class="icon">✍️</span>
                 <span>【新增】</span>
+            </button>
+            <button class="nav-item" onclick="switchPage(2)">
+                <span>【紀錄】</span>
             </button>
         </div>
     </div>
+
+    <!-- 封存自訂名稱彈窗 -->
+    <div id="archive-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>一鍵封存當前清單</h3>
+            <p>這將會清空您當前的打包清單，並將其保存為一筆歷史封存紀錄以便日後查看或還原。</p>
+            <div class="form-group" style="margin: 16px 0 8px 0;">
+                <label class="form-label">這次旅程的名稱</label>
+                <input type="text" id="archive-name-input" class="form-input" placeholder="例如：2026日本賞櫻..." autocomplete="off">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeArchiveModal()">取消</button>
+                <button class="modal-btn modal-btn-confirm" onclick="submitArchive()">確認封存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系統輕提示 (Toast) -->
+    <div id="toast-message" class="toast-container"></div>
 
     <script>
         // --------------------------
@@ -515,7 +897,8 @@
                 { id: 4, text: '牙刷盥洗組', completed: false, location: '大行李箱', category: '盥洗用品' }
             ],
             locations: ['大行李箱', '後背包', '隨身包包'],
-            categories: ['貴重證件', '衣物鞋包', '電子配件', '盥洗用品', '其他備用']
+            categories: ['貴重證件', '衣物鞋包', '電子配件', '盥洗用品', '其他備用'],
+            archives: [] // 用於儲存歷史封存
         };
 
         // 嘗試自 LocalStorage 讀取，沒有的話載入預設
@@ -524,6 +907,9 @@
             const savedState = localStorage.getItem('packing_app_state');
             if (savedState) {
                 appState = JSON.parse(savedState);
+                if (!appState.archives) {
+                    appState.archives = [];
+                }
             }
         } catch (e) {
             console.warn("LocalStorage 存取失敗 (可能在嵌入 iframe 中執行)：", e);
@@ -554,11 +940,23 @@
         }
 
         // --------------------------
+        // 提示訊息 (Toast) 輔助函數
+        // --------------------------
+        function showToast(message) {
+            const toast = document.getElementById('toast-message');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // --------------------------
         // 分頁與滑動切換邏輯
         // --------------------------
         function switchPage(index) {
             currentPageIndex = index;
-            pagesContainer.style.transform = `translateX(-${index * 50}%)`;
+            pagesContainer.style.transform = `translateX(-${index * 33.333}%)`;
             
             navItems.forEach((item, idx) => {
                 if (idx === index) {
@@ -569,7 +967,7 @@
             });
         }
 
-        // 手勢左右滑動切換
+        // 手勢左右滑動切換 (支援三頁)
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -586,12 +984,10 @@
             const swipeDistance = touchStartX - touchEndX;
             const swipeThreshold = 60; // 觸發滑動的最小距離
 
-            if (swipeDistance > swipeThreshold && currentPageIndex === 0) {
-                // 向左滑，切換到「新增」
-                switchPage(1);
-            } else if (swipeDistance < -swipeThreshold && currentPageIndex === 1) {
-                // 向右滑，切換到「清單」
-                switchPage(0);
+            if (swipeDistance > swipeThreshold && currentPageIndex < 2) {
+                switchPage(currentPageIndex + 1);
+            } else if (swipeDistance < -swipeThreshold && currentPageIndex > 0) {
+                switchPage(currentPageIndex - 1);
             }
         }
 
@@ -638,7 +1034,55 @@
         }
 
         // --------------------------
-        // 渲染主清單 (依 放置位置 > 分類 排序)
+        // 管理選項與刪除功能
+        // --------------------------
+        function toggleManager(type) {
+            const manager = document.getElementById(`${type}-manager`);
+            const isShowing = manager.classList.toggle('show');
+            if (isShowing) {
+                renderManager(type);
+            }
+        }
+
+        function renderManager(type) {
+            const container = document.getElementById(`${type}-manager`);
+            container.innerHTML = '';
+            
+            const list = type === 'location' ? appState.locations : appState.categories;
+            const deleteFnName = type === 'location' ? 'deleteLocationOption' : 'deleteCategoryOption';
+
+            if (list.length === 0) {
+                container.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); text-align:center; padding:8px;">尚無選項</div>`;
+                return;
+            }
+
+            list.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'manager-item';
+                row.innerHTML = `
+                    <span>${escapeHtml(item)}</span>
+                    <button class="manager-del-btn" onclick="${deleteFnName}('${escapeHtml(item)}')">✕</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function deleteLocationOption(loc) {
+            appState.locations = appState.locations.filter(l => l !== loc);
+            saveState();
+            populateSelects();
+            renderManager('location');
+        }
+
+        function deleteCategoryOption(cat) {
+            appState.categories = appState.categories.filter(c => c !== cat);
+            saveState();
+            populateSelects();
+            renderManager('category');
+        }
+
+        // --------------------------
+        // 渲染主清單 (智慧排序 + 標籤右推佈局)
         // --------------------------
         function renderGroupedList() {
             groupedItemsContainer.innerHTML = '';
@@ -650,85 +1094,209 @@
             }
             emptyState.style.display = 'none';
 
-            // 1. 建立巢狀分組對象 { Location: { Category: [Items] } }
-            const grouped = {};
-            
-            appState.items.forEach(item => {
-                const loc = item.location || '未分類位置';
-                const cat = item.category || '未分類項目';
+            const itemList = document.createElement('ul');
+            itemList.className = 'item-list';
 
-                if (!grouped[loc]) {
-                    grouped[loc] = {};
+            // 智慧排序：
+            // 1. 先依據完成狀態（未打包在上，已打包在下）
+            // 2. 依放置位置排序（繁體中文筆畫 localeCompare）
+            // 3. 依物品分類排序（繁體中文筆畫 localeCompare）
+            // 4. 依物品名稱排序（繁體中文筆畫 localeCompare）
+            const sortedItems = [...appState.items].sort((a, b) => {
+                if (a.completed !== b.completed) {
+                    return a.completed - b.completed;
                 }
-                if (!grouped[loc][cat]) {
-                    grouped[loc][cat] = [];
-                }
-                grouped[loc][cat].push(item);
+                const locCompare = (a.location || '').localeCompare(b.location || '', 'zh-Hant');
+                if (locCompare !== 0) return locCompare;
+
+                const catCompare = (a.category || '').localeCompare(b.category || '', 'zh-Hant');
+                if (catCompare !== 0) return catCompare;
+
+                return (a.text || '').localeCompare(b.text || '', 'zh-Hant');
             });
 
-            // 2. 依照我們在 locations 與 categories 列表定義的順序進行渲染
-            // 找出當前存在的 locations，並按照 appState.locations 的順序排序
-            const sortedLocations = appState.locations.filter(loc => grouped[loc]);
-            // 補上如果有不在清單中的自訂位置
-            Object.keys(grouped).forEach(loc => {
-                if (!sortedLocations.includes(loc)) sortedLocations.push(loc);
-            });
+            sortedItems.forEach(item => {
+                const li = document.createElement('li');
+                li.className = `item-node ${item.completed ? 'completed' : ''}`;
 
-            sortedLocations.forEach(loc => {
-                // 建立位置群組區塊 (外層)
-                const locSection = document.createElement('div');
-                locSection.className = 'location-section';
-
-                const locHeader = document.createElement('div');
-                locHeader.className = 'location-header';
-                locHeader.innerHTML = `📍 <span>${escapeHtml(loc)}</span>`;
-                locSection.appendChild(locHeader);
-
-                // 排序該位置下的分類
-                const sortedCategories = appState.categories.filter(cat => grouped[loc][cat]);
-                Object.keys(grouped[loc]).forEach(cat => {
-                    if (!sortedCategories.includes(cat)) sortedCategories.push(cat);
-                });
-
-                sortedCategories.forEach(cat => {
-                    // 建立分類區塊 (內層)
-                    const catSection = document.createElement('div');
-                    catSection.className = 'category-section';
-
-                    const catHeader = document.createElement('div');
-                    catHeader.className = 'category-header';
-                    catHeader.innerHTML = `📁 <span>${escapeHtml(cat)}</span>`;
-                    catSection.appendChild(catHeader);
-
-                    // 建立該分類下的項目清單
-                    const itemList = document.createElement('ul');
-                    itemList.className = 'item-list';
-
-                    grouped[loc][cat].forEach(item => {
-                        const li = document.createElement('li');
-                        li.className = `item-node ${item.completed ? 'completed' : ''}`;
-
-                        li.innerHTML = `
-                            <div class="item-left">
-                                <label class="checkbox-wrapper">
-                                    <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleComplete(${item.id})">
-                                    <span class="checkmark"></span>
-                                </label>
+                li.innerHTML = `
+                    <div class="item-left">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleComplete(${item.id})">
+                            <span class="checkmark"></span>
+                        </label>
+                        <div class="item-content">
+                            <div class="item-text-row">
                                 <input type="text" class="item-text" value="${escapeHtml(item.text)}" onchange="editItem(${item.id}, this.value)">
                             </div>
-                            <button class="delete-btn" onclick="deleteItem(${item.id})">✕</button>
-                        `;
-                        itemList.appendChild(li);
-                    });
-
-                    catSection.appendChild(itemList);
-                    locSection.appendChild(catSection);
-                });
-
-                groupedItemsContainer.appendChild(locSection);
+                            <div class="item-tags">
+                                <span class="tag tag-location">📍 ${escapeHtml(item.location)}</span>
+                                <span class="tag tag-category">📁 ${escapeHtml(item.category)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteItem(${item.id})">✕</button>
+                `;
+                itemList.appendChild(li);
             });
 
+            groupedItemsContainer.appendChild(itemList);
             updateStats();
+        }
+
+        // --------------------------
+        // 一鍵封存功能邏輯
+        // --------------------------
+        function openArchiveModal() {
+            if (appState.items.length === 0) {
+                showToast('當前清單無任何物品，無法進行封存！');
+                return;
+            }
+            // 預設當天日期作為標題
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            document.getElementById('archive-name-input').value = `${dateStr} 旅行清單`;
+            document.getElementById('archive-modal').classList.add('show');
+        }
+
+        function closeArchiveModal() {
+            document.getElementById('archive-modal').classList.remove('show');
+        }
+
+        function submitArchive() {
+            const nameInput = document.getElementById('archive-name-input');
+            const archiveName = nameInput.value.trim() || '未命名旅行清單';
+
+            const today = new Date();
+            const formattedDate = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
+
+            // 建立封存資料
+            const newArchive = {
+                id: Date.now(),
+                name: archiveName,
+                date: formattedDate,
+                items: JSON.parse(JSON.stringify(appState.items)) // 深度拷貝當前物品
+            };
+
+            // 存入狀態並清空當前行李清單
+            appState.archives.unshift(newArchive);
+            appState.items = [];
+
+            saveState();
+            closeArchiveModal();
+            renderGroupedList();
+            renderArchiveRecords();
+
+            // 滑動到歷史封存分頁，體驗更直觀
+            switchPage(2);
+            showToast('已成功一鍵封存！');
+        }
+
+        // --------------------------
+        // 歷史封存紀錄渲染
+        // --------------------------
+        function renderArchiveRecords() {
+            const container = document.getElementById('archive-list');
+            const emptyState = document.getElementById('archive-empty-state');
+            container.innerHTML = '';
+
+            const archives = appState.archives || [];
+            if (archives.length === 0) {
+                emptyState.style.display = 'flex';
+                return;
+            }
+            emptyState.style.display = 'none';
+
+            archives.forEach(arc => {
+                const card = document.createElement('div');
+                card.className = 'archive-card';
+
+                const total = arc.items.length;
+                const completedCount = arc.items.filter(i => i.completed).length;
+
+                // 建立極簡條列式呈現 (bullet list)
+                let itemsListHtml = '';
+                arc.items.forEach(item => {
+                    itemsListHtml += `
+                        <li class="archive-item-bullet">
+                            <div class="archive-item-left">
+                                <span class="${item.completed ? 'archive-item-checked' : 'archive-item-unchecked'}">
+                                    ${item.completed ? '✓' : '○'}
+                                </span>
+                                <span>${escapeHtml(item.text)}</span>
+                            </div>
+                            <div class="archive-item-tags">
+                                <span class="archive-item-tag">📍 ${escapeHtml(item.location)}</span>
+                                <span class="archive-item-tag">📁 ${escapeHtml(item.category)}</span>
+                            </div>
+                        </li>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="archive-card-header">
+                        <div class="archive-info">
+                            <span class="archive-name">${escapeHtml(arc.name)}</span>
+                            <span class="archive-date">📅 ${arc.date} • 已打包 ${completedCount}/${total} 項</span>
+                        </div>
+                        <div class="archive-actions">
+                            <button class="archive-action-btn archive-btn-restore" onclick="restoreArchive(${arc.id})">還原</button>
+                            <button class="archive-action-btn archive-btn-delete" onclick="deleteArchive(${arc.id})">刪除</button>
+                        </div>
+                    </div>
+                    <button class="archive-details-toggle" onclick="toggleArchiveDetails(this)">
+                        <span>展開細目 (共 ${total} 項)</span> ▾
+                    </button>
+                    <ul class="archive-items-list">
+                        ${itemsListHtml}
+                    </ul>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 展開與收合細目
+        function toggleArchiveDetails(btn) {
+            const list = btn.nextElementSibling;
+            const isShowing = list.classList.toggle('show');
+            const itemsCount = list.children.length;
+            btn.innerHTML = `<span>${isShowing ? '收合細目' : `展開細目 (共 ${itemsCount} 項)`}</span> ${isShowing ? '▴' : '▾'}`;
+        }
+
+        // 刪除封存紀錄
+        function deleteArchive(id) {
+            appState.archives = appState.archives.filter(arc => arc.id !== id);
+            saveState();
+            renderArchiveRecords();
+            showToast('封存紀錄已刪除');
+        }
+
+        // 還原封存紀錄
+        function restoreArchive(id) {
+            const arc = appState.archives.find(a => a.id === id);
+            if (!arc) return;
+
+            // 將封存物件拷貝並合併至當前行李清單
+            const restoredItems = JSON.parse(JSON.stringify(arc.items));
+            appState.items = [...appState.items, ...restoredItems];
+
+            // 確保被還原的位置與分類重新存在於選項中
+            restoredItems.forEach(item => {
+                if (item.location && !appState.locations.includes(item.location)) {
+                    appState.locations.push(item.location);
+                }
+                if (item.category && !appState.categories.includes(item.category)) {
+                    appState.categories.push(item.category);
+                }
+            });
+
+            saveState();
+            populateSelects();
+            renderGroupedList();
+
+            // 滑動回第一頁
+            switchPage(0);
+            showToast(`已成功還原封存旅行「${arc.name}」的行李項目！`);
         }
 
         // --------------------------
@@ -858,6 +1426,7 @@
         // 頁面初次載入
         populateSelects();
         renderGroupedList();
+        renderArchiveRecords();
     </script>
 </body>
 </html>
