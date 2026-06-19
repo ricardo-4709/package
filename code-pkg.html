@@ -19,14 +19,18 @@
         }
 
         /* --------------------------
-           字體：主字體套用裝置預設字體
+           字體：主字體強制自適應裝置預設字體（無額外網頁字體）
         -------------------------- */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 移除外嵌網頁字體，強制套用跨平台裝置的原生預設系統字 */
+        body, button, input, select, textarea, h1, h2, h3, h4, p, span, div, li, label {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
@@ -122,12 +126,32 @@
         }
 
         /* --------------------------
-           優化：打包清單標籤靠右排版
+           新優化：打包清單位置群組樣式 (歐系無圖標極簡設計)
         -------------------------- */
-        .group-container {
+        .grouped-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 20px;
+        }
+
+        .location-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .group-header {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 600;
+            color: #5c665b;
+            background-color: var(--accent-light);
+            padding: 4px 10px;
+            border-radius: 8px;
+            align-self: flex-start;
+            display: inline-flex;
+            align-items: center;
         }
 
         /* 行李項目樣式 */
@@ -233,15 +257,15 @@
         /* 標籤群組：強制往最右方推移 */
         .item-tags {
             display: flex;
-            flex-wrap: nowrap; /* 保持兩個標籤在同一排 */
+            flex-wrap: nowrap; /* 保持標籤在同一排 */
             gap: 6px;
             margin-left: auto; /* 將標籤強制推至整個彈性盒的最右側 */
             flex-shrink: 0; /* 標籤不因空間不足被擠壓 */
         }
 
-        /* 標籤設計：特用 Inter 以提升小字易讀性，無 Emoji 圖示 */
+        /* 標籤設計：排除裝置系統字體設定，特別指定字體 */
         .tag {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif !important;
             font-size: 0.72rem;
             padding: 2px 8px;
             border-radius: 6px;
@@ -543,6 +567,21 @@
             animation: slideDown 0.25s ease-out forwards;
         }
 
+        /* 封存明細內的位置群組標題 (歐系簡潔版，無 emoji) */
+        .archive-group-title {
+            font-size: 0.76rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #5c665b;
+            background-color: var(--accent-light);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+
         .archive-item-bullet {
             font-size: 0.85rem;
             color: var(--text-main);
@@ -563,6 +602,11 @@
             gap: 6px;
         }
 
+        .archive-item-text-completed {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
         .archive-item-checked {
             color: var(--accent);
             font-weight: bold;
@@ -578,7 +622,7 @@
         }
 
         .archive-item-tag {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif !important;
             font-size: 0.65rem;
             padding: 2px 6px;
             border-radius: 4px;
@@ -588,7 +632,6 @@
         /* --------------------------
            自訂彈窗與提示樣式
         -------------------------- */
-        /* 封存輸入彈窗 */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -700,9 +743,10 @@
             gap: 12px;
         }
 
-        .empty-icon {
-            font-size: 2.5rem;
-            opacity: 0.5;
+        .empty-svg {
+            color: var(--accent);
+            opacity: 0.65;
+            margin-bottom: 4px;
         }
 
         /* --------------------------
@@ -766,12 +810,17 @@
                 </header>
 
                 <div id="empty-state" class="empty-state" style="display: none;">
-                    <div class="empty-icon">🎒</div>
-                    <div>清單空空的，滑到右邊新增行李吧！</div>
+                    <svg class="empty-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 20V10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>
+                        <path d="M9 6V4a3 3 0 0 1 6 0v2"/>
+                        <path d="M8 22V12h8v10"/>
+                        <path d="M12 12v4"/>
+                    </svg>
+                    <div>清單空空的，滑到右邊新增行李吧</div>
                 </div>
 
-                <!-- 統一主清單容器 -->
-                <div class="group-container" id="grouped-items"></div>
+                <!-- 統一群組化主清單容器 -->
+                <div class="grouped-container" id="grouped-items"></div>
             </div>
 
             <!-- 第二頁：新增行李 -->
@@ -791,7 +840,7 @@
                     <div class="form-group">
                         <div class="form-label">
                             <span>放置位置</span>
-                            <button class="manage-btn" onclick="toggleManager('location')">⚙️ 管理選項</button>
+                            <button class="manage-btn" onclick="toggleManager('location')">管理選項</button>
                         </div>
                         
                         <!-- 放置位置刪除管理區塊 -->
@@ -810,7 +859,7 @@
                     <div class="form-group">
                         <div class="form-label">
                             <span>物品分類</span>
-                            <button class="manage-btn" onclick="toggleManager('category')">⚙️ 管理選項</button>
+                            <button class="manage-btn" onclick="toggleManager('category')">管理選項</button>
                         </div>
 
                         <!-- 物品分類刪除管理區塊 -->
@@ -838,8 +887,11 @@
                 </header>
 
                 <div id="archive-empty-state" class="empty-state" style="display: none;">
-                    <div class="empty-icon">📦</div>
-                    <div>目前沒有任何歷史封存紀錄。</div>
+                    <svg class="empty-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+                        <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+                    </svg>
+                    <div>目前沒有任何歷史封存紀錄</div>
                 </div>
 
                 <!-- 封存紀錄列表 -->
@@ -1100,7 +1152,7 @@
         }
 
         // --------------------------
-        // 渲染主清單 (智慧排序 + 標籤極窄螢幕靠右版面)
+        // 渲染主清單 (依據位置群組化呈現、完全移除位置 emoji 圖標，保持極簡歐系)
         // --------------------------
         function renderGroupedList() {
             groupedItemsContainer.innerHTML = '';
@@ -1112,57 +1164,67 @@
             }
             emptyState.style.display = 'none';
 
-            const itemList = document.createElement('ul');
-            itemList.className = 'item-list';
+            // 1. 取得所有目前清單中存在的獨特位置，並依照繁體中文筆畫排序
+            const activeLocations = [...new Set(appState.items.map(item => item.location || '其他位置'))].sort((a, b) => 
+                a.localeCompare(b, 'zh-Hant')
+            );
 
-            // 智慧排序：
-            // 1. 先依據完成狀態（未打包在上，已打包在下）
-            // 2. 依放置位置排序（繁體中文筆畫 localeCompare）
-            // 3. 依物品分類排序（繁體中文筆畫 localeCompare）
-            // 4. 依物品名稱排序（繁體中文筆畫 localeCompare）
-            const sortedItems = [...appState.items].sort((a, b) => {
-                if (a.completed !== b.completed) {
-                    return a.completed - b.completed;
-                }
-                const locCompare = (a.location || '').localeCompare(b.location || '', 'zh-Hant');
-                if (locCompare !== 0) return locCompare;
+            // 2. 針對各個位置分組進行渲染
+            activeLocations.forEach(loc => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'location-group';
 
-                const catCompare = (a.category || '').localeCompare(b.category || '', 'zh-Hant');
-                if (catCompare !== 0) return catCompare;
+                // 群組分區標題 (歐系簡潔版，完全移除 emoji 圖標)
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'group-header';
+                headerDiv.innerHTML = `${escapeHtml(loc)}`;
+                groupDiv.appendChild(headerDiv);
 
-                return (a.text || '').localeCompare(b.text || '', 'zh-Hant');
-            });
+                const itemList = document.createElement('ul');
+                itemList.className = 'item-list';
 
-            sortedItems.forEach(item => {
-                const li = document.createElement('li');
-                li.className = `item-node ${item.completed ? 'completed' : ''}`;
+                // 篩選屬於該位置的行李，並進行排序 (未完成優先 -> 分類 -> 名稱)
+                const groupItems = appState.items.filter(item => (item.location || '其他位置') === loc);
+                const sortedGroupItems = [...groupItems].sort((a, b) => {
+                    if (a.completed !== b.completed) {
+                        return a.completed - b.completed;
+                    }
+                    const catCompare = (a.category || '').localeCompare(b.category || '', 'zh-Hant');
+                    if (catCompare !== 0) return catCompare;
+                    return (a.text || '').localeCompare(b.text || '', 'zh-Hant');
+                });
 
-                // 根據文字生成獨特低飽和莫蘭迪色 HSL 樣式
-                const locTagStyle = getTagStyle(item.location);
-                const catTagStyle = getTagStyle(item.category);
+                sortedGroupItems.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = `item-node ${item.completed ? 'completed' : ''}`;
 
-                li.innerHTML = `
-                    <div class="item-left">
-                        <label class="checkbox-wrapper">
-                            <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleComplete(${item.id})">
-                            <span class="checkmark"></span>
-                        </label>
-                        <div class="item-content">
-                            <div class="item-text-row">
-                                <input type="text" class="item-text" value="${escapeHtml(item.text)}" onchange="editItem(${item.id}, this.value)">
-                            </div>
-                            <div class="item-tags">
-                                <span class="tag" style="${locTagStyle}">${escapeHtml(item.location)}</span>
-                                <span class="tag" style="${catTagStyle}">${escapeHtml(item.category)}</span>
+                    // 分類標籤樣式 (位置標籤已成功移出)
+                    const catTagStyle = getTagStyle(item.category);
+
+                    li.innerHTML = `
+                        <div class="item-left">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleComplete(${item.id})">
+                                <span class="checkmark"></span>
+                            </label>
+                            <div class="item-content">
+                                <div class="item-text-row">
+                                    <input type="text" class="item-text" value="${escapeHtml(item.text)}" onchange="editItem(${item.id}, this.value)">
+                                </div>
+                                <div class="item-tags">
+                                    <span class="tag" style="${catTagStyle}">${escapeHtml(item.category)}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <button class="delete-btn" onclick="deleteItem(${item.id})">✕</button>
-                `;
-                itemList.appendChild(li);
+                        <button class="delete-btn" onclick="deleteItem(${item.id})">✕</button>
+                    `;
+                    itemList.appendChild(li);
+                });
+
+                groupDiv.appendChild(itemList);
+                groupedItemsContainer.appendChild(groupDiv);
             });
 
-            groupedItemsContainer.appendChild(itemList);
             updateStats();
         }
 
@@ -1215,7 +1277,7 @@
         }
 
         // --------------------------
-        // 歷史封存紀錄渲染
+        // 歷史封存紀錄渲染 (完美同步群組排序、精簡動作按鈕，且無 emoji 圖標)
         // --------------------------
         function renderArchiveRecords() {
             const container = document.getElementById('archive-list');
@@ -1236,41 +1298,61 @@
                 const total = arc.items.length;
                 const completedCount = arc.items.filter(i => i.completed).length;
 
-                // 建立極簡條列式呈現 (bullet list)
-                let itemsListHtml = '';
-                arc.items.forEach(item => {
-                    const locStyle = getTagStyle(item.location);
-                    const catStyle = getTagStyle(item.category);
+                // 排序邏輯與打包清單完全相同：先取得該封存中的獨特位置排序，再按未完成優先、分類與名稱排序
+                const arcLocations = [...new Set(arc.items.map(item => item.location || '其他位置'))].sort((a, b) => 
+                    a.localeCompare(b, 'zh-Hant')
+                );
 
+                let itemsListHtml = '';
+                arcLocations.forEach(loc => {
+                    // 位置群組分區：完全移除 emoji 圖標
                     itemsListHtml += `
-                        <li class="archive-item-bullet">
-                            <div class="archive-item-left">
-                                <span class="${item.completed ? 'archive-item-checked' : 'archive-item-unchecked'}">
-                                    ${item.completed ? '✓' : '○'}
-                                </span>
-                                <span>${escapeHtml(item.text)}</span>
-                            </div>
-                            <div class="archive-item-tags">
-                                <span class="archive-item-tag" style="${locStyle}">${escapeHtml(item.location)}</span>
-                                <span class="archive-item-tag" style="${catStyle}">${escapeHtml(item.category)}</span>
-                            </div>
-                        </li>
+                        <div class="archive-group-title">${escapeHtml(loc)}</div>
                     `;
+
+                    const groupItems = arc.items.filter(item => (item.location || '其他位置') === loc);
+                    const sortedGroupItems = [...groupItems].sort((a, b) => {
+                        if (a.completed !== b.completed) {
+                            return a.completed - b.completed;
+                        }
+                        const catCompare = (a.category || '').localeCompare(b.category || '', 'zh-Hant');
+                        if (catCompare !== 0) return catCompare;
+                        return (a.text || '').localeCompare(b.text || '', 'zh-Hant');
+                    });
+
+                    sortedGroupItems.forEach(item => {
+                        const catStyle = getTagStyle(item.category);
+                        itemsListHtml += `
+                            <li class="archive-item-bullet">
+                                <div class="archive-item-left">
+                                    <span class="${item.completed ? 'archive-item-checked' : 'archive-item-unchecked'}">
+                                        ${item.completed ? '✓' : '○'}
+                                    </span>
+                                    <span class="${item.completed ? 'archive-item-text-completed' : ''}">${escapeHtml(item.text)}</span>
+                                </div>
+                                <div class="archive-item-tags">
+                                    <span class="archive-item-tag" style="${catStyle}">${escapeHtml(item.category)}</span>
+                                </div>
+                            </li>
+                        `;
+                    });
                 });
 
+                // 卡片標頭：完全移除 📅 圖標，改為精緻的純文字細節
                 card.innerHTML = `
                     <div class="archive-card-header">
                         <div class="archive-info">
                             <span class="archive-name">${escapeHtml(arc.name)}</span>
-                            <span class="archive-date">📅 ${arc.date} • 已打包 ${completedCount}/${total} 項</span>
+                            <span class="archive-date">${arc.date} • 已打包 ${completedCount}/${total} 項</span>
                         </div>
                         <div class="archive-actions">
                             <button class="archive-action-btn archive-btn-restore" onclick="restoreArchive(${arc.id})">還原</button>
                             <button class="archive-action-btn archive-btn-delete" onclick="deleteArchive(${arc.id})">刪除</button>
                         </div>
                     </div>
+                    <!-- 展開/收合移除「細目」字詞 -->
                     <button class="archive-details-toggle" onclick="toggleArchiveDetails(this)">
-                        <span>展開細目 (共 ${total} 項)</span> ▾
+                        <span>展開 (共 ${total} 項)</span> ▾
                     </button>
                     <ul class="archive-items-list">
                         ${itemsListHtml}
@@ -1280,12 +1362,13 @@
             });
         }
 
-        // 展開與收合細目
+        // 展開與收合 (已精簡移除「細目」二字)
         function toggleArchiveDetails(btn) {
             const list = btn.nextElementSibling;
             const isShowing = list.classList.toggle('show');
-            const itemsCount = list.children.length;
-            btn.innerHTML = `<span>${isShowing ? '收合細目' : `展開細目 (共 ${itemsCount} 項)`}</span> ${isShowing ? '▴' : '▾'}`;
+            const bullets = list.querySelectorAll('.archive-item-bullet');
+            const itemsCount = bullets.length;
+            btn.innerHTML = `<span>${isShowing ? '收合' : `展開 (共 ${itemsCount} 項)`}</span> ${isShowing ? '▴' : '▾'}`;
         }
 
         // 刪除封存紀錄
