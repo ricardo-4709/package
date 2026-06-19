@@ -1089,12 +1089,12 @@
             });
         }
 
-        function saveFontToDB(name, arrayBuffer) {
+        function saveFontToDB(name, blob) {
             return openDB().then(db => {
                 return new Promise((resolve, reject) => {
                     const transaction = db.transaction('fonts', 'readwrite');
                     const store = transaction.objectStore('fonts');
-                    store.put({ id: name, data: arrayBuffer });
+                    store.put({ id: name, data: blob }); // 直接存入 Blob/File 物件
                     transaction.oncomplete = () => resolve();
                     transaction.onerror = () => reject(transaction.error);
                 });
@@ -1207,53 +1207,70 @@
             }
         }
 
-        // 處理使用者從裝置導入字體檔案
         function handleFontUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // 檢查檔案大小是否適當
-            if (file.size > 15 * 1024 * 1024) {
-                showToast("字型檔案過大（請小於 15MB），以免造成載入延遲。");
+            // 1. 限制單次導入字型的體積 (大於 12MB 的字型在手機解碼容易崩潰)
+            const MAX_SIZE = 12 * 1024 * 1024;
+            if (file.size > MAX_SIZE) {
+                showToast("字型檔案過大（請小於 12MB），建議改用 WOFF2 高壓縮格式！");
+                event.target.value = '';
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const arrayBuffer = e.target.result;
-                let rawName = file.name.substring(0, file.name.lastIndexOf('.'));
-                let fontName = 'CustomFont_' + rawName.replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now();
+            // 2. 顯示處理中狀態，防止使用者瘋狂重複點按
+            const uploadBtn = document.querySelector('button[onclick*="font-file-input"]');
+            const originalBtnText = uploadBtn.innerText;
+            uploadBtn.innerText = "字型解析編譯中...";
+            uploadBtn.disabled = true;
 
-                // 儲存至 IndexedDB
-                saveFontToDB(fontName, arrayBuffer).then(() => {
-                    // 註冊 FontFace 到文件
-                    const fontFace = new FontFace(fontName, arrayBuffer);
-                    return fontFace.load().then(loadedFace => {
-                        document.fonts.add(loadedFace);
+            if (file.size > 5 * 1024 * 1024) {
+                showToast("大字型解析中，手機效能不同可能耗時數秒，請稍候...");
+            }
 
-                        // 寫入 Select 選單
-                        addFontOptionToSelect(fontName, rawName + ' (自訂)');
+            let rawName = file.name.substring(0, file.name.lastIndexOf('.'));
+            let fontName = 'CustomFont_' + rawName.replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now();
 
-                        // 保存記錄至 AppState
-                        if (!appState.customFontRecords) appState.customFontRecords = [];
-                        if (!appState.customFontRecords.some(r => r.id === fontName)) {
-                            appState.customFontRecords.push({ id: fontName, name: rawName });
-                            saveState();
-                        }
+            // 3. 捨棄 FileReader，直接存儲 File (Blob) 到 IndexedDB
+            saveFontToDB(fontName, file).then(() => {
+                // 4. 利用 Object URL 技術將字體傳遞給瀏覽器核心進行多執行緒解碼
+                const url = URL.createObjectURL(file);
+                const fontFace = new FontFace(fontName, `url(${url})`);
 
-                        // 自動套用當前新載入字型
-                        fontFamilySelect.value = fontName;
-                        changeAppFont(fontName);
+                return fontFace.load().then(loadedFace => {
+                    document.fonts.add(loadedFace);
+                    URL.revokeObjectURL(url); // 解碼完畢，立即銷毀快取釋放記憶體
 
-                        renderUploadedFontsList();
-                        showToast(`成功導入字型：${rawName}`);
-                    });
+                    // 寫入 Select 選單
+                    addFontOptionToSelect(fontName, rawName + ' (自訂)');
+
+                    // 保存記錄至 AppState
+                    if (!appState.customFontRecords) appState.customFontRecords = [];
+                    if (!appState.customFontRecords.some(r => r.id === fontName)) {
+                        appState.customFontRecords.push({ id: fontName, name: rawName });
+                        saveState();
+                    }
+
+                    // 自動套用當前新載入字型
+                    fontFamilySelect.value = fontName;
+                    changeAppFont(fontName);
+
+                    renderUploadedFontsList();
+                    showToast(`成功導入字型：${rawName}`);
                 }).catch(err => {
-                    console.error("字型儲存或編譯出錯: ", err);
-                    showToast("導入字型失敗，請嘗試換個字體格式！");
+                    URL.revokeObjectURL(url); // 發生異常也要確實釋放
+                    throw err;
                 });
-            };
-            reader.readAsArrayBuffer(file);
+            }).catch(err => {
+                console.error("導入自訂字型出錯: ", err);
+                showToast("字型導入失敗，建議更換 woff/woff2 格式");
+            }).finally(() => {
+                // 還原按鈕狀態
+                uploadBtn.innerText = originalBtnText;
+                uploadBtn.disabled = false;
+                event.target.value = ''; // 重置 file input
+            });
         }
 
         // 渲染已導入字型的管理清單
@@ -1785,25 +1802,28 @@
         renderGroupedList();
         renderArchiveRecords();
 
-        // 異步載入所有自訂字型，並套用使用者先前儲存的設定
         loadFontsFromDB().then(savedFonts => {
             savedFonts.forEach(f => {
-                const fontFace = new FontFace(f.id, f.data);
+                // 使用 Blob URL 技術，在冷啟動時極速且安全地還原使用者自訂字型
+                const url = URL.createObjectURL(f.data);
+                const fontFace = new FontFace(f.id, `url(${url})`);
+                
                 fontFace.load().then(loadedFace => {
                     document.fonts.add(loadedFace);
+                    URL.revokeObjectURL(url); // 載入完成立即釋放
 
-                    // 找出字體的原始漂亮檔名
                     const rec = (appState.customFontRecords || []).find(r => r.id === f.id);
                     const displayName = rec ? rec.name : '未命名自訂字型';
                     addFontOptionToSelect(f.id, displayName + ' (自訂)');
 
-                    // 如果現在正是啟用該自訂字體
+                    // 如果使用者前一次選擇的是此字型，自動套用
                     if (appState.selectedFont === f.id) {
                         fontFamilySelect.value = f.id;
                         changeAppFont(f.id);
                     }
                 }).catch(err => {
                     console.warn("啟動載入自訂字體出錯:", err);
+                    URL.revokeObjectURL(url); // 防漏水
                 });
             });
 
