@@ -16,10 +16,12 @@
             --border-color: #e4e7e4;   /* 邊框線 */
             --danger: #cca4a4;         /* 低飽和粉紅（刪除用） */
             --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.03);
+            /* 動態自訂字型變數，預設為系統字型 */
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         /* --------------------------
-           字體：主字體強制自適應裝置預設字體（無額外網頁字體）
+           字體：主字體強制自適應自訂設定
         -------------------------- */
         * {
             box-sizing: border-box;
@@ -28,9 +30,8 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 移除外嵌網頁字體，強制套用跨平台裝置的原生預設系統字 */
         body, button, input, select, textarea, h1, h2, h3, h4, p, span, div, li, label {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: var(--font-family);
         }
 
         body {
@@ -43,7 +44,7 @@
             overflow: hidden;
         }
 
-        /* 應用程式主視口：限定寬度，在手機或桌面皆完美呈現 */
+        /* 應用程式主視口 */
         .app-viewport {
             width: 100%;
             max-width: 500px;
@@ -55,12 +56,19 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.02);
         }
 
+        /* 滑動頁面的包裝區 */
+        .pages-wrapper {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
         /* 頁面滑動容器 */
         .pages-container {
-            flex: 1;
             display: flex;
             width: 300%; /* 三頁寬度 */
-            height: calc(100vh - 48px); /* 扣除降低後的底部導覽列高 */
+            height: 100%;
             transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
@@ -107,51 +115,57 @@
             align-self: flex-start;
         }
 
-        /* 一鍵封存觸發按鈕 */
-        .archive-trigger-btn {
-            background-color: var(--accent-light);
-            color: #5c665b;
-            border: 1px solid #dcdfdc;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            font-weight: 600;
+        /* 設定觸發按鈕 */
+        .settings-trigger-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
             cursor: pointer;
-            transition: all 0.2s ease;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.25s, transform 0.25s;
         }
 
-        .archive-trigger-btn:active {
-            background-color: var(--accent);
-            color: white;
+        .settings-trigger-btn:active {
+            background-color: var(--accent-light);
+            transform: rotate(30deg);
+        }
+
+        .settings-svg {
+            color: #5c665b;
+            transition: color 0.2s;
         }
 
         /* --------------------------
-           新優化：打包清單位置群組樣式 (歐系無圖標極簡設計)
+           打包清單位置群組 (改為無外框極簡左側標示線)
         -------------------------- */
         .grouped-container {
             display: flex;
             flex-direction: column;
             gap: 20px;
+            padding-bottom: 20px;
         }
 
         .location-group {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .group-header {
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
+            font-size: 0.95rem;
+            letter-spacing: 0.04em;
             font-weight: 600;
             color: #5c665b;
-            background-color: var(--accent-light);
-            padding: 4px 10px;
-            border-radius: 8px;
+            padding: 2px 0 2px 8px;
+            border-left: 3px solid var(--accent); /* 極簡左側莫蘭迪綠點綴線 */
             align-self: flex-start;
             display: inline-flex;
             align-items: center;
+            margin-bottom: 2px;
         }
 
         /* 行李項目樣式 */
@@ -179,22 +193,24 @@
             align-items: center;
             gap: 12px;
             flex: 1;
+            min-width: 0;
         }
 
-        /* 標籤排版：窄螢幕強制靠右，超長時才在右下方折行 */
+        /* 標籤排版 */
         .item-content {
             display: flex;
-            flex-wrap: wrap; /* 支援極窄寬度或超長字元時折行 */
+            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             gap: 6px 12px;
             flex: 1;
             width: 100%;
+            min-width: 0;
         }
 
         .item-text-row {
             flex: 1;
-            min-width: 120px; /* 確保輸入框最少保有的空間，避免標籤過度壓縮它 */
+            min-width: 120px;
             display: flex;
             align-items: center;
         }
@@ -254,18 +270,18 @@
             font-weight: 500;
         }
 
-        /* 標籤群組：強制往最右方推移 */
+        /* 標籤群組 */
         .item-tags {
             display: flex;
-            flex-wrap: nowrap; /* 保持標籤在同一排 */
+            flex-wrap: nowrap;
             gap: 6px;
-            margin-left: auto; /* 將標籤強制推至整個彈性盒的最右側 */
-            flex-shrink: 0; /* 標籤不因空間不足被擠壓 */
+            margin-left: auto;
+            flex-shrink: 0;
         }
 
-        /* 標籤設計：排除裝置系統字體設定，特別指定字體 */
+        /* 標籤設計 (強制鎖定為系統乾淨等寬字體，不受使用者設定變更) */
         .tag {
-            font-family: 'Inter', -apple-system, sans-serif !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
             font-size: 0.72rem;
             padding: 2px 8px;
             border-radius: 6px;
@@ -299,6 +315,7 @@
             cursor: pointer;
             transition: color 0.2s ease;
             margin-left: 8px;
+            flex-shrink: 0;
         }
         
         .delete-btn:active {
@@ -321,6 +338,7 @@
             display: flex;
             flex-direction: column;
             gap: 18px;
+            margin-bottom: 20px;
         }
 
         .form-group {
@@ -477,6 +495,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            padding-bottom: 20px;
         }
 
         .archive-card {
@@ -500,12 +519,15 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            min-width: 0;
+            flex: 1;
         }
 
         .archive-name {
             font-size: 1rem;
             font-weight: 600;
             color: var(--text-main);
+            word-break: break-all;
         }
 
         .archive-date {
@@ -516,6 +538,7 @@
         .archive-actions {
             display: flex;
             gap: 8px;
+            flex-shrink: 0;
         }
 
         .archive-action-btn {
@@ -567,18 +590,14 @@
             animation: slideDown 0.25s ease-out forwards;
         }
 
-        /* 封存明細內的位置群組標題 (歐系簡潔版，無 emoji) */
         .archive-group-title {
-            font-size: 0.76rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
             color: #5c665b;
-            background-color: var(--accent-light);
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-top: 8px;
-            margin-bottom: 4px;
+            padding: 2px 0 2px 8px;
+            border-left: 3px solid var(--accent); /* 歷史紀錄分組也完美套用點綴線 */
+            margin-top: 12px;
+            margin-bottom: 6px;
             display: inline-block;
         }
 
@@ -600,6 +619,8 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            min-width: 0;
+            flex: 1;
         }
 
         .archive-item-text-completed {
@@ -610,19 +631,23 @@
         .archive-item-checked {
             color: var(--accent);
             font-weight: bold;
+            flex-shrink: 0;
         }
 
         .archive-item-unchecked {
             color: var(--text-muted);
+            flex-shrink: 0;
         }
 
         .archive-item-tags {
             display: flex;
             gap: 4px;
+            flex-shrink: 0;
         }
 
+        /* 封存明細內標籤 (強制等寬字，不受設定變更) */
         .archive-item-tag {
-            font-family: 'Inter', -apple-system, sans-serif !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
             font-size: 0.65rem;
             padding: 2px 6px;
             border-radius: 4px;
@@ -708,7 +733,7 @@
         /* Toast 輕提示 */
         .toast-container {
             position: fixed;
-            bottom: 70px;
+            bottom: 75px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
             background: rgba(58, 63, 71, 0.95);
@@ -750,21 +775,19 @@
         }
 
         /* --------------------------
-           底部微型導覽列 (降低列高、無圖示)
+           底部導覽列 (全新改進：非絕對定位，與內容完美分離)
         -------------------------- */
         .bottom-nav {
-            height: 48px; /* 降低高度 */
-            background: rgba(247, 248, 246, 0.95);
+            height: 56px;
+            background: rgba(247, 248, 246, 0.98);
             backdrop-filter: blur(8px);
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
             align-items: center;
             padding-bottom: env(safe-area-inset-bottom);
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            position: relative;
+            flex-shrink: 0;
             z-index: 10;
         }
 
@@ -773,7 +796,7 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* 居中對齊 */
+            justify-content: center;
             align-items: center;
             background: none;
             border: none;
@@ -790,126 +813,201 @@
             color: var(--accent);
             font-weight: 600;
         }
+
+        /* 自訂按鈕樣式 */
+        .btn-custom {
+            background-color: var(--accent-light);
+            color: #5c665b;
+            border: 1px solid #dcdfdc;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-custom:active {
+            background-color: var(--accent);
+            color: white;
+        }
     </style>
 </head>
 <body>
 
     <div class="app-viewport">
-        <!-- 頁面滑動區 -->
-        <div class="pages-container" id="pages-container">
-            
-            <!-- 第一頁：打包清單 -->
-            <div class="page" id="page-list">
-                <header>
-                    <div class="header-left">
-                        <h1>打包清單</h1>
-                        <div class="stats" id="stats-text">0 / 0 已打包</div>
-                    </div>
-                    <!-- 一鍵封存 -->
-                    <button class="archive-trigger-btn" onclick="openArchiveModal()">一鍵封存</button>
-                </header>
+        <!-- 頁面包裝滑動區：完全隔離底部導覽列 -->
+        <div class="pages-wrapper">
+            <div class="pages-container" id="pages-container">
+                
+                <!-- 第一頁：打包清單 -->
+                <div class="page" id="page-list">
+                    <header>
+                        <div class="header-left">
+                            <h1>打包清單</h1>
+                            <div class="stats" id="stats-text">0 / 0 已打包</div>
+                        </div>
+                        <!-- 設定圖標按鈕，點按直接開啟第三頁設定頁面 -->
+                        <button class="settings-trigger-btn" onclick="switchPage(2)" aria-label="開啟設定頁面">
+                            <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                        </button>
+                    </header>
 
-                <div id="empty-state" class="empty-state" style="display: none;">
-                    <svg class="empty-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 20V10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>
-                        <path d="M9 6V4a3 3 0 0 1 6 0v2"/>
-                        <path d="M8 22V12h8v10"/>
-                        <path d="M12 12v4"/>
-                    </svg>
-                    <div>清單空空的，滑到右邊新增行李吧</div>
+                    <div id="empty-state" class="empty-state" style="display: none;">
+                        <svg class="empty-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 20V10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>
+                            <path d="M9 6V4a3 3 0 0 1 6 0v2"/>
+                            <path d="M8 22V12h8v10"/>
+                            <path d="M12 12v4"/>
+                        </svg>
+                        <div>清單空空的，點擊下方新增行李吧</div>
+                    </div>
+
+                    <!-- 統一群組化主清單容器 -->
+                    <div class="grouped-container" id="grouped-items"></div>
                 </div>
 
-                <!-- 統一群組化主清單容器 -->
-                <div class="grouped-container" id="grouped-items"></div>
-            </div>
+                <!-- 第二頁：新增行李 -->
+                <div class="page" id="page-add">
+                    <header class="form-title">
+                        <h1>新增行李</h1>
+                    </header>
 
-            <!-- 第二頁：新增行李 -->
-            <div class="page" id="page-add">
-                <header class="form-title">
-                    <h1>新增行李</h1>
-                </header>
+                    <div class="form-card">
+                        <!-- 物品名稱 -->
+                        <div class="form-group">
+                            <label class="form-label">物品名稱</label>
+                            <input type="text" id="item-input" class="form-input" placeholder="例如：護照、充電線..." autocomplete="off">
+                        </div>
 
-                <div class="form-card">
-                    <!-- 物品名稱 -->
-                    <div class="form-group">
-                        <label class="form-label">物品名稱</label>
-                        <input type="text" id="item-input" class="form-input" placeholder="例如：護照、充電線..." autocomplete="off">
+                        <!-- 放置位置 -->
+                        <div class="form-group">
+                            <div class="form-label">
+                                <span>放置位置</span>
+                                <button class="manage-btn" onclick="toggleManager('location')">管理選項</button>
+                            </div>
+                            
+                            <!-- 放置位置刪除管理區塊 -->
+                            <div id="location-manager" class="manager-container"></div>
+
+                            <div class="select-wrapper">
+                                <select id="location-select" class="form-select" onchange="handleSelectChange(this, 'location-custom')"></select>
+                            </div>
+                            <!-- 自訂放置位置輸入框 -->
+                            <div id="location-custom" class="custom-input-container">
+                                <input type="text" id="location-custom-input" class="form-input" placeholder="輸入新的放置位置...">
+                            </div>
+                        </div>
+
+                        <!-- 物品分類 -->
+                        <div class="form-group">
+                            <div class="form-label">
+                                <span>物品分類</span>
+                                <button class="manage-btn" onclick="toggleManager('category')">管理選項</button>
+                            </div>
+
+                            <!-- 物品分類刪除管理區塊 -->
+                            <div id="category-manager" class="manager-container"></div>
+
+                            <div class="select-wrapper">
+                                <select id="category-select" class="form-select" onchange="handleSelectChange(this, 'category-custom')"></select>
+                            </div>
+                            <!-- 自訂分類輸入框 -->
+                            <div id="category-custom" class="custom-input-container">
+                                <input type="text" id="category-custom-input" class="form-input" placeholder="輸入新的分類名稱...">
+                            </div>
+                        </div>
+
+                        <button id="add-btn" class="btn-submit">
+                            <span>加入行李清單</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 第三頁：全新設定頁面 -->
+                <div class="page" id="page-settings">
+                    <header class="form-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h1>設定</h1>
+                        <!-- 新增返回打包清單按鈕 -->
+                        <button class="btn-custom" onclick="switchPage(0)">返回清單</button>
+                    </header>
+
+                    <!-- 設定細項面板卡片 1：自選裝置與導入字型 (分離包裝 1) -->
+                    <div class="form-card" style="margin-bottom: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 0.95rem; font-weight: 700;">字型風格設定</label>
+                            <div class="select-wrapper">
+                                <select id="font-family-select" class="form-select" onchange="changeAppFont(this.value)">
+                                    <option value="system">系統預設 (Sans-serif)</option>
+                                    <option value="serif">優雅明體 / 宋體 (Serif)</option>
+                                    <option value="jhenghei">微軟正黑體 (Modern)</option>
+                                    <option value="kaiti">經典標楷體 (Kaiti)</option>
+                                    <option value="monospace">極客等寬 (Monospace)</option>
+                                    <option value="rounded">圓潤圓體 (Rounded)</option>
+                                </select>
+                            </div>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">字型變更將套用至除「分類標籤」外的所有介面文字。</p>
+                        </div>
+
+                        <!-- 導入字型功能區塊 -->
+                        <div class="form-group" style="margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 14px;">
+                            <label class="form-label">導入裝置字型 (.ttf, .otf, .woff, .woff2)</label>
+                            <div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button class="btn-custom" onclick="document.getElementById('font-file-input').click()" style="flex: 1; text-align: center;">選擇自訂字型檔案</button>
+                                <input type="file" id="font-file-input" accept=".ttf,.otf,.woff,.woff2" style="display: none;" onchange="handleFontUpload(event)">
+                            </div>
+                            <!-- 導入的自訂字體管理清單 -->
+                            <div id="uploaded-fonts-list" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;"></div>
+                        </div>
                     </div>
 
-                    <!-- 放置位置 -->
-                    <div class="form-group">
-                        <div class="form-label">
-                            <span>放置位置</span>
-                            <button class="manage-btn" onclick="toggleManager('location')">管理選項</button>
+                    <!-- 設定細項面板卡片 2：一鍵打包封存 (分離包裝 2) -->
+                    <div class="form-card" style="margin-bottom: 24px;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 0.95rem; font-weight: 700;">打包封存當前旅程</label>
+                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
+                                將當前清單的所有行李備份保存為一筆歷史紀錄，並清空當前行李清單以準備新的旅程。
+                            </p>
+                            <button class="btn-submit" onclick="openArchiveModal()" style="margin-top: 4px; background-color: var(--accent);">
+                                <span>一鍵封存當前清單</span>
+                            </button>
                         </div>
+                    </div>
+
+                    <!-- 3. 歷史封存紀錄 -->
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+                        <h2 style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px;">封存紀錄列表</h2>
                         
-                        <!-- 放置位置刪除管理區塊 -->
-                        <div id="location-manager" class="manager-container"></div>
+                        <div id="archive-empty-state" class="empty-state" style="display: none; padding: 24px 0;">
+                            <svg class="empty-svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+                                <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+                            </svg>
+                            <div style="font-size: 0.85rem;">目前沒有任何歷史封存紀錄</div>
+                        </div>
 
-                        <div class="select-wrapper">
-                            <select id="location-select" class="form-select" onchange="handleSelectChange(this, 'location-custom')"></select>
-                        </div>
-                        <!-- 自訂放置位置輸入框 -->
-                        <div id="location-custom" class="custom-input-container">
-                            <input type="text" id="location-custom-input" class="form-input" placeholder="輸入新的放置位置...">
-                        </div>
+                        <!-- 封存紀錄列表 -->
+                        <div class="archive-list-container" id="archive-list"></div>
                     </div>
-
-                    <!-- 物品分類 -->
-                    <div class="form-group">
-                        <div class="form-label">
-                            <span>物品分類</span>
-                            <button class="manage-btn" onclick="toggleManager('category')">管理選項</button>
-                        </div>
-
-                        <!-- 物品分類刪除管理區塊 -->
-                        <div id="category-manager" class="manager-container"></div>
-
-                        <div class="select-wrapper">
-                            <select id="category-select" class="form-select" onchange="handleSelectChange(this, 'category-custom')"></select>
-                        </div>
-                        <!-- 自訂分類輸入框 -->
-                        <div id="category-custom" class="custom-input-container">
-                            <input type="text" id="category-custom-input" class="form-input" placeholder="輸入新的分類名稱...">
-                        </div>
-                    </div>
-
-                    <button id="add-btn" class="btn-submit">
-                        <span>加入行李清單</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 第三頁：封存歷史紀錄 -->
-            <div class="page" id="page-archive">
-                <header class="form-title">
-                    <h1>封存紀錄</h1>
-                </header>
-
-                <div id="archive-empty-state" class="empty-state" style="display: none;">
-                    <svg class="empty-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
-                        <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
-                    </svg>
-                    <div>目前沒有任何歷史封存紀錄</div>
                 </div>
 
-                <!-- 封存紀錄列表 -->
-                <div class="archive-list-container" id="archive-list"></div>
             </div>
-
         </div>
 
-        <!-- 底部微型導覽列 (無圖示、低列高) -->
+        <!-- 底部微型導覽列 (只留下清單與新增，移除設定頁按鈕) -->
         <div class="bottom-nav">
             <button class="nav-item active" onclick="switchPage(0)">
                 <span>【清單】</span>
             </button>
             <button class="nav-item" onclick="switchPage(1)">
                 <span>【新增】</span>
-            </button>
-            <button class="nav-item" onclick="switchPage(2)">
-                <span>【紀錄】</span>
             </button>
         </div>
     </div>
@@ -946,21 +1044,85 @@
             ],
             locations: ['大行李箱', '後背包', '隨身包包'],
             categories: ['貴重證件', '衣物鞋包', '電子配件', '盥洗用品', '其他備用'],
-            archives: [] // 用於儲存歷史封存
+            archives: [], // 用於儲存歷史封存
+            selectedFont: 'system', // 保存使用者選擇的字型設定
+            customFontRecords: [] // 自訂導入字型的註冊名稱記錄
         };
 
-        // 嘗試自 LocalStorage 讀取，沒有的話載入預設
+        // 支援 Traditional Chinese 常見字體降級策略
+        const FONT_MAP = {
+            system: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+            serif: 'Georgia, Cambria, "Times New Roman", Times, "Noto Serif TC", "PMingLiU", "MingLiU", serif',
+            jhenghei: '"Microsoft JhengHei", "Apple LiGothic Medium", sans-serif',
+            kaiti: '"DFKai-SB", "BiauKai", "Noto Serif CJK TC", serif',
+            monospace: 'Consolas, Monaco, "Courier New", Courier, monospace',
+            rounded: '"Comic Sans MS", "華康圓體", "Yu Gothic", sans-serif'
+        };
+
         let appState = defaultState;
         try {
             const savedState = localStorage.getItem('packing_app_state');
             if (savedState) {
                 appState = JSON.parse(savedState);
-                if (!appState.archives) {
-                    appState.archives = [];
-                }
+                if (!appState.archives) appState.archives = [];
+                if (!appState.selectedFont) appState.selectedFont = 'system';
+                if (!appState.customFontRecords) appState.customFontRecords = [];
             }
         } catch (e) {
-            console.warn("LocalStorage 存取失敗 (可能在嵌入 iframe 中執行)：", e);
+            console.warn("LocalStorage 存取失敗：", e);
+        }
+
+        // ----------------------------------------------------
+        // IndexedDB 技術：高容量永久字型儲存 (完美解決 LocalStorage 5MB 限制)
+        // ----------------------------------------------------
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('PackingAppDB', 1);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('fonts')) {
+                        db.createObjectStore('fonts', { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        function saveFontToDB(name, arrayBuffer) {
+            return openDB().then(db => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction('fonts', 'readwrite');
+                    const store = transaction.objectStore('fonts');
+                    store.put({ id: name, data: arrayBuffer });
+                    transaction.oncomplete = () => resolve();
+                    transaction.onerror = () => reject(transaction.error);
+                });
+            });
+        }
+
+        function loadFontsFromDB() {
+            return openDB().then(db => {
+                return new Promise((resolve) => {
+                    const transaction = db.transaction('fonts', 'readonly');
+                    const store = transaction.objectStore('fonts');
+                    const getRequest = store.getAll();
+                    getRequest.onsuccess = () => resolve(getRequest.result || []);
+                    getRequest.onerror = () => resolve([]);
+                });
+            });
+        }
+
+        function deleteFontFromDB(name) {
+            return openDB().then(db => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction('fonts', 'readwrite');
+                    const store = transaction.objectStore('fonts');
+                    const delRequest = store.delete(name);
+                    delRequest.onsuccess = () => resolve();
+                    delRequest.onerror = () => reject(delRequest.error);
+                });
+            });
         }
 
         // 綁定 DOM 元素
@@ -973,11 +1135,12 @@
         const locationSelect = document.getElementById('location-select');
         const categorySelect = document.getElementById('category-select');
         const navItems = document.querySelectorAll('.nav-item');
+        const fontFamilySelect = document.getElementById('font-family-select');
 
         let currentPageIndex = 0;
 
         // --------------------------
-        // 智慧配色：根據標籤文字動態產生低飽和、和諧的莫蘭迪粉彩色系
+        // 智慧配色：莫蘭迪粉彩色系
         // --------------------------
         function getTagStyle(text) {
             if (!text) return '';
@@ -986,14 +1149,13 @@
                 hash = text.charCodeAt(i) + ((hash << 5) - hash);
             }
             
-            // 使用 HSL 色彩模式，鎖定在低飽和度 (Morandi / Pastel系)
-            const h = Math.abs(hash) % 360;             // 隨機色相
-            const s = 14 + (Math.abs(hash >> 1) % 12);  // 限制飽和度在 14% - 26%
-            const l = 91 + (Math.abs(hash >> 2) % 4);   // 限制亮度在 91% - 95%，確保粉彩質感
+            const h = Math.abs(hash) % 360;
+            const s = 14 + (Math.abs(hash >> 1) % 12);
+            const l = 91 + (Math.abs(hash >> 2) % 4);
             
             const bgColor = `hsl(${h}, ${s}%, ${l}%)`;
-            const borderColor = `hsl(${h}, ${s}%, ${l - 12}%)`; // 微深的邊框線
-            const textColor = `hsl(${h}, ${s + 18}%, ${l - 58}%)`; // 足夠深以提供易讀性與對比度
+            const borderColor = `hsl(${h}, ${s}%, ${l - 12}%)`;
+            const textColor = `hsl(${h}, ${s + 18}%, ${l - 58}%)`;
 
             return `background-color: ${bgColor}; border: 1px solid ${borderColor}; color: ${textColor};`;
         }
@@ -1010,7 +1172,7 @@
         }
 
         // --------------------------
-        // 提示訊息 (Toast) 輔助函數
+        // 提示訊息 (Toast)
         // --------------------------
         function showToast(message) {
             const toast = document.getElementById('toast-message');
@@ -1019,6 +1181,126 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 2500);
+        }
+
+        // --------------------------
+        // 字型更新與動態載入機制
+        // --------------------------
+        function changeAppFont(fontKey) {
+            let fontValue = FONT_MAP[fontKey];
+            if (!fontValue) {
+                // 如果在內建映射表找不到，代表是自訂載入的字體
+                fontValue = `"${fontKey}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+            }
+            document.documentElement.style.setProperty('--font-family', fontValue);
+            appState.selectedFont = fontKey;
+            saveState();
+        }
+
+        function addFontOptionToSelect(fontId, fontName) {
+            // 檢查是否已經存在此選項，沒有則新增
+            if (!fontFamilySelect.querySelector(`option[value="${fontId}"]`)) {
+                const opt = document.createElement('option');
+                opt.value = fontId;
+                opt.innerText = fontName;
+                fontFamilySelect.appendChild(opt);
+            }
+        }
+
+        // 處理使用者從裝置導入字體檔案
+        function handleFontUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // 檢查檔案大小是否適當
+            if (file.size > 15 * 1024 * 1024) {
+                showToast("字型檔案過大（請小於 15MB），以免造成載入延遲。");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const arrayBuffer = e.target.result;
+                let rawName = file.name.substring(0, file.name.lastIndexOf('.'));
+                let fontName = 'CustomFont_' + rawName.replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now();
+
+                // 儲存至 IndexedDB
+                saveFontToDB(fontName, arrayBuffer).then(() => {
+                    // 註冊 FontFace 到文件
+                    const fontFace = new FontFace(fontName, arrayBuffer);
+                    return fontFace.load().then(loadedFace => {
+                        document.fonts.add(loadedFace);
+
+                        // 寫入 Select 選單
+                        addFontOptionToSelect(fontName, rawName + ' (自訂)');
+
+                        // 保存記錄至 AppState
+                        if (!appState.customFontRecords) appState.customFontRecords = [];
+                        if (!appState.customFontRecords.some(r => r.id === fontName)) {
+                            appState.customFontRecords.push({ id: fontName, name: rawName });
+                            saveState();
+                        }
+
+                        // 自動套用當前新載入字型
+                        fontFamilySelect.value = fontName;
+                        changeAppFont(fontName);
+
+                        renderUploadedFontsList();
+                        showToast(`成功導入字型：${rawName}`);
+                    });
+                }).catch(err => {
+                    console.error("字型儲存或編譯出錯: ", err);
+                    showToast("導入字型失敗，請嘗試換個字體格式！");
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 渲染已導入字型的管理清單
+        function renderUploadedFontsList() {
+            const container = document.getElementById('uploaded-fonts-list');
+            container.innerHTML = '';
+            const records = appState.customFontRecords || [];
+
+            if (records.length === 0) {
+                container.innerHTML = `<p style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; text-align: center; margin-top: 4px;">尚未導入任何外部裝置字型</p>`;
+                return;
+            }
+
+            records.forEach(rec => {
+                const row = document.createElement('div');
+                row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: var(--bg-color); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);';
+                row.innerHTML = `
+                    <span style="font-size: 0.8rem; font-weight: 500; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 260px;">${escapeHtml(rec.name)}</span>
+                    <button onclick="deleteCustomFont('${rec.id}')" style="background:none; border:none; color:var(--danger); font-size:0.85rem; cursor:pointer; padding:2px 6px;" aria-label="刪除此字體">✕</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // 刪除自訂字型
+        function deleteCustomFont(fontId) {
+            deleteFontFromDB(fontId).then(() => {
+                // 從選單移除
+                const opt = fontFamilySelect.querySelector(`option[value="${fontId}"]`);
+                if (opt) opt.remove();
+
+                // 從紀錄移除
+                appState.customFontRecords = (appState.customFontRecords || []).filter(r => r.id !== fontId);
+
+                // 如果目前剛好在使用該被刪除字型，切換回系統字型
+                if (appState.selectedFont === fontId) {
+                    fontFamilySelect.value = 'system';
+                    changeAppFont('system');
+                }
+
+                saveState();
+                renderUploadedFontsList();
+                showToast("自訂字型已成功刪除");
+            }).catch(err => {
+                console.error("刪除自訂字型失敗: ", err);
+                showToast("刪除自訂字型失敗");
+            });
         }
 
         // --------------------------
@@ -1037,7 +1319,7 @@
             });
         }
 
-        // 手勢左右滑動切換 (支援三頁)
+        // 手勢左右滑動切換 (限定只在打包清單 0 與新增行李 1 之間切換，不能滑入設定 2)
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -1052,20 +1334,19 @@
 
         function handleSwipe() {
             const swipeDistance = touchStartX - touchEndX;
-            const swipeThreshold = 60; // 觸發滑動的最小距離
+            const swipeThreshold = 60;
 
-            if (swipeDistance > swipeThreshold && currentPageIndex < 2) {
-                switchPage(currentPageIndex + 1);
-            } else if (swipeDistance < -swipeThreshold && currentPageIndex > 0) {
-                switchPage(currentPageIndex - 1);
+            if (swipeDistance > swipeThreshold && currentPageIndex === 0) {
+                switchPage(1); // 只能往右滑到新增行李
+            } else if (swipeDistance < -swipeThreshold && currentPageIndex === 1) {
+                switchPage(0); // 只能往左滑回打包清單
             }
         }
 
         // --------------------------
-        // 下拉選單動態更新與客製輸入處理
+        // 下拉選單動態更新與客製輸入
         // --------------------------
         function populateSelects() {
-            // 位置下拉
             locationSelect.innerHTML = '';
             appState.locations.forEach(loc => {
                 const opt = document.createElement('option');
@@ -1078,7 +1359,6 @@
             customLocOpt.innerText = '＋ 新增放置位置...';
             locationSelect.appendChild(customLocOpt);
 
-            // 分類下拉
             categorySelect.innerHTML = '';
             appState.categories.forEach(cat => {
                 const opt = document.createElement('option');
@@ -1092,7 +1372,6 @@
             categorySelect.appendChild(customCatOpt);
         }
 
-        // 偵測是否點選了「＋ 新增...」
         function handleSelectChange(selectElement, targetInputId) {
             const customContainer = document.getElementById(targetInputId);
             if (selectElement.value === '__new__') {
@@ -1152,7 +1431,7 @@
         }
 
         // --------------------------
-        // 渲染主清單 (依據位置群組化呈現、完全移除位置 emoji 圖標，保持極簡歐系)
+        // 渲染主清單
         // --------------------------
         function renderGroupedList() {
             groupedItemsContainer.innerHTML = '';
@@ -1164,17 +1443,14 @@
             }
             emptyState.style.display = 'none';
 
-            // 1. 取得所有目前清單中存在的獨特位置，並依照繁體中文筆畫排序
             const activeLocations = [...new Set(appState.items.map(item => item.location || '其他位置'))].sort((a, b) => 
                 a.localeCompare(b, 'zh-Hant')
             );
 
-            // 2. 針對各個位置分組進行渲染
             activeLocations.forEach(loc => {
                 const groupDiv = document.createElement('div');
                 groupDiv.className = 'location-group';
 
-                // 群組分區標題 (歐系簡潔版，完全移除 emoji 圖標)
                 const headerDiv = document.createElement('div');
                 headerDiv.className = 'group-header';
                 headerDiv.innerHTML = `${escapeHtml(loc)}`;
@@ -1183,7 +1459,6 @@
                 const itemList = document.createElement('ul');
                 itemList.className = 'item-list';
 
-                // 篩選屬於該位置的行李，並進行排序 (未完成優先 -> 分類 -> 名稱)
                 const groupItems = appState.items.filter(item => (item.location || '其他位置') === loc);
                 const sortedGroupItems = [...groupItems].sort((a, b) => {
                     if (a.completed !== b.completed) {
@@ -1198,7 +1473,6 @@
                     const li = document.createElement('li');
                     li.className = `item-node ${item.completed ? 'completed' : ''}`;
 
-                    // 分類標籤樣式 (位置標籤已成功移出)
                     const catTagStyle = getTagStyle(item.category);
 
                     li.innerHTML = `
@@ -1229,14 +1503,13 @@
         }
 
         // --------------------------
-        // 一鍵封存功能邏輯
+        // 一鍵封存功能
         // --------------------------
         function openArchiveModal() {
             if (appState.items.length === 0) {
                 showToast('當前清單無任何物品，無法進行封存！');
                 return;
             }
-            // 預設當天日期作為標題
             const today = new Date();
             const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
             document.getElementById('archive-name-input').value = `${dateStr} 旅行清單`;
@@ -1254,15 +1527,13 @@
             const today = new Date();
             const formattedDate = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
 
-            // 建立封存資料
             const newArchive = {
                 id: Date.now(),
                 name: archiveName,
                 date: formattedDate,
-                items: JSON.parse(JSON.stringify(appState.items)) // 深度拷貝當前物品
+                items: JSON.parse(JSON.stringify(appState.items))
             };
 
-            // 存入狀態並清空當前行李清單
             appState.archives.unshift(newArchive);
             appState.items = [];
 
@@ -1271,13 +1542,12 @@
             renderGroupedList();
             renderArchiveRecords();
 
-            // 滑動到歷史封存分頁，體驗更直觀
             switchPage(2);
             showToast('已成功一鍵封存！');
         }
 
         // --------------------------
-        // 歷史封存紀錄渲染 (完美同步群組排序、精簡動作按鈕，且無 emoji 圖標)
+        // 歷史封存紀錄渲染
         // --------------------------
         function renderArchiveRecords() {
             const container = document.getElementById('archive-list');
@@ -1298,14 +1568,12 @@
                 const total = arc.items.length;
                 const completedCount = arc.items.filter(i => i.completed).length;
 
-                // 排序邏輯與打包清單完全相同：先取得該封存中的獨特位置排序，再按未完成優先、分類與名稱排序
                 const arcLocations = [...new Set(arc.items.map(item => item.location || '其他位置'))].sort((a, b) => 
                     a.localeCompare(b, 'zh-Hant')
                 );
 
                 let itemsListHtml = '';
                 arcLocations.forEach(loc => {
-                    // 位置群組分區：完全移除 emoji 圖標
                     itemsListHtml += `
                         <div class="archive-group-title">${escapeHtml(loc)}</div>
                     `;
@@ -1338,7 +1606,6 @@
                     });
                 });
 
-                // 卡片標頭：完全移除 📅 圖標，改為精緻的純文字細節
                 card.innerHTML = `
                     <div class="archive-card-header">
                         <div class="archive-info">
@@ -1350,7 +1617,6 @@
                             <button class="archive-action-btn archive-btn-delete" onclick="deleteArchive(${arc.id})">刪除</button>
                         </div>
                     </div>
-                    <!-- 展開/收合移除「細目」字詞 -->
                     <button class="archive-details-toggle" onclick="toggleArchiveDetails(this)">
                         <span>展開 (共 ${total} 項)</span> ▾
                     </button>
@@ -1362,7 +1628,6 @@
             });
         }
 
-        // 展開與收合 (已精簡移除「細目」二字)
         function toggleArchiveDetails(btn) {
             const list = btn.nextElementSibling;
             const isShowing = list.classList.toggle('show');
@@ -1371,7 +1636,6 @@
             btn.innerHTML = `<span>${isShowing ? '收合' : `展開 (共 ${itemsCount} 項)`}</span> ${isShowing ? '▴' : '▾'}`;
         }
 
-        // 刪除封存紀錄
         function deleteArchive(id) {
             appState.archives = appState.archives.filter(arc => arc.id !== id);
             saveState();
@@ -1379,16 +1643,13 @@
             showToast('封存紀錄已刪除');
         }
 
-        // 還原封存紀錄
         function restoreArchive(id) {
             const arc = appState.archives.find(a => a.id === id);
             if (!arc) return;
 
-            // 將封存物件拷貝並合併至當前行李清單
             const restoredItems = JSON.parse(JSON.stringify(arc.items));
             appState.items = [...appState.items, ...restoredItems];
 
-            // 確保被還原的位置與分類重新存在於選項中
             restoredItems.forEach(item => {
                 if (item.location && !appState.locations.includes(item.location)) {
                     appState.locations.push(item.location);
@@ -1402,16 +1663,14 @@
             populateSelects();
             renderGroupedList();
 
-            // 滑動回第一頁
             switchPage(0);
             showToast(`已成功還原封存旅行「${arc.name}」的行李項目！`);
         }
 
         // --------------------------
-        // 功能操作
+        // 功能操作與安全防護
         // --------------------------
 
-        // HTML 安全逸出防護
         function escapeHtml(text) {
             return text
                 .replace(/&/g, "&amp;")
@@ -1421,14 +1680,12 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // 更新統計
         function updateStats() {
             const total = appState.items.length;
             const completedCount = appState.items.filter(item => item.completed).length;
             statsText.innerText = `${completedCount} / ${total} 已打包`;
         }
 
-        // 切換完成勾選
         function toggleComplete(id) {
             appState.items = appState.items.map(item => {
                 if (item.id === id) {
@@ -1440,7 +1697,6 @@
             renderGroupedList();
         }
 
-        // 編輯項目文字
         function editItem(id, newText) {
             appState.items = appState.items.map(item => {
                 if (item.id === id) {
@@ -1452,14 +1708,12 @@
             renderGroupedList();
         }
 
-        // 刪除行李
         function deleteItem(id) {
             appState.items = appState.items.filter(item => item.id !== id);
             saveState();
             renderGroupedList();
         }
 
-        // 新增行李
         function addItem() {
             const text = itemInput.value.trim();
             if (text === '') return;
@@ -1467,7 +1721,6 @@
             let finalLocation = locationSelect.value;
             let finalCategory = categorySelect.value;
 
-            // 處理自訂放置位置
             if (finalLocation === '__new__') {
                 const customLocInput = document.getElementById('location-custom-input');
                 const customLocValue = customLocInput.value.trim();
@@ -1481,7 +1734,6 @@
                 }
             }
 
-            // 處理自訂物品分類
             if (finalCategory === '__new__') {
                 const customCatInput = document.getElementById('category-custom-input');
                 const customCatValue = customCatInput.value.trim();
@@ -1495,7 +1747,6 @@
                 }
             }
 
-            // 建立行李對象
             const newItem = {
                 id: Date.now(),
                 text: text,
@@ -1506,7 +1757,6 @@
 
             appState.items.push(newItem);
             
-            // 清理與還原輸入欄位
             itemInput.value = '';
             document.getElementById('location-custom-input').value = '';
             document.getElementById('category-custom-input').value = '';
@@ -1517,7 +1767,6 @@
             populateSelects();
             renderGroupedList();
 
-            // 滑動回第一頁觀看更新
             switchPage(0);
         }
 
@@ -1531,10 +1780,41 @@
             }
         });
 
-        // 頁面初次載入
+        // 初始化載入 (優先載入自訂 IndexedDB 內的字體檔案)
         populateSelects();
         renderGroupedList();
         renderArchiveRecords();
+
+        // 異步載入所有自訂字型，並套用使用者先前儲存的設定
+        loadFontsFromDB().then(savedFonts => {
+            savedFonts.forEach(f => {
+                const fontFace = new FontFace(f.id, f.data);
+                fontFace.load().then(loadedFace => {
+                    document.fonts.add(loadedFace);
+
+                    // 找出字體的原始漂亮檔名
+                    const rec = (appState.customFontRecords || []).find(r => r.id === f.id);
+                    const displayName = rec ? rec.name : '未命名自訂字型';
+                    addFontOptionToSelect(f.id, displayName + ' (自訂)');
+
+                    // 如果現在正是啟用該自訂字體
+                    if (appState.selectedFont === f.id) {
+                        fontFamilySelect.value = f.id;
+                        changeAppFont(f.id);
+                    }
+                }).catch(err => {
+                    console.warn("啟動載入自訂字體出錯:", err);
+                });
+            });
+
+            // 如果選中的是內建系統字體
+            if (FONT_MAP[appState.selectedFont] || appState.selectedFont === 'system') {
+                fontFamilySelect.value = appState.selectedFont;
+                changeAppFont(appState.selectedFont);
+            }
+
+            renderUploadedFontsList();
+        });
     </script>
 </body>
 </html>
