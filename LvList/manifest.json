@@ -1,0 +1,22 @@
+{
+  "name": "Lvlist打包清單",
+  "short_name": "履清單",
+  "description": "簡約優雅的莫蘭迪色系旅程打包清單，支援離線與字型自訂功能。",
+  "start_url": "./code-pkg.html",
+  "display": "standalone",
+  "background_color": "#f7f8f6",
+  "theme_color": "#9fb1c2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "Generated_Image_192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "Generated_Image_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
