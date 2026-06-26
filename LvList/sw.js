@@ -3,7 +3,8 @@ const ASSETS = [
   './',
   './code-pkg.html',
   './manifest.json',
-  './Generated_Image.png'
+  './Generated_Image_192.png',
+  './Generated_Image_512.png''
 ];
 
 // 安裝階段：強制快取核心靜態資源
@@ -32,6 +33,9 @@ self.addEventListener('activate', (e) => {
 
 // 攔截請求策略：Stale-While-Revalidate (既能秒開離線使用，又能背景自動下載新版)
 self.addEventListener('fetch', (e) => {
+  // 安全防護：唯有 GET 請求才進行快取與攔截
+  if (e.request.method !== 'GET') return;
+
   if (e.request.url.startsWith(self.location.origin)) {
     e.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
