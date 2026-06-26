@@ -380,10 +380,10 @@
             background-color: var(--accent-light);
         }
 
-        /* 展開的管理區塊 (優化平滑滑動高度機制) */
+        /* 展開的管理區塊 (優化平滑滑動高度機制，新增內部滾動結構避免輸入框失焦) */
         .manager-container {
             max-height: 0;
-            overflow-y: auto;
+            overflow: hidden; /* 避免外層容器直接滾動 */
             background: #fafbfa;
             border: 1px dashed transparent;
             border-radius: 10px;
@@ -398,11 +398,18 @@
         }
 
         .manager-container.show {
-            max-height: 130px;
+            max-height: 200px; /* 增加最大高度容納新增欄位 */
             padding: 8px 12px;
             margin-top: 4px;
             opacity: 1;
             border-color: var(--border-color);
+        }
+
+        /* 管理清單內部滾動區 */
+        .manager-list {
+            max-height: 110px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .manager-item {
@@ -431,6 +438,48 @@
 
         .manager-del-btn:active {
             opacity: 0.6;
+        }
+
+        /* 管理區塊頂部「直接新增」輸入列 */
+        .manager-add-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .manager-add-input {
+            flex: 1;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            outline: none;
+            background: var(--card-bg);
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        .manager-add-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(154, 168, 153, 0.15);
+        }
+
+        .manager-add-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .manager-add-btn:active {
+            opacity: 0.85;
         }
 
         /* 下拉選單與輸入框美化設計 */
@@ -488,7 +537,7 @@
             cursor: pointer;
         }
 
-        /* 自訂新增動畫 (改用完美相容行動端的 max-height + opacity 漸變，擺脫 display:none Webkit 無法解析問題) */
+        /* 自訂新增動畫 (改用完美相容行動端的 max-height + opacity 漸變) */
         .custom-input-container {
             max-height: 0;
             overflow: hidden;
@@ -1422,7 +1471,7 @@
         }
 
         // --------------------------
-        // 管理選項與刪除功能
+        // 管理選項與直接新增、刪除功能
         // --------------------------
         function toggleManager(type) {
             const manager = document.getElementById(`${type}-manager`);
@@ -1432,27 +1481,94 @@
             }
         }
 
+        // 重構管理區渲染：分拆成頂部 Sticky 的快速新增欄位與底部滾動 Options 列表
         function renderManager(type) {
             const container = document.getElementById(`${type}-manager`);
             container.innerHTML = '';
+            
+            // 1. 建立快速新增欄位
+            const addRow = document.createElement('div');
+            addRow.className = 'manager-add-row';
+            
+            const addInput = document.createElement('input');
+            addInput.type = 'text';
+            addInput.className = 'manager-add-input';
+            addInput.placeholder = type === 'location' ? '新增放置位置...' : '新增物品分類...';
+            addInput.autocomplete = 'off';
+            
+            const addBtn = document.createElement('button');
+            addBtn.className = 'manager-add-btn';
+            addBtn.innerText = '新增';
+            
+            const handleDirectAdd = () => {
+                const val = addInput.value.trim();
+                if (val !== '') {
+                    addOptionDirect(type, val);
+                    addInput.value = '';
+                }
+            };
+            
+            addBtn.addEventListener('click', handleDirectAdd);
+            addInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleDirectAdd();
+                }
+            });
+            
+            addRow.appendChild(addInput);
+            addRow.appendChild(addBtn);
+            container.appendChild(addRow);
+            
+            // 2. 建立獨立滾動的現有選項清單
+            const listDiv = document.createElement('div');
+            listDiv.className = 'manager-list';
             
             const list = type === 'location' ? appState.locations : appState.categories;
             const deleteFnName = type === 'location' ? 'deleteLocationOption' : 'deleteCategoryOption';
 
             if (list.length === 0) {
-                container.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); text-align:center; padding:8px;">尚無選項</div>`;
-                return;
+                listDiv.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); text-align:center; padding:8px;">尚無選項</div>`;
+            } else {
+                list.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'manager-item';
+                    row.innerHTML = `
+                        <span>${escapeHtml(item)}</span>
+                        <button class="manager-del-btn" onclick="${deleteFnName}('${escapeHtml(item)}')">✕</button>
+                    `;
+                    listDiv.appendChild(row);
+                });
             }
+            container.appendChild(listDiv);
+        }
 
-            list.forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'manager-item';
-                row.innerHTML = `
-                    <span>${escapeHtml(item)}</span>
-                    <button class="manager-del-btn" onclick="${deleteFnName}('${escapeHtml(item)}')">✕</button>
-                `;
-                container.appendChild(row);
-            });
+        // 直接在管理介面中新增選項的方法
+        function addOptionDirect(type, value) {
+            const trimmedValue = value.trim();
+            if (trimmedValue === '') return;
+            
+            if (type === 'location') {
+                if (!appState.locations.includes(trimmedValue)) {
+                    appState.locations.push(trimmedValue);
+                    showToast(`已新增位置：${trimmedValue}`);
+                } else {
+                    showToast('該放置位置已存在！');
+                    return;
+                }
+            } else if (type === 'category') {
+                if (!appState.categories.includes(trimmedValue)) {
+                    appState.categories.push(trimmedValue);
+                    showToast(`已新增分類：${trimmedValue}`);
+                } else {
+                    showToast('該物品分類已存在！');
+                    return;
+                }
+            }
+            
+            saveState();
+            populateSelects();
+            renderManager(type); // 重繪該管理區
         }
 
         function deleteLocationOption(loc) {
