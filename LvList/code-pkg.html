@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="打包清單">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="shortcut icon" href="icon-192.png" type="image/png">
 
     <style>
         /* 低飽和度、乾淨的日系/北歐風配色 */
@@ -1174,7 +1175,6 @@
         function changeAppFont(fontKey) {
             let fontValue = FONT_MAP[fontKey];
             if (!fontValue) {
-                // 如果在內建映射表找不到，代表是自訂載入的字體
                 fontValue = `"${fontKey}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
             }
             document.documentElement.style.setProperty('--font-family', fontValue);
@@ -1182,8 +1182,19 @@
             saveState();
         }
 
+        // --------------------------
+        // 輔助防禦防護機制
+        // --------------------------
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         function addFontOptionToSelect(fontId, fontName) {
-            // 檢查是否已經存在此選項，沒有則新增
             if (!fontFamilySelect.querySelector(`option[value="${fontId}"]`)) {
                 const opt = document.createElement('option');
                 opt.value = fontId;
@@ -1196,7 +1207,6 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // 1. 限制單次導入字型的體積 (大於 12MB 的字型在手機解碼容易崩潰)
             const MAX_SIZE = 12 * 1024 * 1024;
             if (file.size > MAX_SIZE) {
                 showToast("字型檔案過大（請小於 12MB），建議改用 WOFF2 高壓縮格式！");
@@ -1204,7 +1214,6 @@
                 return;
             }
 
-            // 2. 顯示處理中狀態，防止使用者瘋狂重複點按
             const uploadBtn = document.querySelector('button[onclick*="font-file-input"]');
             const originalBtnText = uploadBtn.innerText;
             uploadBtn.innerText = "字型解析編譯中...";
@@ -1217,48 +1226,41 @@
             let rawName = file.name.substring(0, file.name.lastIndexOf('.'));
             let fontName = 'CustomFont_' + rawName.replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now();
 
-            // 3. 捨棄 FileReader，直接存儲 File (Blob) 到 IndexedDB
             saveFontToDB(fontName, file).then(() => {
-                // 4. 利用 Object URL 技術將字體傳遞給瀏覽器核心進行多執行緒解碼
                 const url = URL.createObjectURL(file);
                 const fontFace = new FontFace(fontName, `url(${url})`);
 
                 return fontFace.load().then(loadedFace => {
                     document.fonts.add(loadedFace);
-                    URL.revokeObjectURL(url); // 解碼完畢，立即銷毀快取釋放記憶體
+                    URL.revokeObjectURL(url);
 
-                    // 寫入 Select 選單
                     addFontOptionToSelect(fontName, rawName + ' (自訂)');
 
-                    // 保存記錄至 AppState
                     if (!appState.customFontRecords) appState.customFontRecords = [];
                     if (!appState.customFontRecords.some(r => r.id === fontName)) {
                         appState.customFontRecords.push({ id: fontName, name: rawName });
                         saveState();
                     }
 
-                    // 自動套用當前新載入字型
                     fontFamilySelect.value = fontName;
                     changeAppFont(fontName);
 
                     renderUploadedFontsList();
                     showToast(`成功導入字型：${rawName}`);
                 }).catch(err => {
-                    URL.revokeObjectURL(url); // 發生異常也要確實釋放
+                    URL.revokeObjectURL(url);
                     throw err;
                 });
             }).catch(err => {
                 console.error("導入自訂字型出錯: ", err);
                 showToast("字型導入失敗，建議更換 woff/woff2 格式");
             }).finally(() => {
-                // 還原按鈕狀態
                 uploadBtn.innerText = originalBtnText;
                 uploadBtn.disabled = false;
-                event.target.value = ''; // 重置 file input
+                event.target.value = '';
             });
         }
 
-        // 渲染已導入字型的管理清單
         function renderUploadedFontsList() {
             const container = document.getElementById('uploaded-fonts-list');
             container.innerHTML = '';
@@ -1280,17 +1282,13 @@
             });
         }
 
-        // 刪除自訂字型
         function deleteCustomFont(fontId) {
             deleteFontFromDB(fontId).then(() => {
-                // 從選單移除
                 const opt = fontFamilySelect.querySelector(`option[value="${fontId}"]`);
                 if (opt) opt.remove();
 
-                // 從紀錄移除
                 appState.customFontRecords = (appState.customFontRecords || []).filter(r => r.id !== fontId);
 
-                // 如果目前剛好在使用該被刪除字型，切換回系統字型
                 if (appState.selectedFont === fontId) {
                     fontFamilySelect.value = 'system';
                     changeAppFont('system');
@@ -1321,7 +1319,6 @@
             });
         }
 
-        // 手勢左右滑動切換 (限定只在打包清單 0 與新增行李 1 之間切換，不能滑入設定 2)
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -1339,9 +1336,9 @@
             const swipeThreshold = 60;
 
             if (swipeDistance > swipeThreshold && currentPageIndex === 0) {
-                switchPage(1); // 只能往右滑到新增行李
+                switchPage(1);
             } else if (swipeDistance < -swipeThreshold && currentPageIndex === 1) {
-                switchPage(0); // 只能往左滑回打包清單
+                switchPage(0);
             }
         }
 
@@ -1669,19 +1666,6 @@
             showToast(`已成功還原封存旅行「${arc.name}」的行李項目！`);
         }
 
-        // --------------------------
-        // 功能操作與安全防護
-        // --------------------------
-
-        function escapeHtml(text) {
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
         function updateStats() {
             const total = appState.items.length;
             const completedCount = appState.items.filter(item => item.completed).length;
@@ -1782,37 +1766,33 @@
             }
         });
 
-        // 初始化載入 (優先載入自訂 IndexedDB 內的字體檔案)
         populateSelects();
         renderGroupedList();
         renderArchiveRecords();
 
         loadFontsFromDB().then(savedFonts => {
             savedFonts.forEach(f => {
-                // 使用 Blob URL 技術，在冷啟動時極速且安全地還原使用者自訂字型
                 const url = URL.createObjectURL(f.data);
                 const fontFace = new FontFace(f.id, `url(${url})`);
                 
                 fontFace.load().then(loadedFace => {
                     document.fonts.add(loadedFace);
-                    URL.revokeObjectURL(url); // 載入完成立即釋放
+                    URL.revokeObjectURL(url);
 
                     const rec = (appState.customFontRecords || []).find(r => r.id === f.id);
                     const displayName = rec ? rec.name : '未命名自訂字型';
                     addFontOptionToSelect(f.id, displayName + ' (自訂)');
 
-                    // 如果使用者前一次選擇的是此字型，自動套用
                     if (appState.selectedFont === f.id) {
                         fontFamilySelect.value = f.id;
                         changeAppFont(f.id);
                     }
                 }).catch(err => {
                     console.warn("啟動載入自訂字體出錯:", err);
-                    URL.revokeObjectURL(url); // 防漏水
+                    URL.revokeObjectURL(url);
                 });
             });
 
-            // 如果選中的是內建系統字體
             if (FONT_MAP[appState.selectedFont] || appState.selectedFont === 'system') {
                 fontFamilySelect.value = appState.selectedFont;
                 changeAppFont(appState.selectedFont);
@@ -1821,9 +1801,6 @@
             renderUploadedFontsList();
         });
 
-        // ----------------------------------------------------
-        // PWA 機制：自動向瀏覽器註冊核心 Service Worker 驅動核心
-        // ----------------------------------------------------
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
