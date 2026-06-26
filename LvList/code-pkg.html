@@ -1633,15 +1633,15 @@
             const swipeDistanceX = touchStartX - touchEndX;
             const swipeDistanceY = touchStartY - touchEndY;
             
-            // 提高水平滑動距離閾值（原先為 60px），現在設定 100px 確保是有意滑動
-            const swipeThresholdX = 100;
+            // 提高水平滑動距離閾值（原先為 60px），現在設定 80px 確保是有意滑動
+            const swipeThresholdX = 80;
             // 垂直滾動容忍度，若使用者正在大幅度垂直滾動則忽視本次滑動
-            const swipeThresholdY = 60; 
+            const swipeThresholdY = 50; 
 
             // 1. 確保水平移動距離達到閾值，且垂直移動在合理範圍內
             if (Math.abs(swipeDistanceX) > swipeThresholdX && Math.abs(swipeDistanceY) < swipeThresholdY) {
-                // 2. 水平滑動的距離必須「大幅大於」垂直滑動距離（2倍以上），才判定為有意圖的左右翻頁
-                if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) * 2) {
+                // 2. 水平滑動的距離必須「大幅大於」垂直滑動距離（1.5倍以上），才判定為有意圖的左右翻頁
+                if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) * 1.5) {
                     if (swipeDistanceX > 0 && currentPageIndex === 0) {
                         switchPage(1);
                     } else if (swipeDistanceX < 0 && currentPageIndex === 1) {
