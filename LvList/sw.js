@@ -3,7 +3,7 @@ const ASSETS = [
   './',
   './code-pkg.html',
   './manifest.json',
-  './https://github.com/ricardo-4709/package/blob/main/LvList/Generated_Image.png'
+  './Generated_Image.png'
 ];
 
 // 安裝階段：強制快取核心靜態資源
