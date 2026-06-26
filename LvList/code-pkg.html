@@ -27,7 +27,7 @@
         }
 
         /* --------------------------
-           字體：主字體強制自適應自訂設定
+           字體與通用重設 (精簡繼承規則)
         -------------------------- */
         * {
             box-sizing: border-box;
@@ -36,7 +36,8 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        body, button, input, select, textarea, h1, h2, h3, h4, p, span, div, li, label {
+        /* 大部分元素會自動繼承 body 的字型，僅針對不自動繼承的表單控制元件額外宣告 */
+        body, button, input, select, textarea {
             font-family: var(--font-family);
         }
 
@@ -110,9 +111,9 @@
             color: var(--text-main);
         }
 
+        /* 精簡重複定義的 color 屬性 */
         .stats {
             font-size: 0.85rem;
-            color: var(--text-muted);
             background: var(--accent-light);
             color: #5c665b;
             padding: 4px 10px;
@@ -146,7 +147,7 @@
         }
 
         /* --------------------------
-           打包清單位置群組 (改為無外框極簡左側標示線)
+           打包清單位置群組 (無外框極簡左側標示線)
         -------------------------- */
         .grouped-container {
             display: flex;
@@ -380,10 +381,10 @@
             background-color: var(--accent-light);
         }
 
-        /* 展開的管理區塊 (優化平滑滑動高度機制，新增內部滾動結構避免輸入框失焦) */
+        /* 展開的管理區塊 */
         .manager-container {
             max-height: 0;
-            overflow: hidden; /* 避免外層容器直接滾動 */
+            overflow: hidden; 
             background: #fafbfa;
             border: 1px dashed transparent;
             border-radius: 10px;
@@ -398,7 +399,7 @@
         }
 
         .manager-container.show {
-            max-height: 200px; /* 增加最大高度容納新增欄位 */
+            max-height: 200px; 
             padding: 8px 12px;
             margin-top: 4px;
             opacity: 1;
@@ -482,8 +483,125 @@
             opacity: 0.85;
         }
 
+        /* --------------------------
+           自訂無額外視窗的內嵌手動折疊式選擇器 (Accordion)
+        -------------------------- */
+        .custom-inline-select {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--card-bg);
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .custom-inline-select.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(154, 168, 153, 0.15);
+        }
+
+        .inline-select-trigger {
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-main);
+            background: var(--card-bg);
+            user-select: none;
+        }
+
+        .inline-select-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            background: #fafbfa;
+            border-top: 0px solid var(--border-color);
+        }
+
+        .inline-select-menu.show {
+            max-height: 250px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .inline-options-list {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .inline-option-item {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .inline-option-item:active {
+            background-color: var(--accent-light);
+        }
+
+        .inline-option-item.selected {
+            background-color: var(--accent);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .inline-option-item-new {
+            color: var(--accent);
+            font-weight: 600;
+            border-top: 1px dashed var(--border-color);
+            margin-top: 6px;
+            padding-top: 12px;
+            border-radius: 0;
+        }
+
+        .chevron-svg {
+            color: var(--text-muted);
+            transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .custom-inline-select.open .chevron-svg {
+            transform: rotate(180deg);
+            color: var(--accent);
+        }
+
         /* 下拉選單與輸入框美化設計 */
-        .form-input, .form-select {
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            font-size: 0.95rem;
+            outline: none;
+            color: var(--text-main);
+            transition: all 0.25s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(154, 168, 153, 0.20);
+        }
+
+        /* 自訂下拉選擇器 (form-select) 樣式 */
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .form-select {
             width: 100%;
             padding: 12px 14px;
             border-radius: 10px;
@@ -494,50 +612,45 @@
             color: var(--text-main);
             transition: all 0.25s ease;
             appearance: none;
-            -webkit-appearance: none; /* 重置原生 iOS 圓角與外觀樣式 */
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238e949f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+            cursor: pointer;
         }
 
-        .form-input:focus, .form-select:focus {
+        .form-select:focus {
             border-color: var(--accent);
             background-color: #fff;
             box-shadow: 0 0 0 3px rgba(154, 168, 153, 0.20);
         }
 
-        /* 下拉選單包裝容器 */
-        .select-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        /* 整體風格一致的日系簡約 Chevron 箭頭 */
-        .select-wrapper::after {
-            content: "";
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            width: 10px;
-            height: 6px;
-            background-color: var(--text-muted);
-            clip-path: polygon(100% 0, 0 0, 50% 100%);
-            transform: translateY(-50%);
-            pointer-events: none;
-            transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1),
-                        background-color 0.25s ease;
-        }
-
-        /* 當點擊下拉選單時，箭頭流暢旋轉 */
-        .select-wrapper:focus-within::after {
-            transform: translateY(-50%) rotate(180deg);
+        /* 自訂提交按鈕 (btn-submit) 樣式 */
+        .btn-submit {
             background-color: var(--accent);
-        }
-
-        /* 強制給予下拉選單右側適度邊距以免文字被箭頭遮住 */
-        .form-select {
-            padding-right: 36px !important;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            text-align: center;
         }
 
-        /* 自訂新增動畫 (改用完美相容行動端的 max-height + opacity 漸變) */
+        .btn-submit:active {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        /* 自訂新增動畫 */
         .custom-input-container {
             max-height: 0;
             overflow: hidden;
@@ -551,31 +664,10 @@
         }
 
         .custom-input-container.show {
-            max-height: 80px; /* 足夠容納輸入框 */
+            max-height: 80px; 
             opacity: 1;
             transform: translateY(0);
             margin-top: 8px;
-        }
-
-        .btn-submit {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s, opacity 0.2s;
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-submit:active {
-            opacity: 0.9;
         }
 
         /* --------------------------
@@ -637,7 +729,7 @@
             font-size: 0.78rem;
             font-weight: 600;
             cursor: pointer;
-            padding: 4px 8px;
+            padding: 6px 10px;
             border-radius: 6px;
             transition: background 0.2s;
         }
@@ -647,9 +739,19 @@
             background: var(--accent-light);
         }
 
+        .archive-btn-restore:active {
+            background: var(--accent);
+            color: white;
+        }
+
         .archive-btn-delete {
             color: #b08585;
             background: #f7eded;
+        }
+
+        .archive-btn-delete:active {
+            background: #cca4a4;
+            color: white;
         }
 
         .archive-details-toggle {
@@ -677,7 +779,19 @@
 
         .archive-items-list.show {
             display: block;
-            animation: slideDown 0.25s ease-out forwards;
+            animation: slideDown 0.25s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        /* 展開動畫效果 (slideDown) */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .archive-group-title {
@@ -685,7 +799,7 @@
             font-weight: 600;
             color: #5c665b;
             padding: 2px 0 2px 8px;
-            border-left: 3px solid var(--accent); /* 歷史紀錄分組也完美套用點綴線 */
+            border-left: 3px solid var(--accent); 
             margin-top: 12px;
             margin-bottom: 6px;
             display: inline-block;
@@ -735,7 +849,6 @@
             flex-shrink: 0;
         }
 
-        /* 封存明細內標籤 (強制等寬字，不受設定變更) */
         .archive-item-tag {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
             font-size: 0.65rem;
@@ -744,9 +857,7 @@
             font-weight: 600;
         }
 
-        /* --------------------------
-           自訂彈窗與提示樣式
-        -------------------------- */
+        /* 自訂彈窗與提示樣式 */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -865,10 +976,10 @@
         }
 
         /* --------------------------
-           底部導覽列 (全新改進：非絕對定位，與內容完美分離)
+           底部導覽列
         -------------------------- */
         .bottom-nav {
-            height: 56px;
+            height: 64px;
             background: rgba(247, 248, 246, 0.98);
             backdrop-filter: blur(8px);
             border-top: 1px solid var(--border-color);
@@ -896,12 +1007,17 @@
             letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.25s ease;
+            gap: 4px;
         }
 
         /* 啟用狀態 */
         .nav-item.active {
             color: var(--accent);
             font-weight: 600;
+        }
+
+        .nav-item:active {
+            background-color: rgba(154, 168, 153, 0.05);
         }
 
         /* 自訂按鈕樣式 */
@@ -933,6 +1049,7 @@
         <div class="pages-wrapper">
             <div class="pages-container" id="pages-container">
                 
+                <!-- 第一頁：行李清單主頁 -->
                 <div class="page" id="page-list">
                     <header>
                         <div class="header-left">
@@ -960,9 +1077,19 @@
                     <div class="grouped-container" id="grouped-items"></div>
                 </div>
 
+                <!-- 第二頁：新增行李 -->
                 <div class="page" id="page-add">
-                    <header class="form-title">
-                        <h1>新增行李</h1>
+                    <header>
+                        <div class="header-left">
+                            <h1>新增行李</h1>
+                            <div class="stats" style="background: transparent; color: var(--text-muted); padding: 0;" id="add-stats-text">旅程裝備登錄</div>
+                        </div>
+                        <button class="settings-trigger-btn" onclick="switchPage(2)" aria-label="開啟設定頁面">
+                            <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                        </button>
                     </header>
 
                     <div class="form-card">
@@ -971,6 +1098,7 @@
                             <input type="text" id="item-input" class="form-input" placeholder="例如：護照、充電線..." autocomplete="off">
                         </div>
 
+                        <!-- 內嵌折疊式放置位置選擇 -->
                         <div class="form-group">
                             <div class="form-label">
                                 <span>放置位置</span>
@@ -979,14 +1107,24 @@
                             
                             <div id="location-manager" class="manager-container"></div>
 
-                            <div class="select-wrapper">
-                                <select id="location-select" class="form-select" onchange="handleSelectChange(this, 'location-custom')"></select>
+                            <div class="custom-inline-select" id="location-select-container">
+                                <div class="inline-select-trigger" onclick="toggleInlineSelect('location')">
+                                    <span id="location-trigger-text">大行李箱</span>
+                                    <svg class="chevron-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="inline-select-menu" id="location-menu">
+                                    <div class="inline-options-list" id="location-options"></div>
+                                </div>
                             </div>
+
                             <div id="location-custom" class="custom-input-container">
                                 <input type="text" id="location-custom-input" class="form-input" placeholder="輸入新的放置位置...">
                             </div>
                         </div>
 
+                        <!-- 內嵌折疊式物品分類選擇 -->
                         <div class="form-group">
                             <div class="form-label">
                                 <span>物品分類</span>
@@ -995,9 +1133,18 @@
 
                             <div id="category-manager" class="manager-container"></div>
 
-                            <div class="select-wrapper">
-                                <select id="category-select" class="form-select" onchange="handleSelectChange(this, 'category-custom')"></select>
+                            <div class="custom-inline-select" id="category-select-container">
+                                <div class="inline-select-trigger" onclick="toggleInlineSelect('category')">
+                                    <span id="category-trigger-text">貴重證件</span>
+                                    <svg class="chevron-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="inline-select-menu" id="category-menu">
+                                    <div class="inline-options-list" id="category-options"></div>
+                                </div>
                             </div>
+
                             <div id="category-custom" class="custom-input-container">
                                 <input type="text" id="category-custom-input" class="form-input" placeholder="輸入新的分類名稱...">
                             </div>
@@ -1009,6 +1156,7 @@
                     </div>
                 </div>
 
+                <!-- 第三頁：設定與歷史封存 -->
                 <div class="page" id="page-settings">
                     <header class="form-title" style="display: flex; justify-content: space-between; align-items: center;">
                         <h1>設定</h1>
@@ -1028,7 +1176,7 @@
                                     <option value="rounded">圓潤圓體 (Rounded)</option>
                                 </select>
                             </div>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">字型變更將套用至除「分類標籤」外的所有介面文字。</p>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">字型變更將套用至除「分類標籤」外的所有介面文字。</p>
                         </div>
 
                         <div class="form-group" style="margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 14px;">
@@ -1071,16 +1219,30 @@
             </div>
         </div>
 
+        <!-- 底部導覽列 -->
         <div class="bottom-nav">
             <button class="nav-item active" onclick="switchPage(0)">
-                <span>【清單】</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                <span>清單</span>
             </button>
             <button class="nav-item" onclick="switchPage(1)">
-                <span>【新增】</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>新增</span>
             </button>
         </div>
     </div>
 
+    <!-- 封存用彈跳視窗 -->
     <div id="archive-modal" class="modal-overlay">
         <div class="modal-card">
             <h3>一鍵封存當前清單</h3>
@@ -1092,6 +1254,20 @@
             <div class="modal-actions">
                 <button class="modal-btn modal-btn-cancel" onclick="closeArchiveModal()">取消</button>
                 <button class="modal-btn modal-btn-confirm" onclick="submitArchive()">確認封存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 行李已成功加入清單 - 專屬高雅彈跳視窗 (微交互) -->
+    <div id="added-modal" class="modal-overlay">
+        <div class="modal-card" style="text-align: center; max-width: 320px; padding: 24px; border-radius: 20px;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--accent-light); color: var(--accent); margin-bottom: 16px; font-size: 2rem; font-weight: bold;">
+                ✓
+            </div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 6px; color: var(--text-main);">已加入清單</h3>
+            <p id="added-modal-item-name" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.4; word-break: break-all;"></p>
+            <div class="modal-actions" style="margin-top: 0; justify-content: center; width: 100%;">
+                <button class="modal-btn modal-btn-confirm" onclick="closeAddedModal()" style="width: 100%; padding: 12px; font-weight: 600;">確定</button>
             </div>
         </div>
     </div>
@@ -1111,9 +1287,9 @@
             ],
             locations: ['大行李箱', '後背包', '隨身包包'],
             categories: ['貴重證件', '衣物鞋包', '電子配件', '盥洗用品', '其他備用'],
-            archives: [], // 用於儲存歷史封存
-            selectedFont: 'system', // 保存使用者選擇的字型設定
-            customFontRecords: [] // 自訂導入字型的註冊名稱記錄
+            archives: [], 
+            selectedFont: 'system', 
+            customFontRecords: [] 
         };
 
         // 支援 Traditional Chinese 常見字體降級策略
@@ -1138,6 +1314,10 @@
         } catch (e) {
             console.warn("LocalStorage 存取失敗：", e);
         }
+
+        // 當前選擇項，用於內嵌選擇器 (預設保留前次輸入，預設載入最後一筆或第一筆)
+        let selectedLocation = appState.locations[0] || '';
+        let selectedCategory = appState.categories[0] || '';
 
         // ----------------------------------------------------
         // IndexedDB 技術：高容量永久字型儲存
@@ -1199,18 +1379,44 @@
         const addBtn = document.getElementById('add-btn');
         const statsText = document.getElementById('stats-text');
         const emptyState = document.getElementById('empty-state');
-        const locationSelect = document.getElementById('location-select');
-        const categorySelect = document.getElementById('category-select');
         const navItems = document.querySelectorAll('.nav-item');
         const fontFamilySelect = document.getElementById('font-family-select');
 
         let currentPageIndex = 0;
 
         // --------------------------
-        // 智慧配色：莫蘭迪粉彩色系
+        // 語意聯想標籤色彩系統 (莫蘭迪色系調色盤)
         // --------------------------
         function getTagStyle(text) {
             if (!text) return '';
+            const lowerText = text.toLowerCase();
+            
+            // 1. 重要 / 貴重 / 必備 / 證件 (暖紅、珊瑚橘)
+            if (lowerText.includes('重要') || lowerText.includes('貴重') || lowerText.includes('緊急') || lowerText.includes('證件') || lowerText.includes('必備') || lowerText.includes('護照') || lowerText.includes('錢') || lowerText.includes('卡')) {
+                return `background-color: #fcebeb; border: 1px solid #cca4a4; color: #a35c5c;`;
+            }
+            // 2. 衣物 / 鞋帽 / 配件 (溫和寧靜藍)
+            if (lowerText.includes('衣') || lowerText.includes('鞋') || lowerText.includes('襪') || lowerText.includes('服') || lowerText.includes('帽') || lowerText.includes('穿') || lowerText.includes('褲') || lowerText.includes('裝')) {
+                return `background-color: #eaf1f7; border: 1px solid #a4b9cc; color: #5c7ca3;`;
+            }
+            // 3. 電子 / 數位 / 3C / 充電設備 (薰衣草柔紫)
+            if (lowerText.includes('電') || lowerText.includes('數位') || lowerText.includes('3c') || lowerText.includes('線') || lowerText.includes('機') || lowerText.includes('相機') || lowerText.includes('耳機') || lowerText.includes('充')) {
+                return `background-color: #f1eaf7; border: 1px solid #b7a4cc; color: #755ca3;`;
+            }
+            // 4. 盥洗 / 保養 / 衛生 / 醫藥 (薄荷森綠、粉綠)
+            if (lowerText.includes('盥洗') || lowerText.includes('保養') || lowerText.includes('牙') || lowerText.includes('藥') || lowerText.includes('衛') || lowerText.includes('洗') || lowerText.includes('梳') || lowerText.includes('化妝')) {
+                return `background-color: #eaf7f2; border: 1px solid #a4cca8; color: #5ca385;`;
+            }
+            // 5. 戶外 / 實用工具 / 雨具 (大地茶褐、橄欖綠)
+            if (lowerText.includes('戶外') || lowerText.includes('工具') || lowerText.includes('雨') || lowerText.includes('傘') || lowerText.includes('水瓶') || lowerText.includes('指南')) {
+                return `background-color: #edf2eb; border: 1px solid #b9c7b5; color: #62755d;`;
+            }
+            // 6. 其他 / 雜物 / 備用 (極簡中性灰)
+            if (lowerText.includes('其他') || lowerText.includes('備用') || lowerText.includes('雜') || lowerText.includes('未分類')) {
+                return `background-color: #f2f2f2; border: 1px solid #d4d4d4; color: #737373;`;
+            }
+
+            // 備用：若無法語意識別則採原有動態色彩 Hash 算法
             let hash = 0;
             for (let i = 0; i < text.length; i++) {
                 hash = text.charCodeAt(i) + ((hash << 5) - hash);
@@ -1398,6 +1604,10 @@
                     item.classList.remove('active');
                 }
             });
+
+            // 當切換頁面時自動收合選擇器
+            toggleInlineSelect('location', false);
+            toggleInlineSelect('category', false);
         }
 
         let touchStartX = 0;
@@ -1424,49 +1634,128 @@
         }
 
         // --------------------------
-        // 下拉選單動態更新與客製輸入
+        // 渲染自訂無額外視窗選擇器列表
         // --------------------------
-        function populateSelects() {
-            locationSelect.innerHTML = '';
-            appState.locations.forEach(loc => {
-                const opt = document.createElement('option');
-                opt.value = loc;
-                opt.innerText = loc;
-                locationSelect.appendChild(opt);
-            });
-            const customLocOpt = document.createElement('option');
-            customLocOpt.value = '__new__';
-            customLocOpt.innerText = '＋ 新增放置位置...';
-            locationSelect.appendChild(customLocOpt);
+        function populateCustomSelects() {
+            // 確認已有預設值，若無則指派預設值
+            if (!selectedLocation && appState.locations.length > 0) {
+                selectedLocation = appState.locations[0];
+            }
+            if (!selectedCategory && appState.categories.length > 0) {
+                selectedCategory = appState.categories[0];
+            }
 
-            categorySelect.innerHTML = '';
-            appState.categories.forEach(cat => {
-                const opt = document.createElement('option');
-                opt.value = cat;
-                opt.innerText = cat;
-                categorySelect.appendChild(opt);
+            // 1. 渲染 放置位置 內嵌選項
+            const locOptionsContainer = document.getElementById('location-options');
+            locOptionsContainer.innerHTML = '';
+            appState.locations.forEach(loc => {
+                const div = document.createElement('div');
+                div.className = `inline-option-item ${selectedLocation === loc ? 'selected' : ''}`;
+                div.innerHTML = `
+                    <span>${escapeHtml(loc)}</span>
+                    ${selectedLocation === loc ? '<span style="font-weight:bold;">✓</span>' : ''}
+                `;
+                div.onclick = (e) => {
+                    e.stopPropagation();
+                    selectInlineOption('location', loc);
+                };
+                locOptionsContainer.appendChild(div);
             });
-            const customCatOpt = document.createElement('option');
-            customCatOpt.value = '__new__';
-            customCatOpt.innerText = '＋ 新增物品分類...';
-            categorySelect.appendChild(customCatOpt);
+            // 新增放置位置觸發項
+            const locNewDiv = document.createElement('div');
+            locNewDiv.className = `inline-option-item inline-option-item-new ${selectedLocation === '__new__' ? 'selected' : ''}`;
+            locNewDiv.innerHTML = `<span>＋ 新增放置位置...</span>`;
+            locNewDiv.onclick = (e) => {
+                e.stopPropagation();
+                selectInlineOption('location', '__new__');
+            };
+            locOptionsContainer.appendChild(locNewDiv);
+
+            // 2. 渲染 物品分類 內嵌選項
+            const catOptionsContainer = document.getElementById('category-options');
+            catOptionsContainer.innerHTML = '';
+            appState.categories.forEach(cat => {
+                const div = document.createElement('div');
+                div.className = `inline-option-item ${selectedCategory === cat ? 'selected' : ''}`;
+                div.innerHTML = `
+                    <span>${escapeHtml(cat)}</span>
+                    ${selectedCategory === cat ? '<span style="font-weight:bold;">✓</span>' : ''}
+                `;
+                div.onclick = (e) => {
+                    e.stopPropagation();
+                    selectInlineOption('category', cat);
+                };
+                catOptionsContainer.appendChild(div);
+            });
+            // 新增物品分類觸發項
+            const catNewDiv = document.createElement('div');
+            catNewDiv.className = `inline-option-item inline-option-item-new ${selectedCategory === '__new__' ? 'selected' : ''}`;
+            catNewDiv.innerHTML = `<span>＋ 新增物品分類...</span>`;
+            catNewDiv.onclick = (e) => {
+                e.stopPropagation();
+                selectInlineOption('category', '__new__');
+            };
+            catOptionsContainer.appendChild(catNewDiv);
+
+            // 更新預覽顯示條文字
+            document.getElementById('location-trigger-text').innerText = selectedLocation === '__new__' ? '＋ 新增放置位置...' : selectedLocation;
+            document.getElementById('category-trigger-text').innerText = selectedCategory === '__new__' ? '＋ 新增物品分類...' : selectedCategory;
         }
 
-        // 優化手機端下拉選單事件觸發機制，並延遲聚焦確保高度展開後彈出虛擬鍵盤
-        function handleSelectChange(selectElement, targetInputId) {
-            const customContainer = document.getElementById(targetInputId);
-            if (selectElement.value === '__new__') {
-                customContainer.classList.add('show');
-                // 延遲聚焦，確保平滑高度展開動畫完成後，能精準拉起手機虛擬鍵盤並置中
-                setTimeout(() => {
-                    const input = customContainer.querySelector('input');
-                    if (input) {
-                        input.focus();
-                        input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }
-                }, 300);
+        // 選擇內嵌選項事件
+        function selectInlineOption(type, value) {
+            if (type === 'location') {
+                selectedLocation = value;
+                const customContainer = document.getElementById('location-custom');
+                if (value === '__new__') {
+                    customContainer.classList.add('show');
+                    setTimeout(() => {
+                        document.getElementById('location-custom-input').focus();
+                    }, 150);
+                } else {
+                    customContainer.classList.remove('show');
+                }
+                toggleInlineSelect('location', false);
+            } else if (type === 'category') {
+                selectedCategory = value;
+                const customContainer = document.getElementById('category-custom');
+                if (value === '__new__') {
+                    customContainer.classList.add('show');
+                    setTimeout(() => {
+                        document.getElementById('category-custom-input').focus();
+                    }, 150);
+                } else {
+                    customContainer.classList.remove('show');
+                }
+                toggleInlineSelect('category', false);
+            }
+            populateCustomSelects();
+        }
+
+        // 切換內嵌選擇器收展狀態
+        function toggleInlineSelect(type, forceState) {
+            const selectContainer = document.getElementById(`${type}-select-container`);
+            const menu = document.getElementById(`${type}-menu`);
+            
+            let shouldShow;
+            if (typeof forceState === 'boolean') {
+                shouldShow = forceState;
             } else {
-                customContainer.classList.remove('show');
+                shouldShow = !menu.classList.contains('show');
+            }
+
+            if (shouldShow) {
+                // 關閉另一個展開中的選擇器，保持畫面乾淨
+                const otherType = type === 'location' ? 'category' : 'location';
+                toggleInlineSelect(otherType, false);
+
+                selectContainer.classList.add('open');
+                selectContainer.classList.add('active');
+                menu.classList.add('show');
+            } else {
+                selectContainer.classList.remove('open');
+                selectContainer.classList.remove('active');
+                menu.classList.remove('show');
             }
         }
 
@@ -1481,12 +1770,11 @@
             }
         }
 
-        // 重構管理區渲染：分拆成頂部 Sticky 的快速新增欄位與底部滾動 Options 列表
         function renderManager(type) {
             const container = document.getElementById(`${type}-manager`);
             container.innerHTML = '';
             
-            // 1. 建立快速新增欄位
+            // 建立快速新增欄位
             const addRow = document.createElement('div');
             addRow.className = 'manager-add-row';
             
@@ -1520,7 +1808,7 @@
             addRow.appendChild(addBtn);
             container.appendChild(addRow);
             
-            // 2. 建立獨立滾動的現有選項清單
+            // 建立獨立滾動的現有選項清單
             const listDiv = document.createElement('div');
             listDiv.className = 'manager-list';
             
@@ -1543,7 +1831,6 @@
             container.appendChild(listDiv);
         }
 
-        // 直接在管理介面中新增選項的方法
         function addOptionDirect(type, value) {
             const trimmedValue = value.trim();
             if (trimmedValue === '') return;
@@ -1567,21 +1854,29 @@
             }
             
             saveState();
-            populateSelects();
-            renderManager(type); // 重繪該管理區
+            populateCustomSelects();
+            renderManager(type); 
         }
 
         function deleteLocationOption(loc) {
             appState.locations = appState.locations.filter(l => l !== loc);
+            // 若目前選取的剛好被刪除，則重設為預設項
+            if (selectedLocation === loc) {
+                selectedLocation = appState.locations[0] || '';
+            }
             saveState();
-            populateSelects();
+            populateCustomSelects();
             renderManager('location');
         }
 
         function deleteCategoryOption(cat) {
             appState.categories = appState.categories.filter(c => c !== cat);
+            // 若目前選取的剛好被刪除，則重設為預設項
+            if (selectedCategory === cat) {
+                selectedCategory = appState.categories[0] || '';
+            }
             saveState();
-            populateSelects();
+            populateCustomSelects();
             renderManager('category');
         }
 
@@ -1815,7 +2110,7 @@
             });
 
             saveState();
-            populateSelects();
+            populateCustomSelects();
             renderGroupedList();
 
             switchPage(0);
@@ -1862,13 +2157,17 @@
             renderGroupedList();
         }
 
+        // --------------------------
+        // 新增行李處理邏輯 (停留在原地並顯示彈跳確認窗)
+        // --------------------------
         function addItem() {
             const text = itemInput.value.trim();
             if (text === '') return;
 
-            let finalLocation = locationSelect.value;
-            let finalCategory = categorySelect.value;
+            let finalLocation = selectedLocation;
+            let finalCategory = selectedCategory;
 
+            // 處理「新增放置位置」自訂值
             if (finalLocation === '__new__') {
                 const customLocInput = document.getElementById('location-custom-input');
                 const customLocValue = customLocInput.value.trim();
@@ -1877,11 +2176,15 @@
                     if (!appState.locations.includes(finalLocation)) {
                         appState.locations.push(finalLocation);
                     }
+                    // 保留此新增值作為下次預設
+                    selectedLocation = finalLocation;
                 } else {
                     finalLocation = '未分類位置';
+                    selectedLocation = finalLocation;
                 }
             }
 
+            // 處理「新增物品分類」自訂值
             if (finalCategory === '__new__') {
                 const customCatInput = document.getElementById('category-custom-input');
                 const customCatValue = customCatInput.value.trim();
@@ -1890,8 +2193,11 @@
                     if (!appState.categories.includes(finalCategory)) {
                         appState.categories.push(finalCategory);
                     }
+                    // 保留此新增值作為下次預設
+                    selectedCategory = finalCategory;
                 } else {
                     finalCategory = '其他備用';
+                    selectedCategory = finalCategory;
                 }
             }
 
@@ -1905,7 +2211,7 @@
 
             appState.items.push(newItem);
             
-            // 重置輸入欄位與關閉動畫容器
+            // 僅重置物品名稱輸入欄與隱藏自訂輸入槽，保留放置位置及分類選擇以利下次直接利用
             itemInput.value = '';
             document.getElementById('location-custom-input').value = '';
             document.getElementById('category-custom-input').value = '';
@@ -1913,10 +2219,32 @@
             document.getElementById('category-custom').classList.remove('show');
 
             saveState();
-            populateSelects();
-            renderGroupedList();
+            populateCustomSelects(); // 重繪自訂選項條
+            renderGroupedList(); // 背後同步更新清單
 
-            switchPage(0);
+            // 彈出精美自訂彈跳確認視窗
+            openAddedModal(text);
+        }
+
+        let addedModalTimeout = null;
+
+        // 打開新增成功彈跳視窗
+        function openAddedModal(itemName) {
+            document.getElementById('added-modal-item-name').innerText = `「${itemName}」已成功歸入「${selectedLocation}」的「${selectedCategory}」中！`;
+            const modal = document.getElementById('added-modal');
+            modal.classList.add('show');
+            
+            // 1.8 秒後自動隱藏，維持極佳的流暢度和盲打體驗
+            if (addedModalTimeout) clearTimeout(addedModalTimeout);
+            addedModalTimeout = setTimeout(() => {
+                closeAddedModal();
+            }, 1800);
+        }
+
+        // 關閉新增成功彈跳視窗
+        function closeAddedModal() {
+            if (addedModalTimeout) clearTimeout(addedModalTimeout);
+            document.getElementById('added-modal').classList.remove('show');
         }
 
         // --------------------------
@@ -1929,7 +2257,15 @@
             }
         });
 
-        populateSelects();
+        // 點選空白處自動收合內嵌下拉選單
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-inline-select') && !e.target.closest('.manage-btn') && !e.target.closest('.manager-container')) {
+                toggleInlineSelect('location', false);
+                toggleInlineSelect('category', false);
+            }
+        });
+
+        populateCustomSelects();
         renderGroupedList();
         renderArchiveRecords();
 
