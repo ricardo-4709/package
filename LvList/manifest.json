@@ -9,12 +9,12 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "Generated_Image_192.png",
+      "src": "https://github.com/ricardo-4709/package/blob/main/LvList/Generated_Image_192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "Generated_Image_512.png",
+      "src": "https://github.com/ricardo-4709/package/blob/main/LvList/Generated_Image_512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
