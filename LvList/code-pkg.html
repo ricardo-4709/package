@@ -1,16 +1,13 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>旅程打包清單</title>
-    
-    <meta name="theme-color" content="#9aa899">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="打包清單">
-
-    <style>
+<!doctype html>
+<html lang="zh-TW"><head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>旅程打包清單</title>
+  <meta name="theme-color" content="#9aa899">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="打包清單">
+  <style>
         /* 低飽和度、乾淨的日系/北歐風配色 */
         :root {
             --bg-color: #f7f8f6;       /* 柔和米白 */
@@ -47,15 +44,19 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            height: calc(100 * min(var(--vh, 1vh), 1vh));
             overflow: hidden;
+            position: fixed;
+            width: 100%;
+            left: 0;
+            top: 0;
         }
 
         /* 應用程式主視口 */
         .app-viewport {
             width: 100%;
             max-width: 500px;
-            height: 100dvh;
+            height: calc(100 * min(var(--vh, 1vh), 1vh));
             display: flex;
             flex-direction: column;
             position: relative;
@@ -84,10 +85,11 @@
             width: 25%;
             height: 100%;
             overflow-y: auto;
+            overflow-y: overlay;
+            -webkit-overflow-scrolling: touch;
             padding: 24px 20px;
             display: flex;
             flex-direction: column;
-            -webkit-overflow-scrolling: touch;
         }
 
         header {
@@ -1130,6 +1132,8 @@
             align-items: center;
             z-index: 1000;
             padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .modal-overlay.show {
@@ -1212,6 +1216,9 @@
             z-index: 2000;
             pointer-events: none;
             white-space: nowrap;
+            max-width: calc(100vw - 40px);
+            word-break: break-word;
+            white-space: normal;
         }
 
         .toast-container.show {
@@ -1305,342 +1312,369 @@
             color: white;
         }
     </style>
-</head>
-<body>
-
-    <div class="app-viewport">
-        <div class="pages-wrapper">
-            <div class="pages-container" id="pages-container">
-                
-                <!-- 第一頁：行李清單主頁 (Index: 0) -->
-                <div class="page" id="page-list">
-                    <header>
-                        <div class="header-left">
-                            <h1>打包清單</h1>
-                            <div class="stats" id="stats-text">0 / 0 已打包</div>
-                        </div>
-                        <button class="settings-trigger-btn" onclick="switchPage(3)" aria-label="開啟設定頁面">
-                            <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                            </svg>
-                        </button>
-                    </header>
-
-                    <div id="empty-state" class="empty-state" style="display: none;">
-                        <svg class="empty-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 20V10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>
-                            <path d="M9 6V4a3 3 0 0 1 6 0v2"/>
-                            <path d="M8 22V12h8v10"/>
-                            <path d="M12 12v4"/>
-                        </svg>
-                        <div>清單空空的，點擊下方新增行李吧</div>
-                    </div>
-
-                    <div class="grouped-container" id="grouped-items"></div>
-                </div>
-
-                <!-- 第二頁：新增行李 (Index: 1) -->
-                <div class="page" id="page-add">
-                    <header>
-                        <div class="header-left">
-                            <h1>新增行李</h1>
-                            <div class="stats" style="background: transparent; color: var(--text-muted); padding: 0;" id="add-stats-text">旅程裝備登錄</div>
-                        </div>
-                        <button class="settings-trigger-btn" onclick="switchPage(3)" aria-label="開啟設定頁面">
-                            <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                            </svg>
-                        </button>
-                    </header>
-
-                    <div class="form-card">
-                        <div class="form-group">
-                            <label class="form-label">物品名稱</label>
-                            <input type="text" id="item-input" class="form-input" placeholder="例如：護照、充電線..." autocomplete="off">
-                        </div>
-
-                        <!-- 內嵌折疊式放置位置選擇 -->
-                        <div class="form-group">
-                            <div class="form-label">
-                                <span>放置位置</span>
-                                <button class="manage-btn" onclick="toggleManager('location')">管理選項</button>
-                            </div>
-                            
-                            <div id="location-manager" class="manager-container"></div>
-
-                            <div class="custom-inline-select" id="location-select-container">
-                                <div class="inline-select-trigger" onclick="toggleInlineSelect('location')">
-                                    <span id="location-trigger-text">大行李箱</span>
-                                    <svg class="chevron-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                </div>
-                                <div class="inline-select-menu" id="location-menu">
-                                    <div class="inline-options-list" id="location-options"></div>
-                                </div>
-                            </div>
-
-                            <div id="location-custom" class="custom-input-container">
-                                <input type="text" id="location-custom-input" class="form-input" placeholder="輸入新的放置位置...">
-                            </div>
-                        </div>
-
-                        <!-- 內嵌折疊式物品分類選擇 -->
-                        <div class="form-group">
-                            <div class="form-label">
-                                <span>物品分類</span>
-                                <button class="manage-btn" onclick="toggleManager('category')">管理選項</button>
-                            </div>
-
-                            <div id="category-manager" class="manager-container"></div>
-
-                            <div class="custom-inline-select" id="category-select-container">
-                                <div class="inline-select-trigger" onclick="toggleInlineSelect('category')">
-                                    <span id="category-trigger-text">貴重證件</span>
-                                    <svg class="chevron-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                </div>
-                                <div class="inline-select-menu" id="category-menu">
-                                    <div class="inline-options-list" id="category-options"></div>
-                                </div>
-                            </div>
-
-                            <div id="category-custom" class="custom-input-container">
-                                <input type="text" id="category-custom-input" class="form-input" placeholder="輸入新的分類名稱...">
-                            </div>
-                        </div>
-
-                        <button id="add-btn" class="btn-submit">
-                            <span>加入行李清單</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 第三頁：旅程規劃時間軸 (Journey Itinerary) (Index: 2) -->
-                <div class="page" id="page-journey">
-                    <header>
-                        <div class="header-left">
-                            <h1>旅程規劃</h1>
-                            <div class="stats" id="journey-stats-text">0 個旅程節點</div>
-                        </div>
-                        <button class="settings-trigger-btn" onclick="switchPage(3)" aria-label="開啟設定頁面">
-                            <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                            </svg>
-                        </button>
-                    </header>
-
-                    <!-- 旅程時間軸容器 -->
-                    <div id="journey-empty-state" class="empty-state">
-                        <svg class="empty-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="16" y1="2" x2="16" y2="6"/>
-                            <line x1="8" y1="2" x2="8" y2="6"/>
-                            <line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
-                        <div>尚未安排旅程時間軸。點擊下方 ＋ 新增完美計畫吧！</div>
-                    </div>
-
-                    <div class="timeline-container" id="journey-timeline">
-                        <div class="timeline-line"></div>
-                        <div id="timeline-nodes-wrapper"></div>
-                    </div>
-
-                    <!-- 所有旅程下方置中新增 ＋ 按鈕 -->
-                    <div class="add-timeline-btn-container">
-                        <button class="btn-add-timeline" onclick="addNewTimelineNode()" aria-label="新增旅程欄位">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 第四頁：設定與歷史封存 (Index: 3) -->
-                <div class="page" id="page-settings">
-                    <header class="form-title" style="display: flex; justify-content: space-between; align-items: center;">
-                        <h1>設定</h1>
-                        <button class="btn-custom" onclick="goBackFromSettings()">返回</button>
-                    </header>
-
-                    <div class="form-card" style="margin-bottom: 16px;">
-                        <div class="form-group">
-                            <label class="form-label" style="font-size: 0.95rem; font-weight: 700;">字型風格設定</label>
-                            <div class="select-wrapper">
-                                <select id="font-family-select" class="form-select" onchange="changeAppFont(this.value)">
-                                    <option value="system">系統預設 (Sans-serif)</option>
-                                    <option value="serif">優雅明體 / 宋體 (Serif)</option>
-                                    <option value="jhenghei">微軟正黑體 (Modern)</option>
-                                    <option value="kaiti">經典標楷體 (Kaiti)</option>
-                                    <option value="monospace">極客等寬 (Monospace)</option>
-                                    <option value="rounded">圓潤圓體 (Rounded)</option>
-                                </select>
-                            </div>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">字型變更將套用至除「分類標籤」外的所有介面文字。</p>
-                        </div>
-
-                        <div class="form-group" style="margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 14px;">
-                            <label class="form-label">導入裝置字型 (.ttf, .otf, .woff, .woff2)</label>
-                            <div style="display: flex; gap: 8px; margin-top: 6px;">
-                                <button class="btn-custom" onclick="document.getElementById('font-file-input').click()" style="flex: 1; text-align: center;">選擇自訂字型檔案</button>
-                                <input type="file" id="font-file-input" accept=".ttf,.otf,.woff,.woff2" style="display: none;" onchange="handleFontUpload(event)">
-                            </div>
-                            <div id="uploaded-fonts-list" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;"></div>
-                        </div>
-                    </div>
-
-                    <!-- 行李一鍵封存卡片 -->
-                    <div class="form-card" style="margin-bottom: 16px;">
-                        <div class="form-group">
-                            <label class="form-label" style="font-size: 0.95rem; font-weight: 700;">封存當前行李</label>
-                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
-                                將當前行李清單的所有物品備份保存為一筆歷史紀錄，並清空當前行李清單。
-                            </p>
-                            <button class="btn-submit" onclick="openArchiveModal()" style="margin-top: 4px; background-color: var(--accent);">
-                                <span>一鍵封存當前行李</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 旅程時間軸一鍵封存卡片 (新增) -->
-                    <div class="form-card" style="margin-bottom: 24px;">
-                        <div class="form-group">
-                            <label class="form-label" style="font-size: 0.95rem; font-weight: 700;">封存當前旅程時間軸</label>
-                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
-                                將當前旅程規劃的所有時間軸節點與備忘備份保存為一筆歷史紀錄，並清空當前時間軸以準備新的旅程。
-                            </p>
-                            <button class="btn-submit" onclick="openJourneyArchiveModal()" style="margin-top: 4px; background-color: var(--accent);">
-                                <span>一鍵封存當前旅程規劃</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 歷史行李封存列表 -->
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
-                        <h2 style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px;">行李封存紀錄列表</h2>
-                        
-                        <div id="archive-empty-state" class="empty-state" style="display: none; padding: 24px 0;">
-                            <svg class="empty-svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
-                                <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
-                            </svg>
-                            <div style="font-size: 0.85rem;">目前沒有任何歷史行李封存紀錄</div>
-                        </div>
-
-                        <div class="archive-list-container" id="archive-list"></div>
-                    </div>
-
-                    <!-- 歷史旅程時間軸封存列表 (新增) -->
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 24px; border-top: 1px dashed var(--border-color); padding-top: 20px; margin-bottom: 24px;">
-                        <h2 style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px;">旅程規劃封存紀錄列表</h2>
-                        
-                        <div id="journey-archive-empty-state" class="empty-state" style="display: none; padding: 24px 0;">
-                            <svg class="empty-svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                <line x1="16" y1="2" x2="16" y2="6"/>
-                                <line x1="8" y1="2" x2="8" y2="6"/>
-                                <line x1="3" y1="10" x2="21" y2="10"/>
-                            </svg>
-                            <div style="font-size: 0.85rem;">目前沒有任何歷史旅程封存紀錄</div>
-                        </div>
-
-                        <div class="archive-list-container" id="journey-archive-list"></div>
-                    </div>
-                </div>
-
+  <script src="/_sdk/resizing_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-html-import-id="html-import-0" data-template-id="__page-root" style="background: rgb(247, 248, 246);">
+  <div class="app-viewport canva-container" data-html-import-id="html-import-1" data-template-id="div-0" style="background: rgb(247, 248, 246);">
+   <div class="pages-wrapper" data-html-import-id="html-import-2">
+    <div class="pages-container" id="pages-container" data-html-import-id="html-import-3"><!-- 第一頁：行李清單主頁 (Index: 0) -->
+     <div class="page" id="page-list" data-html-import-id="html-import-4">
+      <header data-html-import-id="html-import-5">
+       <div class="header-left" data-html-import-id="html-import-6">
+        <h1 data-html-import-id="html-import-7" data-template-id="h1-1" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 600; font-style: normal; font-size: 26px;">打包清單</h1>
+        <div class="stats canva-container" id="stats-text" data-html-import-id="html-import-8" data-template-id="div-2" style="background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 500; font-style: normal; font-size: 14px;">1 / 4 已打包</div>
+       </div><button class="settings-trigger-btn canva-button" onclick="switchPage(3)" aria-label="開啟設定頁面" data-html-import-id="html-import-9" data-template-id="button-3" style="color: rgb(58, 63, 71);">
+        <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-10" data-template-id="svg-4"><circle cx="12" cy="12" r="3" data-html-import-id="html-import-11"></circle> <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" data-html-import-id="html-import-12"></path>
+        </svg></button>
+      </header>
+      <div id="empty-state" class="empty-state canva-container" style="display: none; color: rgb(142, 148, 159); font-size: 15px;" data-html-import-id="html-import-13" data-template-id="div-5">
+       <svg class="empty-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-14" data-template-id="svg-6"><path d="M4 20V10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" data-html-import-id="html-import-15"></path> <path d="M9 6V4a3 3 0 0 1 6 0v2" data-html-import-id="html-import-16"></path> <path d="M8 22V12h8v10" data-html-import-id="html-import-17"></path> <path d="M12 12v4" data-html-import-id="html-import-18"></path>
+       </svg>
+       <div data-html-import-id="html-import-19" data-template-id="div-7" class="canva-container" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 16px;">清單空空的，點擊下方新增行李吧</div>
+      </div>
+      <div class="grouped-container" id="grouped-items" data-html-import-id="html-import-20">
+       <div class="location-group" data-html-import-id="html-import-21">
+        <div class="group-header canva-container" data-html-import-id="html-import-22" data-template-id="div-8" style="color: rgb(92, 102, 91); font-weight: 600; font-style: normal; font-size: 15px;">大行李箱</div>
+        <ul class="item-list" data-html-import-id="html-import-23">
+         <li class="item-node  canva-text" data-html-import-id="html-import-24" data-template-id="li-9" style="background: rgb(255, 255, 255); color: rgb(58, 63, 71);">
+          <div class="item-left" data-html-import-id="html-import-25"><label class="checkbox-wrapper" data-html-import-id="html-import-26"> <input type="checkbox" onchange="toggleComplete(2)" data-html-import-id="html-import-27"> <span class="checkmark" data-html-import-id="html-import-28"></span> </label>
+           <div class="item-content" data-html-import-id="html-import-29">
+            <div class="item-text-row" data-html-import-id="html-import-30"><input type="text" class="item-text canva-input" value="換洗衣物" onchange="editItem(2, this.value)" data-html-import-id="html-import-31" data-template-id="input-10" style="color: rgb(58, 63, 71); font-weight: 500; font-size: 15px;">
             </div>
+            <div class="item-tags" data-html-import-id="html-import-32"><span class="tag canva-text" style="background: rgb(234, 241, 247); border: 1px solid rgb(164, 185, 204); color: rgb(92, 124, 163); font-weight: 600; font-style: normal; font-size: 12px;" data-html-import-id="html-import-33" data-template-id="span-11">衣物鞋包</span>
+            </div>
+           </div>
+          </div><button class="delete-btn canva-button" onclick="deleteItem(2)" data-html-import-id="html-import-34" data-template-id="button-12" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 16px;">✕</button></li>
+         <li class="item-node  canva-text" data-html-import-id="html-import-35" data-template-id="li-13" style="background: rgb(255, 255, 255); color: rgb(58, 63, 71);">
+          <div class="item-left" data-html-import-id="html-import-36"><label class="checkbox-wrapper" data-html-import-id="html-import-37"> <input type="checkbox" onchange="toggleComplete(4)" data-html-import-id="html-import-38"> <span class="checkmark" data-html-import-id="html-import-39"></span> </label>
+           <div class="item-content" data-html-import-id="html-import-40">
+            <div class="item-text-row" data-html-import-id="html-import-41"><input type="text" class="item-text canva-input" value="牙刷盥洗組" onchange="editItem(4, this.value)" data-html-import-id="html-import-42" data-template-id="input-14" style="color: rgb(58, 63, 71); font-weight: 500; font-size: 15px;">
+            </div>
+            <div class="item-tags" data-html-import-id="html-import-43"><span class="tag canva-text" style="background: rgb(234, 247, 242); border: 1px solid rgb(164, 204, 168); color: rgb(92, 163, 133); font-weight: 600; font-style: normal; font-size: 12px;" data-html-import-id="html-import-44" data-template-id="span-15">盥洗用品</span>
+            </div>
+           </div>
+          </div><button class="delete-btn canva-button" onclick="deleteItem(4)" data-html-import-id="html-import-45" data-template-id="button-16" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 16px;">✕</button></li>
+        </ul>
+       </div>
+       <div class="location-group" data-html-import-id="html-import-46">
+        <div class="group-header canva-container" data-html-import-id="html-import-47" data-template-id="div-17" style="color: rgb(92, 102, 91); font-weight: 600; font-style: normal; font-size: 15px;">後背包</div>
+        <ul class="item-list" data-html-import-id="html-import-48">
+         <li class="item-node completed canva-text" data-html-import-id="html-import-49" data-template-id="li-18" style="background: rgb(250, 250, 250); color: rgb(58, 63, 71);">
+          <div class="item-left" data-html-import-id="html-import-50"><label class="checkbox-wrapper" data-html-import-id="html-import-51"> <input type="checkbox" checked="" onchange="toggleComplete(3)" data-html-import-id="html-import-52"> <span class="checkmark canva-text" data-html-import-id="html-import-53" data-template-id="span-19" style="background: rgb(154, 168, 153);"></span> </label>
+           <div class="item-content" data-html-import-id="html-import-54">
+            <div class="item-text-row" data-html-import-id="html-import-55"><input type="text" class="item-text canva-input" value="行動電源與快充線" onchange="editItem(3, this.value)" data-html-import-id="html-import-56" data-template-id="input-20" style="color: rgb(142, 148, 159); font-weight: 500; font-size: 15px;">
+            </div>
+            <div class="item-tags" data-html-import-id="html-import-57"><span class="tag canva-text" style="background: rgb(241, 234, 247); border: 1px solid rgb(183, 164, 204); color: rgb(117, 92, 163); font-weight: 600; font-style: normal; font-size: 12px;" data-html-import-id="html-import-58" data-template-id="span-21">電子配件</span>
+            </div>
+           </div>
+          </div><button class="delete-btn canva-button" onclick="deleteItem(3)" data-html-import-id="html-import-59" data-template-id="button-22" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 16px;">✕</button></li>
+        </ul>
+       </div>
+       <div class="location-group" data-html-import-id="html-import-60">
+        <div class="group-header canva-container" data-html-import-id="html-import-61" data-template-id="div-23" style="color: rgb(92, 102, 91); font-weight: 600; font-style: normal; font-size: 15px;">隨身包包</div>
+        <ul class="item-list" data-html-import-id="html-import-62">
+         <li class="item-node  canva-text" data-html-import-id="html-import-63" data-template-id="li-24" style="background: rgb(255, 255, 255); color: rgb(58, 63, 71);">
+          <div class="item-left" data-html-import-id="html-import-64"><label class="checkbox-wrapper" data-html-import-id="html-import-65"> <input type="checkbox" onchange="toggleComplete(1)" data-html-import-id="html-import-66"> <span class="checkmark" data-html-import-id="html-import-67"></span> </label>
+           <div class="item-content" data-html-import-id="html-import-68">
+            <div class="item-text-row" data-html-import-id="html-import-69"><input type="text" class="item-text canva-input" value="護照與簽證" onchange="editItem(1, this.value)" data-html-import-id="html-import-70" data-template-id="input-25" style="color: rgb(58, 63, 71); font-weight: 500; font-size: 15px;">
+            </div>
+            <div class="item-tags" data-html-import-id="html-import-71"><span class="tag canva-text" style="background: rgb(252, 235, 235); border: 1px solid rgb(204, 164, 164); color: rgb(163, 92, 92); font-weight: 600; font-style: normal; font-size: 12px;" data-html-import-id="html-import-72" data-template-id="span-26">貴重證件</span>
+            </div>
+           </div>
+          </div><button class="delete-btn canva-button" onclick="deleteItem(1)" data-html-import-id="html-import-73" data-template-id="button-27" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 16px;">✕</button></li>
+        </ul>
+       </div>
+      </div>
+     </div><!-- 第二頁：新增行李 (Index: 1) -->
+     <div class="page" id="page-add" data-html-import-id="html-import-74">
+      <header data-html-import-id="html-import-75">
+       <div class="header-left" data-html-import-id="html-import-76">
+        <h1 data-html-import-id="html-import-77" data-template-id="h1-28" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 600; font-style: normal; font-size: 26px;">新增行李</h1>
+        <div class="stats canva-container" style="background: transparent; color: rgb(142, 148, 159); padding: 0px; font-weight: 500; font-style: normal; font-size: 14px;" id="add-stats-text" data-html-import-id="html-import-78" data-template-id="div-29">旅程裝備登錄</div>
+       </div><button class="settings-trigger-btn canva-button" onclick="switchPage(3)" aria-label="開啟設定頁面" data-html-import-id="html-import-79" data-template-id="button-30" style="color: rgb(58, 63, 71);">
+        <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-80" data-template-id="svg-31"><circle cx="12" cy="12" r="3" data-html-import-id="html-import-81"></circle> <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" data-html-import-id="html-import-82"></path>
+        </svg></button>
+      </header>
+      <div class="form-card canva-container" data-html-import-id="html-import-83" data-template-id="div-32" style="background: rgb(255, 255, 255);">
+       <div class="form-group" data-html-import-id="html-import-84"><label class="form-label canva-text" data-html-import-id="html-import-85" data-template-id="label-33" style="color: rgb(58, 63, 71); font-weight: 600; font-style: normal; font-size: 14px;">物品名稱</label> <input type="text" id="item-input" class="form-input canva-input" placeholder="例如：護照、充電線..." autocomplete="off" data-html-import-id="html-import-86" data-template-id="input-34" style="background: rgb(255, 255, 255); color: rgb(58, 63, 71); font-size: 15px;">
+       </div><!-- 內嵌折疊式放置位置選擇 -->
+       <div class="form-group" data-html-import-id="html-import-87">
+        <div class="form-label canva-container" data-html-import-id="html-import-88" data-template-id="div-35" style="color: rgb(58, 63, 71); font-weight: 600; font-size: 14px;"><span data-html-import-id="html-import-89" data-template-id="span-36" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 16px;">放置位置</span> <button class="manage-btn canva-button" onclick="toggleManager('location')" data-html-import-id="html-import-90" data-template-id="button-37" style="color: rgb(154, 168, 153); font-weight: 500; font-style: normal; font-size: 13px;">管理選項</button>
         </div>
-
-        <!-- 底部導覽列 -->
-        <div class="bottom-nav">
-            <button class="nav-item active" onclick="switchPage(0)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                </svg>
-                <span>清單</span>
-            </button>
-            <button class="nav-item" onclick="switchPage(1)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                <span>新增</span>
-            </button>
-            <button class="nav-item" onclick="switchPage(2)">
-                <!-- 旅程 Icon -->
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                <span>旅程</span>
-            </button>
+        <div id="location-manager" class="manager-container canva-container" data-html-import-id="html-import-91" data-template-id="div-38" style="background: rgb(250, 251, 250);"></div>
+        <div class="custom-inline-select canva-container" id="location-select-container" data-html-import-id="html-import-92" data-template-id="div-39" style="background: rgb(255, 255, 255);">
+         <div class="inline-select-trigger canva-container" onclick="toggleInlineSelect('location')" data-html-import-id="html-import-93" data-template-id="div-40" style="background: rgb(255, 255, 255); color: rgb(58, 63, 71); font-weight: 500; font-size: 15px;"><span id="location-trigger-text" data-html-import-id="html-import-94" data-template-id="span-41" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 16px;">大行李箱</span>
+          <svg class="chevron-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-95" data-template-id="svg-42"><polyline points="6 9 12 15 18 9" data-html-import-id="html-import-96"></polyline>
+          </svg>
+         </div>
+         <div class="inline-select-menu canva-container" id="location-menu" data-html-import-id="html-import-97" data-template-id="div-43" style="background: rgb(250, 251, 250);">
+          <div class="inline-options-list" id="location-options" data-html-import-id="html-import-98">
+           <div class="inline-option-item selected canva-container" data-html-import-id="html-import-99" data-template-id="div-44" style="background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-weight: 600; font-size: 14px;"><span data-html-import-id="html-import-100" data-template-id="span-45" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">大行李箱</span> <span style="font-weight: 700; color: rgb(255, 255, 255); font-style: normal; font-size: 16px;" data-html-import-id="html-import-101" data-template-id="span-46" class="canva-text">✓</span>
+           </div>
+           <div class="inline-option-item  canva-container" data-html-import-id="html-import-102" data-template-id="div-47" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-103" data-template-id="span-48" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 16px;">後背包</span>
+           </div>
+           <div class="inline-option-item  canva-container" data-html-import-id="html-import-104" data-template-id="div-49" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-105" data-template-id="span-50" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 16px;">隨身包包</span>
+           </div>
+           <div class="inline-option-item inline-option-item-new  canva-container" data-html-import-id="html-import-106" data-template-id="div-51" style="color: rgb(154, 168, 153); font-weight: 600; font-size: 14px;">
+            <span data-html-import-id="html-import-107" data-template-id="span-52" class="canva-text" style="color: rgb(154, 168, 153); font-weight: 400; font-style: normal; font-size: 16px;">＋ 新增放置位置...</span>
+           </div>
+          </div>
+         </div>
         </div>
+        <div id="location-custom" class="custom-input-container" data-html-import-id="html-import-108"><input type="text" id="location-custom-input" class="form-input canva-input" placeholder="輸入新的放置位置..." data-html-import-id="html-import-109" data-template-id="input-53" style="background: rgb(255, 255, 255); color: rgb(58, 63, 71); font-size: 15px;">
+        </div>
+       </div><!-- 內嵌折疊式物品分類選擇 -->
+       <div class="form-group" data-html-import-id="html-import-110">
+        <div class="form-label canva-container" data-html-import-id="html-import-111" data-template-id="div-54" style="color: rgb(58, 63, 71); font-weight: 600; font-size: 14px;"><span data-html-import-id="html-import-112" data-template-id="span-55" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 16px;">物品分類</span> <button class="manage-btn canva-button" onclick="toggleManager('category')" data-html-import-id="html-import-113" data-template-id="button-56" style="color: rgb(154, 168, 153); font-weight: 500; font-style: normal; font-size: 13px;">管理選項</button>
+        </div>
+        <div id="category-manager" class="manager-container canva-container" data-html-import-id="html-import-114" data-template-id="div-57" style="background: rgb(250, 251, 250);"></div>
+        <div class="custom-inline-select canva-container" id="category-select-container" data-html-import-id="html-import-115" data-template-id="div-58" style="background: rgb(255, 255, 255);">
+         <div class="inline-select-trigger canva-container" onclick="toggleInlineSelect('category')" data-html-import-id="html-import-116" data-template-id="div-59" style="background: rgb(255, 255, 255); color: rgb(58, 63, 71); font-weight: 500; font-size: 15px;"><span id="category-trigger-text" data-html-import-id="html-import-117" data-template-id="span-60" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 16px;">貴重證件</span>
+          <svg class="chevron-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-118" data-template-id="svg-61"><polyline points="6 9 12 15 18 9" data-html-import-id="html-import-119"></polyline>
+          </svg>
+         </div>
+         <div class="inline-select-menu canva-container" id="category-menu" data-html-import-id="html-import-120" data-template-id="div-62" style="background: rgb(250, 251, 250);">
+          <div class="inline-options-list" id="category-options" data-html-import-id="html-import-121">
+           <div class="inline-option-item selected canva-container" data-html-import-id="html-import-122" data-template-id="div-63" style="background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-weight: 600; font-size: 14px;"><span data-html-import-id="html-import-123" data-template-id="span-64" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">貴重證件</span> <span style="font-weight: 700; color: rgb(255, 255, 255); font-style: normal; font-size: 16px;" data-html-import-id="html-import-124" data-template-id="span-65" class="canva-text">✓</span>
+           </div>
+           <div class="inline-option-item  canva-container" data-html-import-id="html-import-125" data-template-id="div-66" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-126" data-template-id="span-67" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 16px;">衣物鞋包</span>
+           </div>
+           <div class="inline-option-item  canva-container" data-html-import-id="html-import-127" data-template-id="div-68" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-128" data-template-id="span-69" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 16px;">電子配件</span>
+           </div>
+           <div class="inline-option-item  canva-container" data-html-import-id="html-import-129" data-template-id="div-70" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-130" data-template-id="span-71" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 16px;">盥洗用品</span>
+           </div>
+           <div class="inline-option-item  canva-container" data-html-import-id="html-import-131" data-template-id="div-72" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-132" data-template-id="span-73" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 16px;">其他備用</span>
+           </div>
+           <div class="inline-option-item inline-option-item-new  canva-container" data-html-import-id="html-import-133" data-template-id="div-74" style="color: rgb(154, 168, 153); font-weight: 600; font-size: 14px;">
+            <span data-html-import-id="html-import-134" data-template-id="span-75" class="canva-text" style="color: rgb(154, 168, 153); font-weight: 400; font-style: normal; font-size: 16px;">＋ 新增物品分類...</span>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div id="category-custom" class="custom-input-container" data-html-import-id="html-import-135"><input type="text" id="category-custom-input" class="form-input canva-input" placeholder="輸入新的分類名稱..." data-html-import-id="html-import-136" data-template-id="input-76" style="background: rgb(255, 255, 255); color: rgb(58, 63, 71); font-size: 15px;">
+        </div>
+       </div><button id="add-btn" class="btn-submit canva-button" data-html-import-id="html-import-137" data-template-id="button-77" style="background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-weight: 600; font-size: 15px;"> <span data-html-import-id="html-import-138" data-template-id="span-78" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">加入行李清單</span> </button>
+      </div>
+     </div><!-- 第三頁：旅程規劃時間軸 (Journey Itinerary) (Index: 2) -->
+     <div class="page" id="page-journey" data-html-import-id="html-import-139">
+      <header data-html-import-id="html-import-140">
+       <div class="header-left" data-html-import-id="html-import-141">
+        <h1 data-html-import-id="html-import-142" data-template-id="h1-79" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 600; font-style: normal; font-size: 26px;">旅程規劃</h1>
+        <div class="stats canva-container" id="journey-stats-text" data-html-import-id="html-import-143" data-template-id="div-80" style="background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 500; font-style: normal; font-size: 14px;">3 個旅程節點</div>
+       </div><button class="settings-trigger-btn canva-button" onclick="switchPage(3)" aria-label="開啟設定頁面" data-html-import-id="html-import-144" data-template-id="button-81" style="color: rgb(58, 63, 71);">
+        <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-145" data-template-id="svg-82"><circle cx="12" cy="12" r="3" data-html-import-id="html-import-146"></circle> <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" data-html-import-id="html-import-147"></path>
+        </svg></button>
+      </header><!-- 旅程時間軸容器 -->
+      <div id="journey-empty-state" class="empty-state canva-container" data-html-import-id="html-import-148" data-template-id="div-83" style="display: none; color: rgb(142, 148, 159); font-size: 15px;">
+       <svg class="empty-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-149" data-template-id="svg-84"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" data-html-import-id="html-import-150"></rect> <line x1="16" y1="2" x2="16" y2="6" data-html-import-id="html-import-151"></line> <line x1="8" y1="2" x2="8" y2="6" data-html-import-id="html-import-152"></line> <line x1="3" y1="10" x2="21" y2="10" data-html-import-id="html-import-153"></line>
+       </svg>
+       <div data-html-import-id="html-import-154" data-template-id="div-85" class="canva-container" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 16px;">尚未安排旅程時間軸。點擊下方 ＋ 新增完美計畫吧！</div>
+      </div>
+      <div class="timeline-container" id="journey-timeline" data-html-import-id="html-import-155" style="display: block;">
+       <div class="timeline-line canva-container" data-html-import-id="html-import-156" data-template-id="div-86" style="background: rgb(228, 231, 228);"></div>
+       <div id="timeline-nodes-wrapper" data-html-import-id="html-import-157">
+        <div class="timeline-node" data-html-import-id="html-import-158">
+         <div class="timeline-time-block canva-container" data-html-import-id="html-import-159" data-template-id="div-87" style="background: rgb(255, 255, 255);"><input type="text" class="timeline-time-input date-field canva-input" placeholder="" value="" oninput="handleNumericInput(event, 1, 'dateDigits')" maxlength="8" inputmode="numeric" pattern="[0-9]*" aria-label="修改日期" data-html-import-id="html-import-160" data-template-id="input-88" style="color: rgb(154, 168, 153); font-weight: 700; font-size: 14px;"> <input type="text" class="timeline-time-input time-field canva-input" placeholder="" value="" oninput="handleNumericInput(event, 1, 'timeDigits')" maxlength="8" inputmode="numeric" pattern="[0-9]*" aria-label="修改時間" data-html-import-id="html-import-161" data-template-id="input-89" style="color: rgb(58, 63, 71); font-weight: 700; font-size: 14px;">
+         </div>
+         <div class="timeline-content-card canva-container" data-id="1" data-html-import-id="html-import-162" data-template-id="div-90" style="background: rgb(255, 255, 255);"><!-- 右側垂直動作欄：刪除與附件迴紋針完美上下對齊 -->
+          <div class="timeline-actions-column" data-html-import-id="html-import-163"><button class="timeline-delete-btn canva-button" onclick="deleteJourneyItem(1)" title="刪除此行程節點" data-html-import-id="html-import-164" data-template-id="button-91" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 15px;">✕</button> <button class="timeline-attach-btn canva-button" onclick="triggerAttachmentUpload(1)" title="新增附件檔案" data-html-import-id="html-import-165" data-template-id="button-92" style="color: rgb(142, 148, 159);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" data-html-import-id="html-import-166"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" data-html-import-id="html-import-167"></path>
+            </svg></button>
+          </div><textarea class="timeline-editable-text canva-input" placeholder="在此輸入旅程記事..." rows="2" oninput="handleTextareaInput(1, this.value, this);" aria-label="修改記事內容" data-html-import-id="html-import-168" data-template-id="textarea-93" style="height: 40px; color: rgb(58, 63, 71); font-weight: 500; font-style: normal; font-size: 14px;">抵達台北桃園國際機場，辦理登機與託運行李。 官網連結：https://www.taoyuan-airport.com</textarea>
+          <div class="link-preview-wrapper" style="width:100%; margin-top:2px;" data-html-import-id="html-import-169"><a href="https://www.taoyuan-airport.com" target="_blank" class="link-preview-box canva-link" data-html-import-id="html-import-170" data-template-id="a-94" style="background: rgb(247, 248, 246); color: rgb(58, 63, 71);">
+            <div class="link-preview-icon canva-container" data-html-import-id="html-import-171" data-template-id="div-95" style="background: rgb(255, 255, 255); color: rgb(154, 168, 153);">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-172"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" data-html-import-id="html-import-173"></path> <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" data-html-import-id="html-import-174"></path>
+             </svg>
+            </div>
+            <div class="link-preview-details" data-html-import-id="html-import-175">
+             <div class="link-preview-title canva-container" data-html-import-id="html-import-176" data-template-id="div-96" style="color: rgb(58, 63, 71); font-weight: 700; font-style: normal; font-size: 12px;">造訪活動連結</div>
+             <div class="link-preview-url canva-container" data-html-import-id="html-import-177" data-template-id="div-97" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 10px;">www.taoyuan-airport.com</div>
+            </div></a>
+          </div>
+          <div class="attachment-preview-wrapper" style="width:100%;" data-html-import-id="html-import-178">
+          </div>
+         </div>
+        </div>
+        <div class="timeline-node" data-html-import-id="html-import-179">
+         <div class="timeline-time-block canva-container" data-html-import-id="html-import-180" data-template-id="div-98" style="background: rgb(255, 255, 255);"><input type="text" class="timeline-time-input date-field canva-input" placeholder="" value="" oninput="handleNumericInput(event, 2, 'dateDigits')" maxlength="8" inputmode="numeric" pattern="[0-9]*" aria-label="修改日期" data-html-import-id="html-import-181" data-template-id="input-99" style="color: rgb(154, 168, 153); font-weight: 700; font-size: 14px;"> <input type="text" class="timeline-time-input time-field canva-input" placeholder="" value="" oninput="handleNumericInput(event, 2, 'timeDigits')" maxlength="8" inputmode="numeric" pattern="[0-9]*" aria-label="修改時間" data-html-import-id="html-import-182" data-template-id="input-100" style="color: rgb(58, 63, 71); font-weight: 700; font-size: 14px;">
+         </div>
+         <div class="timeline-content-card canva-container" data-id="2" data-html-import-id="html-import-183" data-template-id="div-101" style="background: rgb(255, 255, 255);"><!-- 右側垂直動作欄：刪除與附件迴紋針完美上下對齊 -->
+          <div class="timeline-actions-column" data-html-import-id="html-import-184"><button class="timeline-delete-btn canva-button" onclick="deleteJourneyItem(2)" title="刪除此行程節點" data-html-import-id="html-import-185" data-template-id="button-102" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 15px;">✕</button> <button class="timeline-attach-btn canva-button" onclick="triggerAttachmentUpload(2)" title="新增附件檔案" data-html-import-id="html-import-186" data-template-id="button-103" style="color: rgb(142, 148, 159);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" data-html-import-id="html-import-187"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" data-html-import-id="html-import-188"></path>
+            </svg></button>
+          </div><textarea class="timeline-editable-text canva-input" placeholder="在此輸入旅程記事..." rows="2" oninput="handleTextareaInput(2, this.value, this);" aria-label="修改記事內容" data-html-import-id="html-import-189" data-template-id="textarea-104" style="height: 40px; color: rgb(58, 63, 71); font-weight: 500; font-style: normal; font-size: 14px;">飛機起飛前往東京。於航程中稍作休息。</textarea>
+          <div class="link-preview-wrapper" style="width:100%; margin-top:2px;" data-html-import-id="html-import-190">
+          </div>
+          <div class="attachment-preview-wrapper" style="width:100%;" data-html-import-id="html-import-191">
+          </div>
+         </div>
+        </div>
+        <div class="timeline-node" data-html-import-id="html-import-192">
+         <div class="timeline-time-block canva-container" data-html-import-id="html-import-193" data-template-id="div-105" style="background: rgb(255, 255, 255);"><input type="text" class="timeline-time-input date-field canva-input" placeholder="" value="" oninput="handleNumericInput(event, 3, 'dateDigits')" maxlength="8" inputmode="numeric" pattern="[0-9]*" aria-label="修改日期" data-html-import-id="html-import-194" data-template-id="input-106" style="color: rgb(154, 168, 153); font-weight: 700; font-size: 14px;"> <input type="text" class="timeline-time-input time-field canva-input" placeholder="" value="" oninput="handleNumericInput(event, 3, 'timeDigits')" maxlength="8" inputmode="numeric" pattern="[0-9]*" aria-label="修改時間" data-html-import-id="html-import-195" data-template-id="input-107" style="color: rgb(58, 63, 71); font-weight: 700; font-size: 14px;">
+         </div>
+         <div class="timeline-content-card canva-container" data-id="3" data-html-import-id="html-import-196" data-template-id="div-108" style="background: rgb(255, 255, 255);"><!-- 右側垂直動作欄：刪除與附件迴紋針完美上下對齊 -->
+          <div class="timeline-actions-column" data-html-import-id="html-import-197"><button class="timeline-delete-btn canva-button" onclick="deleteJourneyItem(3)" title="刪除此行程節點" data-html-import-id="html-import-198" data-template-id="button-109" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 15px;">✕</button> <button class="timeline-attach-btn canva-button" onclick="triggerAttachmentUpload(3)" title="新增附件檔案" data-html-import-id="html-import-199" data-template-id="button-110" style="color: rgb(142, 148, 159);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" data-html-import-id="html-import-200"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" data-html-import-id="html-import-201"></path>
+            </svg></button>
+          </div><textarea class="timeline-editable-text canva-input" placeholder="在此輸入旅程記事..." rows="2" oninput="handleTextareaInput(3, this.value, this);" aria-label="修改記事內容" data-html-import-id="html-import-202" data-template-id="textarea-111" style="height: 40px; color: rgb(58, 63, 71); font-weight: 500; font-style: normal; font-size: 14px;">預計抵達東京成田機場。搭乘 Skyliner 直達市區定位：https://maps.google.com</textarea>
+          <div class="link-preview-wrapper" style="width:100%; margin-top:2px;" data-html-import-id="html-import-203"><a href="https://maps.google.com" target="_blank" class="link-preview-box canva-link" data-html-import-id="html-import-204" data-template-id="a-112" style="background: rgb(247, 248, 246); color: rgb(58, 63, 71);">
+            <div class="link-preview-icon canva-container" data-html-import-id="html-import-205" data-template-id="div-113" style="background: rgb(255, 255, 255); color: rgb(154, 168, 153);">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-206"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" data-html-import-id="html-import-207"></path> <circle cx="12" cy="10" r="3" data-html-import-id="html-import-208"></circle>
+             </svg>
+            </div>
+            <div class="link-preview-details" data-html-import-id="html-import-209">
+             <div class="link-preview-title canva-container" data-html-import-id="html-import-210" data-template-id="div-114" style="color: rgb(58, 63, 71); font-weight: 700; font-style: normal; font-size: 12px;">Google 地圖導航定點</div>
+             <div class="link-preview-url canva-container" data-html-import-id="html-import-211" data-template-id="div-115" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 10px;">maps.google.com</div>
+            </div></a>
+          </div>
+          <div class="attachment-preview-wrapper" style="width:100%;" data-html-import-id="html-import-212">
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><!-- 所有旅程下方置中新增 ＋ 按鈕 -->
+      <div class="add-timeline-btn-container" data-html-import-id="html-import-213"><button class="btn-add-timeline canva-button" onclick="addNewTimelineNode()" aria-label="新增旅程欄位" data-html-import-id="html-import-214" data-template-id="button-116" style="background: rgb(154, 168, 153); color: rgb(255, 255, 255);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-215"><line x1="12" y1="5" x2="12" y2="19" data-html-import-id="html-import-216"></line> <line x1="5" y1="12" x2="19" y2="12" data-html-import-id="html-import-217"></line>
+        </svg></button>
+      </div>
+     </div><!-- 第四頁：設定與歷史封存 (Index: 3) -->
+     <div class="page" id="page-settings" data-html-import-id="html-import-218">
+      <header class="form-title" style="display: flex; justify-content: space-between; align-items: center;" data-html-import-id="html-import-219">
+       <h1 data-html-import-id="html-import-220" data-template-id="h1-117" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 600; font-style: normal; font-size: 26px;">設定</h1><button class="btn-custom canva-button" onclick="goBackFromSettings()" data-html-import-id="html-import-221" data-template-id="button-118" style="background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 600; font-style: normal; font-size: 14px;">返回</button>
+      </header>
+      <div class="form-card canva-container" style="margin-bottom: 16px; background: rgb(255, 255, 255);" data-html-import-id="html-import-222" data-template-id="div-119">
+       <div class="form-group" data-html-import-id="html-import-223"><label class="form-label canva-text" style="font-size: 15px; font-weight: 700; color: rgb(58, 63, 71); font-style: normal;" data-html-import-id="html-import-224" data-template-id="label-120">字型風格設定</label>
+        <div class="custom-inline-select canva-container" id="font-select-container" data-html-import-id="html-import-225">
+         <div class="inline-select-trigger canva-container" onclick="toggleFontSelect()" data-html-import-id="html-import-226"><span id="font-trigger-text" data-html-import-id="html-import-227" data-template-id="span-font-trigger" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 500; font-style: normal; font-size: 15px;">系統預設 (Sans-serif)</span>
+          <svg class="chevron-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-228" data-template-id="svg-font-chevron"><polyline points="6 9 12 15 18 9" data-html-import-id="html-import-229"></polyline>
+          </svg>
+         </div>
+         <div class="inline-select-menu canva-container" id="font-menu" data-html-import-id="html-import-230">
+          <div class="inline-options-list" id="font-options" data-html-import-id="html-import-231">
+           <div class="inline-option-item selected canva-container" data-font-value="system" data-html-import-id="html-import-232" data-template-id="div-font-option-1" style="background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-weight: 600; font-size: 14px;"><span data-html-import-id="html-import-233" data-template-id="span-font-1" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 600; font-style: normal; font-size: 14px;">系統預設 (Sans-serif)</span> <span style="font-weight: 700; color: rgb(255, 255, 255);" data-html-import-id="html-import-234" data-template-id="span-font-1-check" class="canva-text">✓</span>
+           </div>
+           <div class="inline-option-item canva-container" data-font-value="serif" data-html-import-id="html-import-235" data-template-id="div-font-option-2" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-236" data-template-id="span-font-2" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 14px;">優雅明體 / 宋體 (Serif)</span>
+           </div>
+           <div class="inline-option-item canva-container" data-font-value="jhenghei" data-html-import-id="html-import-237" data-template-id="div-font-option-3" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-238" data-template-id="span-font-3" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 14px;">微軟正黑體 (Modern)</span>
+           </div>
+           <div class="inline-option-item canva-container" data-font-value="kaiti" data-html-import-id="html-import-239" data-template-id="div-font-option-4" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-240" data-template-id="span-font-4" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 14px;">經典標楷體 (Kaiti)</span>
+           </div>
+           <div class="inline-option-item canva-container" data-font-value="monospace" data-html-import-id="html-import-241" data-template-id="div-font-option-5" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-242" data-template-id="span-font-5" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 14px;">極客等寬 (Monospace)</span>
+           </div>
+           <div class="inline-option-item canva-container" data-font-value="rounded" data-html-import-id="html-import-243" data-template-id="div-font-option-6" style="color: rgb(58, 63, 71); font-size: 14px;"><span data-html-import-id="html-import-244" data-template-id="span-font-6" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 14px;">圓潤圓體 (Rounded)</span>
+           </div>
+          </div>
+         </div>
+        </div>
+        <p style="font-size: 12px; color: rgb(142, 148, 159); margin-top: 4px; font-weight: 400; font-style: normal;" data-html-import-id="html-import-245" data-template-id="p-128" class="canva-text">字型變更將套用至除「分類標籤」外的所有介面文字。</p>
+       </div>
+       <div class="form-group" style="margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 14px;" data-html-import-id="html-import-234"><label class="form-label canva-text" data-html-import-id="html-import-235" data-template-id="label-129" style="color: rgb(58, 63, 71); font-weight: 600; font-style: normal; font-size: 14px;">導入裝置字型 (.ttf, .otf, .woff, .woff2)</label>
+        <div style="display: flex; gap: 8px; margin-top: 6px;" data-html-import-id="html-import-236"><button class="btn-custom canva-button" onclick="document.getElementById('font-file-input').click()" style="flex: 1 1 0%; text-align: center; background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 600; font-style: normal; font-size: 14px;" data-html-import-id="html-import-237" data-template-id="button-130">選擇自訂字型檔案</button> <input type="file" id="font-file-input" accept=".ttf,.otf,.woff,.woff2" style="display: none;" onchange="handleFontUpload(event)" data-html-import-id="html-import-238">
+        </div>
+        <div id="uploaded-fonts-list" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;" data-html-import-id="html-import-239"></div>
+       </div>
+      </div><!-- 行李一鍵封存卡片 -->
+      <div class="form-card canva-container" style="margin-bottom: 16px; background: rgb(255, 255, 255);" data-html-import-id="html-import-240" data-template-id="div-131">
+       <div class="form-group" data-html-import-id="html-import-241"><label class="form-label canva-text" style="font-size: 15px; font-weight: 700; color: rgb(58, 63, 71); font-style: normal;" data-html-import-id="html-import-242" data-template-id="label-132">封存當前行李</label>
+        <p style="font-size: 12px; color: rgb(142, 148, 159); margin-bottom: 10px; line-height: 1.4; font-weight: 400; font-style: normal;" data-html-import-id="html-import-243" data-template-id="p-133" class="canva-text">將當前行李清單的所有物品備份保存為一筆歷史紀錄，並清空當前行李清單。</p><button class="btn-submit canva-button" onclick="openArchiveModal()" style="margin-top: 4px; background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-weight: 600; font-size: 15px;" data-html-import-id="html-import-244" data-template-id="button-134"> <span data-html-import-id="html-import-245" data-template-id="span-135" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">一鍵封存當前行李</span> </button>
+       </div>
+      </div><!-- 旅程時間軸一鍵封存卡片 (新增) -->
+      <div class="form-card canva-container" style="margin-bottom: 24px; background: rgb(255, 255, 255);" data-html-import-id="html-import-246" data-template-id="div-136">
+       <div class="form-group" data-html-import-id="html-import-247"><label class="form-label canva-text" style="font-size: 15px; font-weight: 700; color: rgb(58, 63, 71); font-style: normal;" data-html-import-id="html-import-248" data-template-id="label-137">封存當前旅程時間軸</label>
+        <p style="font-size: 12px; color: rgb(142, 148, 159); margin-bottom: 10px; line-height: 1.4; font-weight: 400; font-style: normal;" data-html-import-id="html-import-249" data-template-id="p-138" class="canva-text">將當前旅程規劃的所有時間軸節點與備忘備份保存為一筆歷史紀錄，並清空當前時間軸以準備新的旅程。</p><button class="btn-submit canva-button" onclick="openJourneyArchiveModal()" style="margin-top: 4px; background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-weight: 600; font-size: 15px;" data-html-import-id="html-import-250" data-template-id="button-139"> <span data-html-import-id="html-import-251" data-template-id="span-140" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">一鍵封存當前旅程規劃</span> </button>
+       </div>
+      </div><!-- 歷史行李封存列表 -->
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;" data-html-import-id="html-import-252">
+       <h2 style="font-size: 18px; font-weight: 600; color: rgb(58, 63, 71); letter-spacing: 0.5px; font-style: normal;" data-html-import-id="html-import-253" data-template-id="h2-141" class="canva-text">行李封存紀錄列表</h2>
+       <div id="archive-empty-state" class="empty-state canva-container" style="display: flex; padding: 24px 0px; color: rgb(142, 148, 159); font-size: 15px;" data-html-import-id="html-import-254" data-template-id="div-142">
+        <svg class="empty-svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-255" data-template-id="svg-143"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" data-html-import-id="html-import-256"></polyline> <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" data-html-import-id="html-import-257"></path>
+        </svg>
+        <div style="font-size: 14px; color: rgb(142, 148, 159); font-weight: 400; font-style: normal;" data-html-import-id="html-import-258" data-template-id="div-144" class="canva-container">目前沒有任何歷史行李封存紀錄</div>
+       </div>
+       <div class="archive-list-container" id="archive-list" data-html-import-id="html-import-259"></div>
+      </div><!-- 歷史旅程時間軸封存列表 (新增) -->
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 24px; border-top: 1px dashed var(--border-color); padding-top: 20px; margin-bottom: 24px;" data-html-import-id="html-import-260">
+       <h2 style="font-size: 18px; font-weight: 600; color: rgb(58, 63, 71); letter-spacing: 0.5px; font-style: normal;" data-html-import-id="html-import-261" data-template-id="h2-145" class="canva-text">旅程規劃封存紀錄列表</h2>
+       <div id="journey-archive-empty-state" class="empty-state canva-container" style="display: flex; padding: 24px 0px; color: rgb(142, 148, 159); font-size: 15px;" data-html-import-id="html-import-262" data-template-id="div-146">
+        <svg class="empty-svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-263" data-template-id="svg-147"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" data-html-import-id="html-import-264"></rect> <line x1="16" y1="2" x2="16" y2="6" data-html-import-id="html-import-265"></line> <line x1="8" y1="2" x2="8" y2="6" data-html-import-id="html-import-266"></line> <line x1="3" y1="10" x2="21" y2="10" data-html-import-id="html-import-267"></line>
+        </svg>
+        <div style="font-size: 14px; color: rgb(142, 148, 159); font-weight: 400; font-style: normal;" data-html-import-id="html-import-268" data-template-id="div-148" class="canva-container">目前沒有任何歷史旅程封存紀錄</div>
+       </div>
+       <div class="archive-list-container" id="journey-archive-list" data-html-import-id="html-import-269"></div>
+      </div>
+     </div>
     </div>
-
-    <!-- 行李封存用彈跳視窗 -->
-    <div id="archive-modal" class="modal-overlay">
-        <div class="modal-card">
-            <h3>一鍵封存當前行李</h3>
-            <p>這將會清空您當前的打包行李清單，並將其保存為一筆歷史行李封存紀錄。</p>
-            <div class="form-group" style="margin: 16px 0 8px 0;">
-                <label class="form-label">行李清單備份名稱</label>
-                <input type="text" id="archive-name-input" class="form-input" placeholder="例如：2026日本行行李..." autocomplete="off">
-            </div>
-            <div class="modal-actions">
-                <button class="modal-btn modal-btn-cancel" onclick="closeArchiveModal()">取消</button>
-                <button class="modal-btn modal-btn-confirm" onclick="submitArchive()">確認封存</button>
-            </div>
-        </div>
+   </div><!-- 底部導覽列 -->
+   <div class="bottom-nav canva-container" data-html-import-id="html-import-270" data-template-id="div-149" style="background: rgba(247, 248, 246, 0.98);"><button class="nav-item active canva-button" onclick="switchPage(0)" data-html-import-id="html-import-271" data-template-id="button-150" style="color: rgb(154, 168, 153); font-weight: 600; font-size: 14px;">
+     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-272"><line x1="8" y1="6" x2="21" y2="6" data-html-import-id="html-import-273"></line> <line x1="8" y1="12" x2="21" y2="12" data-html-import-id="html-import-274"></line> <line x1="8" y1="18" x2="21" y2="18" data-html-import-id="html-import-275"></line> <line x1="3" y1="6" x2="3.01" y2="6" data-html-import-id="html-import-276"></line> <line x1="3" y1="12" x2="3.01" y2="12" data-html-import-id="html-import-277"></line> <line x1="3" y1="18" x2="3.01" y2="18" data-html-import-id="html-import-278"></line>
+     </svg><span data-html-import-id="html-import-279" data-template-id="span-151" class="canva-text" style="color: rgb(154, 168, 153); font-weight: 400; font-style: normal; font-size: 16px;">清單</span> </button> <button class="nav-item canva-button" onclick="switchPage(1)" data-html-import-id="html-import-280" data-template-id="button-152" style="color: rgb(142, 148, 159); font-weight: 500; font-size: 14px;">
+     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-281"><line x1="12" y1="5" x2="12" y2="19" data-html-import-id="html-import-282"></line> <line x1="5" y1="12" x2="19" y2="12" data-html-import-id="html-import-283"></line>
+     </svg><span data-html-import-id="html-import-284" data-template-id="span-153" class="canva-text" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 16px;">新增</span> </button> <button class="nav-item canva-button" onclick="switchPage(2)" data-html-import-id="html-import-285" data-template-id="button-154" style="color: rgb(142, 148, 159); font-weight: 500; font-size: 14px;"> <!-- 旅程 Icon -->
+     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" data-html-import-id="html-import-286"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" data-html-import-id="html-import-287"></rect> <line x1="16" y1="2" x2="16" y2="6" data-html-import-id="html-import-288"></line> <line x1="8" y1="2" x2="8" y2="6" data-html-import-id="html-import-289"></line> <line x1="3" y1="10" x2="21" y2="10" data-html-import-id="html-import-290"></line>
+     </svg><span data-html-import-id="html-import-291" data-template-id="span-155" class="canva-text" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 16px;">旅程</span> </button>
+   </div>
+  </div><!-- 行李封存用彈跳視窗 -->
+  <div id="archive-modal" class="modal-overlay canva-container" data-html-import-id="html-import-292" data-template-id="div-156" style="background: rgba(0, 0, 0, 0.4);">
+   <div class="modal-card canva-container" data-html-import-id="html-import-293" data-template-id="div-157" style="background: rgb(255, 255, 255);">
+    <h3 data-html-import-id="html-import-294" data-template-id="h3-158" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 18px;">一鍵封存當前行李</h3>
+    <p data-html-import-id="html-import-295" data-template-id="p-159" class="canva-text" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 14px;">這將會清空您當前的打包行李清單，並將其保存為一筆歷史行李封存紀錄。</p>
+    <div class="form-group" style="margin: 16px 0 8px 0;" data-html-import-id="html-import-296"><label class="form-label canva-text" data-html-import-id="html-import-297" data-template-id="label-160" style="color: rgb(58, 63, 71); font-weight: 600; font-style: normal; font-size: 14px;">行李清單備份名稱</label> <input type="text" id="archive-name-input" class="form-input canva-input" placeholder="例如：2026日本行行李..." autocomplete="off" data-html-import-id="html-import-298" data-template-id="input-161" style="background: rgb(255, 255, 255); color: rgb(58, 63, 71); font-size: 15px;">
     </div>
-
-    <!-- 旅程封存用彈跳視窗 -->
-    <div id="journey-archive-modal" class="modal-overlay">
-        <div class="modal-card">
-            <h3>一鍵封存當前旅程規劃</h3>
-            <p>這將會清空您當前的旅程時間軸規劃，並將其保存為一筆歷史紀錄。</p>
-            <div class="form-group" style="margin: 16px 0 8px 0;">
-                <label class="form-label">旅程規劃備份名稱</label>
-                <input type="text" id="journey-archive-name-input" class="form-input" placeholder="例如：東京五天四夜規劃..." autocomplete="off">
-            </div>
-            <div class="modal-actions">
-                <button class="modal-btn modal-btn-cancel" onclick="closeJourneyArchiveModal()">取消</button>
-                <button class="modal-btn modal-btn-confirm" onclick="submitJourneyArchive()">確認封存</button>
-            </div>
-        </div>
+    <div class="modal-actions" data-html-import-id="html-import-299"><button class="modal-btn modal-btn-cancel canva-button" onclick="closeArchiveModal()" data-html-import-id="html-import-300" data-template-id="button-162" style="background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 500; font-style: normal; font-size: 14px;">取消</button> <button class="modal-btn modal-btn-confirm canva-button" onclick="submitArchive()" data-html-import-id="html-import-301" data-template-id="button-163" style="background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 14px;">確認封存</button>
     </div>
-
-    <!-- 行李已成功加入清單 - 專屬高雅彈跳視窗 (微交互) -->
-    <div id="added-modal" class="modal-overlay">
-        <div class="modal-card" style="text-align: center; max-width: 320px; padding: 24px; border-radius: 20px;">
-            <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--accent-light); color: var(--accent); margin-bottom: 16px; font-size: 2rem; font-weight: bold;">
+   </div>
+  </div><!-- 旅程封存用彈跳視窗 -->
+  <div id="journey-archive-modal" class="modal-overlay canva-container" data-html-import-id="html-import-302" data-template-id="div-164" style="background: rgba(0, 0, 0, 0.4);">
+   <div class="modal-card canva-container" data-html-import-id="html-import-303" data-template-id="div-165" style="background: rgb(255, 255, 255);">
+    <h3 data-html-import-id="html-import-304" data-template-id="h3-166" class="canva-text" style="color: rgb(58, 63, 71); font-weight: 400; font-style: normal; font-size: 18px;">一鍵封存當前旅程規劃</h3>
+    <p data-html-import-id="html-import-305" data-template-id="p-167" class="canva-text" style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 14px;">這將會清空您當前的旅程時間軸規劃，並將其保存為一筆歷史紀錄。</p>
+    <div class="form-group" style="margin: 16px 0 8px 0;" data-html-import-id="html-import-306"><label class="form-label canva-text" data-html-import-id="html-import-307" data-template-id="label-168" style="color: rgb(58, 63, 71); font-weight: 600; font-style: normal; font-size: 14px;">旅程規劃備份名稱</label> <input type="text" id="journey-archive-name-input" class="form-input canva-input" placeholder="例如：東京五天四夜規劃..." autocomplete="off" data-html-import-id="html-import-308" data-template-id="input-169" style="background: rgb(255, 255, 255); color: rgb(58, 63, 71); font-size: 15px;">
+    </div>
+    <div class="modal-actions" data-html-import-id="html-import-309"><button class="modal-btn modal-btn-cancel canva-button" onclick="closeJourneyArchiveModal()" data-html-import-id="html-import-310" data-template-id="button-170" style="background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 500; font-style: normal; font-size: 14px;">取消</button> <button class="modal-btn modal-btn-confirm canva-button" onclick="submitJourneyArchive()" data-html-import-id="html-import-311" data-template-id="button-171" style="background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 14px;">確認封存</button>
+    </div>
+   </div>
+  </div><!-- 行李已成功加入清單 - 專屬高雅彈跳視窗 (微交互) -->
+  <div id="added-modal" class="modal-overlay canva-container" data-html-import-id="html-import-312" data-template-id="div-172" style="background: rgba(0, 0, 0, 0.4);">
+   <div class="modal-card canva-container" style="text-align: center; max-width: 320px; padding: 24px; border-radius: 20px; background: rgb(255, 255, 255);" data-html-import-id="html-import-313" data-template-id="div-173">
+    <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgb(232, 235, 231); color: rgb(154, 168, 153); margin-bottom: 16px; font-size: 32px; font-weight: 700; font-style: normal;" data-html-import-id="html-import-314" data-template-id="div-174" class="canva-container">
                 ✓
             </div>
-            <h3 style="font-size: 1.2rem; margin-bottom: 6px; color: var(--text-main);">已加入清單</h3>
-            <p id="added-modal-item-name" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.4; word-break: break-all;"></p>
-            <div class="modal-actions" style="margin-top: 0; justify-content: center; width: 100%;">
-                <button class="modal-btn modal-btn-confirm" onclick="closeAddedModal()" style="width: 100%; padding: 12px; font-weight: 600;">確定</button>
-            </div>
-        </div>
+    <h3 style="font-size: 19px; margin-bottom: 6px; color: rgb(58, 63, 71); font-weight: 400; font-style: normal;" data-html-import-id="html-import-315" data-template-id="h3-175" class="canva-text">已加入清單</h3>
+    <p id="added-modal-item-name" style="font-size: 14px; color: rgb(142, 148, 159); margin-bottom: 20px; line-height: 1.4; word-break: break-all;" data-html-import-id="html-import-316" data-template-id="p-176" class="canva-text"></p>
+    <div class="modal-actions" style="margin-top: 0; justify-content: center; width: 100%;" data-html-import-id="html-import-317"><button class="modal-btn modal-btn-confirm canva-button" onclick="closeAddedModal()" style="width: 100%; padding: 12px; font-weight: 600; background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-style: normal; font-size: 14px;" data-html-import-id="html-import-318" data-template-id="button-177">確定</button>
     </div>
+   </div>
+  </div><!-- 隱藏的上傳檔案輸入元素 --> <input type="file" id="timeline-attachment-input" style="display: none;" onchange="handleAttachmentUpload(event)" data-html-import-id="html-import-319">
+  <div id="toast-message" class="toast-container canva-container" data-html-import-id="html-import-320" data-template-id="div-178" style="background: rgba(58, 63, 71, 0.95); color: rgb(255, 255, 255); font-weight: 500; font-size: 14px;"></div>
+  <script data-html-import-id="html-import-321">
+        // --------------------------
+        // iOS/Android 視口高度修正
+        // --------------------------
+        function initializeViewportHeight() {
+            const updateVh = () => {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', vh + 'px');
+            };
+            
+            updateVh();
+            window.addEventListener('resize', updateVh);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(updateVh, 100);
+            });
+            
+            // iOS Safari 解決方案：禁用雙擊縮放以防止 URL 欄隱藏延遲
+            document.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        }
 
-    <!-- 隱藏的上傳檔案輸入元素 -->
-    <input type="file" id="timeline-attachment-input" style="display: none;" onchange="handleAttachmentUpload(event)">
+        initializeViewportHeight();
 
-    <div id="toast-message" class="toast-container"></div>
-
-    <script>
         // --------------------------
         // 狀態初始化與 LocalStorage
         // --------------------------
@@ -1673,6 +1707,15 @@
             kaiti: '"DFKai-SB", "BiauKai", "Noto Serif CJK TC", serif',
             monospace: 'Consolas, Monaco, "Courier New", Courier, monospace',
             rounded: '"Comic Sans MS", "華康圓體", "Yu Gothic", sans-serif'
+        };
+
+        const FONT_LABELS = {
+            system: '系統預設 (Sans-serif)',
+            serif: '優雅明體 / 宋體 (Serif)',
+            jhenghei: '微軟正黑體 (Modern)',
+            kaiti: '經典標楷體 (Kaiti)',
+            monospace: '極客等寬 (Monospace)',
+            rounded: '圓潤圓體 (Rounded)'
         };
 
         let appState = defaultState;
@@ -1771,7 +1814,6 @@
         const statsText = document.getElementById('stats-text');
         const emptyState = document.getElementById('empty-state');
         const navItems = document.querySelectorAll('.nav-item');
-        const fontFamilySelect = document.getElementById('font-family-select');
 
         let currentPageIndex = 0;
         let previousActivePage = 0; // 用於追蹤進入設定前的頁面 index
@@ -1867,13 +1909,52 @@
                 .replace(/'/g, "&#039;");
         }
 
-        function addFontOptionToSelect(fontId, fontName) {
-            if (!fontFamilySelect.querySelector(`option[value="${fontId}"]`)) {
-                const opt = document.createElement('option');
-                opt.value = fontId;
-                opt.innerText = fontName;
-                fontFamilySelect.appendChild(opt);
+        // 字型內嵌選擇器切換
+        function toggleFontSelect() {
+            const container = document.getElementById('font-select-container');
+            const menu = document.getElementById('font-menu');
+            
+            const shouldShow = !menu.classList.contains('show');
+
+            if (shouldShow) {
+                toggleInlineSelect('location', false);
+                toggleInlineSelect('category', false);
+
+                container.classList.add('open');
+                container.classList.add('active');
+                menu.classList.add('show');
+            } else {
+                container.classList.remove('open');
+                container.classList.remove('active');
+                menu.classList.remove('show');
             }
+        }
+
+        // 字型選項選擇事件
+        function selectFontOption(fontValue) {
+            changeAppFont(fontValue);
+            
+            const optionsContainer = document.getElementById('font-options');
+            optionsContainer.querySelectorAll('.inline-option-item').forEach(item => {
+                if (item.dataset.fontValue === fontValue) {
+                    item.classList.add('selected');
+                    if (!item.querySelector('span:last-child')?.textContent.includes('✓')) {
+                        const checkmark = document.createElement('span');
+                        checkmark.style.fontWeight = 'bold';
+                        checkmark.textContent = '✓';
+                        item.appendChild(checkmark);
+                    }
+                } else {
+                    item.classList.remove('selected');
+                    const checkmark = item.querySelector('span:last-child');
+                    if (checkmark?.textContent.includes('✓') && item.children.length > 1) {
+                        checkmark.remove();
+                    }
+                }
+            });
+            
+            document.getElementById('font-trigger-text').innerText = FONT_LABELS[fontValue] || fontValue;
+            toggleFontSelect();
         }
 
         function handleFontUpload(event) {
@@ -1907,16 +1988,14 @@
                     document.fonts.add(loadedFace);
                     URL.revokeObjectURL(url);
 
-                    addFontOptionToSelect(fontName, rawName + ' (自訂)');
-
                     if (!appState.customFontRecords) appState.customFontRecords = [];
                     if (!appState.customFontRecords.some(r => r.id === fontName)) {
                         appState.customFontRecords.push({ id: fontName, name: rawName });
                         saveState();
                     }
 
-                    fontFamilySelect.value = fontName;
                     changeAppFont(fontName);
+                    document.getElementById('font-trigger-text').innerText = rawName + ' (自訂)';
 
                     renderUploadedFontsList();
                     showToast(`成功導入字型：${rawName}`);
@@ -1957,14 +2036,12 @@
 
         function deleteCustomFont(fontId) {
             deleteFontFromDB(fontId).then(() => {
-                const opt = fontFamilySelect.querySelector(`option[value="${fontId}"]`);
-                if (opt) opt.remove();
-
                 appState.customFontRecords = (appState.customFontRecords || []).filter(r => r.id !== fontId);
 
                 if (appState.selectedFont === fontId) {
-                    fontFamilySelect.value = 'system';
                     changeAppFont('system');
+                    document.getElementById('font-trigger-text').innerText = FONT_LABELS['system'];
+                    updateFontSelection('system');
                 }
 
                 saveState();
@@ -1973,6 +2050,31 @@
             }).catch(err => {
                 console.error("刪除自訂字型失敗: ", err);
                 showToast("刪除自訂字型失敗");
+            });
+        }
+
+        // 更新字型選項的選中狀態
+        function updateFontSelection(fontValue) {
+            const optionsContainer = document.getElementById('font-options');
+            if (!optionsContainer) return;
+            
+            optionsContainer.querySelectorAll('.inline-option-item').forEach(item => {
+                const itemValue = item.dataset.fontValue;
+                if (itemValue === fontValue) {
+                    item.classList.add('selected');
+                    if (!item.querySelector('span:last-child')?.textContent.includes('✓')) {
+                        const checkmark = document.createElement('span');
+                        checkmark.style.fontWeight = 'bold';
+                        checkmark.textContent = '✓';
+                        item.appendChild(checkmark);
+                    }
+                } else {
+                    item.classList.remove('selected');
+                    const checkmark = item.querySelector('span:last-child');
+                    if (checkmark?.textContent.includes('✓') && item.children.length > 1) {
+                        checkmark.remove();
+                    }
+                }
             });
         }
 
@@ -2019,6 +2121,10 @@
             touchEndX = e.changedTouches[0].screenX;
             touchEndY = e.changedTouches[0].screenY;
             handleSwipe();
+        }, { passive: true });
+
+        document.getElementById('pages-container').addEventListener('touchmove', (e) => {
+            // 允許頁面滑動
         }, { passive: true });
 
         function handleSwipe() {
@@ -2471,10 +2577,11 @@
             autoResizeTextarea(el);
         }
 
-        // 輸入過濾：只允許數字，更新 state，並動態保存
+        // 輸入過濾：允許數字及符號 (/, :, -, 等)，更新 state，並動態保存
         function handleNumericInput(e, id, field) {
             const rawVal = e.target.value;
-            const cleanVal = rawVal.replace(/[^0-9]/g, '');
+            // 允許數字及常見符號：斜線、冒號、連字號、空格、中文字符
+            const cleanVal = rawVal.replace(/[^0-9\/:\-\s\u4e00-\u9fff]/g, '');
             if (e.target.value !== cleanVal) {
                 e.target.value = cleanVal;
             }
@@ -3169,10 +3276,21 @@
             }
         });
 
+        // 修復 iOS 輸入框聚焦時頁面跳躍
+        const inputElements = document.querySelectorAll('input[type="text"], textarea');
+        inputElements.forEach(input => {
+            input.addEventListener('focus', (e) => {
+                setTimeout(() => {
+                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            });
+        });
+
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.custom-inline-select') && !e.target.closest('.manage-btn') && !e.target.closest('.manager-container')) {
                 toggleInlineSelect('location', false);
                 toggleInlineSelect('category', false);
+                toggleFontSelect();
             }
         });
 
@@ -3190,15 +3308,6 @@
                 fontFace.load().then(loadedFace => {
                     document.fonts.add(loadedFace);
                     URL.revokeObjectURL(url);
-
-                    const rec = (appState.customFontRecords || []).find(r => r.id === f.id);
-                    const displayName = rec ? rec.name : '未命名自訂字型';
-                    addFontOptionToSelect(f.id, displayName + ' (自訂)');
-
-                    if (appState.selectedFont === f.id) {
-                        fontFamilySelect.value = f.id;
-                        changeAppFont(f.id);
-                    }
                 }).catch(err => {
                     console.warn("啟動載入自訂字體出錯:", err);
                     URL.revokeObjectURL(url);
@@ -3206,12 +3315,25 @@
             });
 
             if (FONT_MAP[appState.selectedFont] || appState.selectedFont === 'system') {
-                fontFamilySelect.value = appState.selectedFont;
                 changeAppFont(appState.selectedFont);
+                document.getElementById('font-trigger-text').innerText = FONT_LABELS[appState.selectedFont] || appState.selectedFont;
+                updateFontSelection(appState.selectedFont);
             }
+
+            // 初始化字型選項點擊事件
+            document.getElementById('font-options').querySelectorAll('.inline-option-item').forEach(item => {
+                const fontValue = item.dataset.fontValue;
+                if (fontValue) {
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectFontOption(fontValue);
+                    });
+                }
+            });
 
             renderUploadedFontsList();
         });
     </script>
-</body>
-</html>
+  <script src="/_sdk/editing_sdk.js"></script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a122aee3a6b43328',t:'MTc4MjU0NDc2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body></html>
