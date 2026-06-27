@@ -71,17 +71,17 @@
             position: relative;
         }
 
-        /* 頁面滑動容器 */
+        /* 頁面滑動容器 (四個頁面寬度 400%) */
         .pages-container {
             display: flex;
-            width: 300%; /* 三頁寬度 */
+            width: 400%; 
             height: 100%;
             transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* 單個獨立頁面 */
+        /* 單個獨立頁面 (寬度 25%) */
         .page {
-            width: 33.333%;
+            width: 25%;
             height: 100%;
             overflow-y: auto;
             padding: 24px 20px;
@@ -595,37 +595,6 @@
             box-shadow: 0 0 0 3px rgba(154, 168, 153, 0.20);
         }
 
-        /* 自訂下拉選擇器 (form-select) 樣式 */
-        .select-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        .form-select {
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            font-size: 0.95rem;
-            outline: none;
-            color: var(--text-main);
-            transition: all 0.25s ease;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238e949f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            background-size: 16px;
-            cursor: pointer;
-        }
-
-        .form-select:focus {
-            border-color: var(--accent);
-            background-color: #fff;
-            box-shadow: 0 0 0 3px rgba(154, 168, 153, 0.20);
-        }
-
         /* 自訂提交按鈕 (btn-submit) 樣式 */
         .btn-submit {
             background-color: var(--accent);
@@ -668,6 +637,316 @@
             opacity: 1;
             transform: translateY(0);
             margin-top: 8px;
+        }
+
+        /* --------------------------
+           頁面：旅程時間軸 (Journey Timeline)
+        -------------------------- */
+        .timeline-container {
+            position: relative;
+            padding-bottom: 20px;
+            margin-top: 10px;
+        }
+
+        /* 旅程時間軸：貫穿左側方形時間區塊中央的垂直軸線 */
+        .timeline-line {
+            position: absolute;
+            left: 58px; /* 完美對齊 76px 正方形中央線的位置 */
+            top: 12px;
+            bottom: 12px;
+            width: 2px;
+            background-color: var(--border-color);
+            z-index: 1;
+        }
+
+        /* 時間軸節點 */
+        .timeline-node {
+            display: flex;
+            align-items: stretch; /* 保持左右高度始終一體化拉伸一致 */
+            gap: 20px;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 左方圓角正方形，預設空白 */
+        .timeline-time-block {
+            width: 76px;
+            height: 76px;
+            aspect-ratio: 1 / 1;
+            background: var(--card-bg);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-subtle);
+            text-align: center;
+            padding: 6px;
+            gap: 4px;
+        }
+
+        /* 輸入限制只可輸入數字 (與日期、時間呈現方式保持一致) */
+        .timeline-time-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            outline: none;
+            padding: 2px 0;
+        }
+
+        /* 日期欄位：莫蘭迪綠 */
+        .timeline-time-input.date-field {
+            color: var(--accent);
+            border-bottom: 1px dashed rgba(154, 168, 153, 0.4);
+        }
+
+        /* 時間欄位：深灰色 */
+        .timeline-time-input.time-field {
+            color: var(--text-main);
+        }
+
+        /* 右方文字卡片區 */
+        .timeline-content-card {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 10px 36px 10px 12px; /* 右側保留 36px 給對齊的動作按鈕 */
+            box-shadow: var(--shadow-subtle);
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+            position: relative;
+        }
+
+        /* 右側動作按鈕欄（垂直完美對齊與分配） */
+        .timeline-actions-column {
+            position: absolute;
+            right: 10px;
+            top: 0;
+            bottom: 0;
+            width: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            z-index: 5;
+        }
+
+        /* 刪除按鈕 */
+        .timeline-delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timeline-delete-btn:hover {
+            color: var(--danger);
+        }
+
+        /* 迴紋針附件按鈕 */
+        .timeline-attach-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timeline-attach-btn:hover {
+            color: var(--accent);
+        }
+
+        /* 右側欄位即時編輯輸入框 (點擊輸入時保持絕對不變形) */
+        .timeline-editable-text {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            line-height: 1.4;
+            padding: 0;
+            min-height: 38px;
+            max-height: 120px;
+            overflow-y: auto;
+            transition: none; /* 禁用 transition 避免點擊/輸入時有任何大小與邊界變形 */
+        }
+
+        .timeline-editable-text:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        /* 自動連結、附件預覽盒樣式 */
+        .link-preview-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 6px 10px;
+            margin-top: 4px;
+            text-decoration: none;
+            color: inherit;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .link-preview-box:active {
+            background-color: var(--accent-light);
+            border-color: var(--accent);
+        }
+
+        .link-preview-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background-color: #ffffff;
+            color: var(--accent);
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .link-preview-details {
+            min-width: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .link-preview-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .link-preview-url {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 上傳附件預覽盒樣式 */
+        .attachment-preview-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 6px 10px;
+            margin-top: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .attachment-preview-box:hover {
+            border-color: var(--accent);
+            background-color: var(--accent-light);
+        }
+
+        .attachment-details {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .attachment-name {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .attachment-size {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .attachment-remove-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 2px;
+            transition: color 0.2s;
+            margin-left: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .attachment-remove-btn:hover {
+            color: var(--danger);
+        }
+
+        /* 置中「＋」按鈕樣式 */
+        .add-timeline-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+
+        .btn-add-timeline {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(154, 168, 153, 0.3);
+            transition: all 0.25s ease;
+        }
+
+        .btn-add-timeline:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 5px rgba(154, 168, 153, 0.2);
         }
 
         /* --------------------------
@@ -827,22 +1106,6 @@
             flex: 1;
         }
 
-        .archive-item-text-completed {
-            text-decoration: line-through;
-            color: var(--text-muted);
-        }
-
-        .archive-item-checked {
-            color: var(--accent);
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .archive-item-unchecked {
-            color: var(--text-muted);
-            flex-shrink: 0;
-        }
-
         .archive-item-tags {
             display: flex;
             gap: 4px;
@@ -976,7 +1239,7 @@
         }
 
         /* --------------------------
-           底部導覽列
+           底部導覽列 (三個導覽鍵: 清單、新增、旅程)
         -------------------------- */
         .bottom-nav {
             height: 64px;
@@ -1049,14 +1312,14 @@
         <div class="pages-wrapper">
             <div class="pages-container" id="pages-container">
                 
-                <!-- 第一頁：行李清單主頁 -->
+                <!-- 第一頁：行李清單主頁 (Index: 0) -->
                 <div class="page" id="page-list">
                     <header>
                         <div class="header-left">
                             <h1>打包清單</h1>
                             <div class="stats" id="stats-text">0 / 0 已打包</div>
                         </div>
-                        <button class="settings-trigger-btn" onclick="switchPage(2)" aria-label="開啟設定頁面">
+                        <button class="settings-trigger-btn" onclick="switchPage(3)" aria-label="開啟設定頁面">
                             <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="3"></circle>
                                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -1077,14 +1340,14 @@
                     <div class="grouped-container" id="grouped-items"></div>
                 </div>
 
-                <!-- 第二頁：新增行李 -->
+                <!-- 第二頁：新增行李 (Index: 1) -->
                 <div class="page" id="page-add">
                     <header>
                         <div class="header-left">
                             <h1>新增行李</h1>
                             <div class="stats" style="background: transparent; color: var(--text-muted); padding: 0;" id="add-stats-text">旅程裝備登錄</div>
                         </div>
-                        <button class="settings-trigger-btn" onclick="switchPage(2)" aria-label="開啟設定頁面">
+                        <button class="settings-trigger-btn" onclick="switchPage(3)" aria-label="開啟設定頁面">
                             <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="3"></circle>
                                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -1156,11 +1419,53 @@
                     </div>
                 </div>
 
-                <!-- 第三頁：設定與歷史封存 -->
+                <!-- 第三頁：旅程規劃時間軸 (Journey Itinerary) (Index: 2) -->
+                <div class="page" id="page-journey">
+                    <header>
+                        <div class="header-left">
+                            <h1>旅程規劃</h1>
+                            <div class="stats" id="journey-stats-text">0 個旅程節點</div>
+                        </div>
+                        <button class="settings-trigger-btn" onclick="switchPage(3)" aria-label="開啟設定頁面">
+                            <svg class="settings-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                        </button>
+                    </header>
+
+                    <!-- 旅程時間軸容器 -->
+                    <div id="journey-empty-state" class="empty-state">
+                        <svg class="empty-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        <div>尚未安排旅程時間軸。點擊下方 ＋ 新增完美計畫吧！</div>
+                    </div>
+
+                    <div class="timeline-container" id="journey-timeline">
+                        <div class="timeline-line"></div>
+                        <div id="timeline-nodes-wrapper"></div>
+                    </div>
+
+                    <!-- 所有旅程下方置中新增 ＋ 按鈕 -->
+                    <div class="add-timeline-btn-container">
+                        <button class="btn-add-timeline" onclick="addNewTimelineNode()" aria-label="新增旅程欄位">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 第四頁：設定與歷史封存 (Index: 3) -->
                 <div class="page" id="page-settings">
                     <header class="form-title" style="display: flex; justify-content: space-between; align-items: center;">
                         <h1>設定</h1>
-                        <button class="btn-custom" onclick="switchPage(0)">返回清單</button>
+                        <button class="btn-custom" onclick="goBackFromSettings()">返回</button>
                     </header>
 
                     <div class="form-card" style="margin-bottom: 16px;">
@@ -1189,30 +1494,62 @@
                         </div>
                     </div>
 
-                    <div class="form-card" style="margin-bottom: 24px;">
+                    <!-- 行李一鍵封存卡片 -->
+                    <div class="form-card" style="margin-bottom: 16px;">
                         <div class="form-group">
-                            <label class="form-label" style="font-size: 0.95rem; font-weight: 700;">打包封存當前旅程</label>
+                            <label class="form-label" style="font-size: 0.95rem; font-weight: 700;">封存當前行李</label>
                             <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
-                                將當前清單的所有行李備份保存為一筆歷史紀錄，並清空當前行李清單以準備新的旅程。
+                                將當前行李清單的所有物品備份保存為一筆歷史紀錄，並清空當前行李清單。
                             </p>
                             <button class="btn-submit" onclick="openArchiveModal()" style="margin-top: 4px; background-color: var(--accent);">
-                                <span>一鍵封存當前清單</span>
+                                <span>一鍵封存當前行李</span>
                             </button>
                         </div>
                     </div>
 
+                    <!-- 旅程時間軸一鍵封存卡片 (新增) -->
+                    <div class="form-card" style="margin-bottom: 24px;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 0.95rem; font-weight: 700;">封存當前旅程時間軸</label>
+                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
+                                將當前旅程規劃的所有時間軸節點與備忘備份保存為一筆歷史紀錄，並清空當前時間軸以準備新的旅程。
+                            </p>
+                            <button class="btn-submit" onclick="openJourneyArchiveModal()" style="margin-top: 4px; background-color: var(--accent);">
+                                <span>一鍵封存當前旅程規劃</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 歷史行李封存列表 -->
                     <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
-                        <h2 style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px;">封存紀錄列表</h2>
+                        <h2 style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px;">行李封存紀錄列表</h2>
                         
                         <div id="archive-empty-state" class="empty-state" style="display: none; padding: 24px 0;">
                             <svg class="empty-svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
                                 <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
                             </svg>
-                            <div style="font-size: 0.85rem;">目前沒有任何歷史封存紀錄</div>
+                            <div style="font-size: 0.85rem;">目前沒有任何歷史行李封存紀錄</div>
                         </div>
 
                         <div class="archive-list-container" id="archive-list"></div>
+                    </div>
+
+                    <!-- 歷史旅程時間軸封存列表 (新增) -->
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 24px; border-top: 1px dashed var(--border-color); padding-top: 20px; margin-bottom: 24px;">
+                        <h2 style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px;">旅程規劃封存紀錄列表</h2>
+                        
+                        <div id="journey-archive-empty-state" class="empty-state" style="display: none; padding: 24px 0;">
+                            <svg class="empty-svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            <div style="font-size: 0.85rem;">目前沒有任何歷史旅程封存紀錄</div>
+                        </div>
+
+                        <div class="archive-list-container" id="journey-archive-list"></div>
                     </div>
                 </div>
 
@@ -1239,21 +1576,47 @@
                 </svg>
                 <span>新增</span>
             </button>
+            <button class="nav-item" onclick="switchPage(2)">
+                <!-- 旅程 Icon -->
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>旅程</span>
+            </button>
         </div>
     </div>
 
-    <!-- 封存用彈跳視窗 -->
+    <!-- 行李封存用彈跳視窗 -->
     <div id="archive-modal" class="modal-overlay">
         <div class="modal-card">
-            <h3>一鍵封存當前清單</h3>
-            <p>這將會清空您當前的打包清單，並將其保存為一筆歷史封存紀錄以便日後查看或還原。</p>
+            <h3>一鍵封存當前行李</h3>
+            <p>這將會清空您當前的打包行李清單，並將其保存為一筆歷史行李封存紀錄。</p>
             <div class="form-group" style="margin: 16px 0 8px 0;">
-                <label class="form-label">這次旅程的名稱</label>
-                <input type="text" id="archive-name-input" class="form-input" placeholder="例如：2026日本賞櫻..." autocomplete="off">
+                <label class="form-label">行李清單備份名稱</label>
+                <input type="text" id="archive-name-input" class="form-input" placeholder="例如：2026日本行行李..." autocomplete="off">
             </div>
             <div class="modal-actions">
                 <button class="modal-btn modal-btn-cancel" onclick="closeArchiveModal()">取消</button>
                 <button class="modal-btn modal-btn-confirm" onclick="submitArchive()">確認封存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 旅程封存用彈跳視窗 -->
+    <div id="journey-archive-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>一鍵封存當前旅程規劃</h3>
+            <p>這將會清空您當前的旅程時間軸規劃，並將其保存為一筆歷史紀錄。</p>
+            <div class="form-group" style="margin: 16px 0 8px 0;">
+                <label class="form-label">旅程規劃備份名稱</label>
+                <input type="text" id="journey-archive-name-input" class="form-input" placeholder="例如：東京五天四夜規劃..." autocomplete="off">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeJourneyArchiveModal()">取消</button>
+                <button class="modal-btn modal-btn-confirm" onclick="submitJourneyArchive()">確認封存</button>
             </div>
         </div>
     </div>
@@ -1272,6 +1635,9 @@
         </div>
     </div>
 
+    <!-- 隱藏的上傳檔案輸入元素 -->
+    <input type="file" id="timeline-attachment-input" style="display: none;" onchange="handleAttachmentUpload(event)">
+
     <div id="toast-message" class="toast-container"></div>
 
     <script>
@@ -1285,9 +1651,16 @@
                 { id: 3, text: '行動電源與快充線', completed: true, location: '後背包', category: '電子配件' },
                 { id: 4, text: '牙刷盥洗組', completed: false, location: '大行李箱', category: '盥洗用品' }
             ],
+            // 旅程預設時間軸 (預設大小方形且保持空白，紀事直接寫入網址以自動生成對應預覽卡片)
+            itineraries: [
+                { id: 1, dateDigits: '', timeDigits: '', text: '抵達台北桃園國際機場，辦理登機與託運行李。 官網連結：https://www.taoyuan-airport.com', link: 'https://www.taoyuan-airport.com' },
+                { id: 2, dateDigits: '', timeDigits: '', text: '飛機起飛前往東京。於航程中稍作休息。', link: '' },
+                { id: 3, dateDigits: '', timeDigits: '', text: '預計抵達東京成田機場。搭乘 Skyliner 直達市區定位：https://maps.google.com', link: 'https://maps.google.com' }
+            ],
             locations: ['大行李箱', '後背包', '隨身包包'],
             categories: ['貴重證件', '衣物鞋包', '電子配件', '盥洗用品', '其他備用'],
             archives: [], 
+            journeyArchives: [], 
             selectedFont: 'system', 
             customFontRecords: [] 
         };
@@ -1308,19 +1681,37 @@
             if (savedState) {
                 appState = JSON.parse(savedState);
                 if (!appState.archives) appState.archives = [];
+                if (!appState.journeyArchives) appState.journeyArchives = [];
+                if (!appState.itineraries) appState.itineraries = [];
                 if (!appState.selectedFont) appState.selectedFont = 'system';
                 if (!appState.customFontRecords) appState.customFontRecords = [];
+
+                // 資料格式向下相容遷移 (從舊的 datetime-local string 遷移至 dateDigits / timeDigits)
+                appState.itineraries.forEach(node => {
+                    if (node.time && (!node.dateDigits && !node.timeDigits)) {
+                        const parts = node.time.split('T');
+                        if (parts.length === 2) {
+                            const dateParts = parts[0].split('-');
+                            const timeParts = parts[1].split(':');
+                            node.dateDigits = (dateParts[1] || '') + (dateParts[2] || '');
+                            node.timeDigits = (timeParts[0] || '') + (timeParts[1] || '');
+                        } else {
+                            node.dateDigits = '';
+                            node.timeDigits = '';
+                        }
+                    }
+                });
             }
         } catch (e) {
             console.warn("LocalStorage 存取失敗：", e);
         }
 
-        // 當前選擇項，用於內嵌選擇器 (預設保留前次輸入，預設載入最後一筆或第一筆)
+        // 當前選擇項，用於內嵌選擇器 (預設保留前次輸入)
         let selectedLocation = appState.locations[0] || '';
         let selectedCategory = appState.categories[0] || '';
 
         // ----------------------------------------------------
-        // IndexedDB 技術：高容量永久字型儲存
+        // IndexedDB 技術：高容量永久字型與附件檔案儲存
         // ----------------------------------------------------
         function openDB() {
             return new Promise((resolve, reject) => {
@@ -1383,6 +1774,7 @@
         const fontFamilySelect = document.getElementById('font-family-select');
 
         let currentPageIndex = 0;
+        let previousActivePage = 0; // 用於追蹤進入設定前的頁面 index
 
         // --------------------------
         // 語意聯想標籤色彩系統 (莫蘭迪色系調色盤)
@@ -1391,32 +1783,25 @@
             if (!text) return '';
             const lowerText = text.toLowerCase();
             
-            // 1. 重要 / 貴重 / 必備 / 證件 (暖紅、珊瑚橘)
             if (lowerText.includes('重要') || lowerText.includes('貴重') || lowerText.includes('緊急') || lowerText.includes('證件') || lowerText.includes('必備') || lowerText.includes('護照') || lowerText.includes('錢') || lowerText.includes('卡')) {
                 return `background-color: #fcebeb; border: 1px solid #cca4a4; color: #a35c5c;`;
             }
-            // 2. 衣物 / 鞋帽 / 配件 (溫和寧靜藍)
             if (lowerText.includes('衣') || lowerText.includes('鞋') || lowerText.includes('襪') || lowerText.includes('服') || lowerText.includes('帽') || lowerText.includes('穿') || lowerText.includes('褲') || lowerText.includes('裝')) {
                 return `background-color: #eaf1f7; border: 1px solid #a4b9cc; color: #5c7ca3;`;
             }
-            // 3. 電子 / 數位 / 3C / 充電設備 (薰衣草柔紫)
             if (lowerText.includes('電') || lowerText.includes('數位') || lowerText.includes('3c') || lowerText.includes('線') || lowerText.includes('機') || lowerText.includes('相機') || lowerText.includes('耳機') || lowerText.includes('充')) {
                 return `background-color: #f1eaf7; border: 1px solid #b7a4cc; color: #755ca3;`;
             }
-            // 4. 盥洗 / 保養 / 衛生 / 醫藥 (薄荷森綠、粉綠)
             if (lowerText.includes('盥洗') || lowerText.includes('保養') || lowerText.includes('牙') || lowerText.includes('藥') || lowerText.includes('衛') || lowerText.includes('洗') || lowerText.includes('梳') || lowerText.includes('化妝')) {
                 return `background-color: #eaf7f2; border: 1px solid #a4cca8; color: #5ca385;`;
             }
-            // 5. 戶外 / 實用工具 / 雨具 (大地茶褐、橄欖綠)
             if (lowerText.includes('戶外') || lowerText.includes('工具') || lowerText.includes('雨') || lowerText.includes('傘') || lowerText.includes('水瓶') || lowerText.includes('指南')) {
                 return `background-color: #edf2eb; border: 1px solid #b9c7b5; color: #62755d;`;
             }
-            // 6. 其他 / 雜物 / 備用 (極簡中性灰)
             if (lowerText.includes('其他') || lowerText.includes('備用') || lowerText.includes('雜') || lowerText.includes('未分類')) {
                 return `background-color: #f2f2f2; border: 1px solid #d4d4d4; color: #737373;`;
             }
 
-            // 備用：若無法語意識別則採原有動態色彩 Hash 算法
             let hash = 0;
             for (let i = 0; i < text.length; i++) {
                 hash = text.charCodeAt(i) + ((hash << 5) - hash);
@@ -1470,9 +1855,10 @@
         }
 
         // --------------------------
-        // 輔劇防禦防護機制
+        // 防禦防護 HTML Escape 
         // --------------------------
         function escapeHtml(text) {
+            if (!text) return '';
             return text
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
@@ -1591,11 +1977,14 @@
         }
 
         // --------------------------
-        // 分頁與滑動切換邏輯
+        // 分頁與滑動切換邏輯 (0:清單, 1:新增, 2:旅程, 3:設定)
         // --------------------------
         function switchPage(index) {
+            if (index < 3) {
+                previousActivePage = index;
+            }
             currentPageIndex = index;
-            pagesContainer.style.transform = `translateX(-${index * 33.333}%)`;
+            pagesContainer.style.transform = `translateX(-${index * 25}%)`;
             
             navItems.forEach((item, idx) => {
                 if (idx === index) {
@@ -1605,13 +1994,16 @@
                 }
             });
 
-            // 當切換頁面時自動收合選擇器
             toggleInlineSelect('location', false);
             toggleInlineSelect('category', false);
         }
 
+        function goBackFromSettings() {
+            switchPage(previousActivePage);
+        }
+
         // ----------------------------------------------------
-        // 【優化】Touch 觸控滑動：加入 X/Y 位移比率判定與更高閾值，防止上下滾動誤觸分頁
+        // Touch 觸控左右滑動 (支援在 清單(0) -> 新增(1) -> 旅程(2) 之間滑動)
         // ----------------------------------------------------
         let touchStartX = 0;
         let touchStartY = 0;
@@ -1630,22 +2022,24 @@
         }, { passive: true });
 
         function handleSwipe() {
+            if (currentPageIndex === 3) return;
+
             const swipeDistanceX = touchStartX - touchEndX;
             const swipeDistanceY = touchStartY - touchEndY;
             
-            // 提高水平滑動距離閾值（原先為 60px），現在設定 80px 確保是有意滑動
             const swipeThresholdX = 80;
-            // 垂直滾動容忍度，若使用者正在大幅度垂直滾動則忽視本次滑動
             const swipeThresholdY = 50; 
 
-            // 1. 確保水平移動距離達到閾值，且垂直移動在合理範圍內
             if (Math.abs(swipeDistanceX) > swipeThresholdX && Math.abs(swipeDistanceY) < swipeThresholdY) {
-                // 2. 水平滑動的距離必須「大幅大於」垂直滑動距離（1.5倍以上），才判定為有意圖的左右翻頁
                 if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) * 1.5) {
-                    if (swipeDistanceX > 0 && currentPageIndex === 0) {
-                        switchPage(1);
-                    } else if (swipeDistanceX < 0 && currentPageIndex === 1) {
-                        switchPage(0);
+                    if (swipeDistanceX > 0) {
+                        if (currentPageIndex < 2) {
+                            switchPage(currentPageIndex + 1);
+                        }
+                    } else {
+                        if (currentPageIndex > 0) {
+                            switchPage(currentPageIndex - 1);
+                        }
                     }
                 }
             }
@@ -1655,7 +2049,6 @@
         // 渲染自訂無額外視窗選擇器列表
         // --------------------------
         function populateCustomSelects() {
-            // 確認已有預設值，若無則指派預設值
             if (!selectedLocation && appState.locations.length > 0) {
                 selectedLocation = appState.locations[0];
             }
@@ -1663,7 +2056,7 @@
                 selectedCategory = appState.categories[0];
             }
 
-            // 1. 渲染 放置位置 內嵌選項
+            // 1. 放置位置
             const locOptionsContainer = document.getElementById('location-options');
             locOptionsContainer.innerHTML = '';
             appState.locations.forEach(loc => {
@@ -1679,7 +2072,6 @@
                 };
                 locOptionsContainer.appendChild(div);
             });
-            // 新增放置位置觸發項
             const locNewDiv = document.createElement('div');
             locNewDiv.className = `inline-option-item inline-option-item-new ${selectedLocation === '__new__' ? 'selected' : ''}`;
             locNewDiv.innerHTML = `<span>＋ 新增放置位置...</span>`;
@@ -1689,7 +2081,7 @@
             };
             locOptionsContainer.appendChild(locNewDiv);
 
-            // 2. 渲染 物品分類 內嵌選項
+            // 2. 物品分類
             const catOptionsContainer = document.getElementById('category-options');
             catOptionsContainer.innerHTML = '';
             appState.categories.forEach(cat => {
@@ -1705,7 +2097,6 @@
                 };
                 catOptionsContainer.appendChild(div);
             });
-            // 新增物品分類觸發項
             const catNewDiv = document.createElement('div');
             catNewDiv.className = `inline-option-item inline-option-item-new ${selectedCategory === '__new__' ? 'selected' : ''}`;
             catNewDiv.innerHTML = `<span>＋ 新增物品分類...</span>`;
@@ -1715,7 +2106,6 @@
             };
             catOptionsContainer.appendChild(catNewDiv);
 
-            // 更新預覽顯示條文字
             document.getElementById('location-trigger-text').innerText = selectedLocation === '__new__' ? '＋ 新增放置位置...' : selectedLocation;
             document.getElementById('category-trigger-text').innerText = selectedCategory === '__new__' ? '＋ 新增物品分類...' : selectedCategory;
         }
@@ -1750,7 +2140,6 @@
             populateCustomSelects();
         }
 
-        // 切換內嵌選擇器收展狀態
         function toggleInlineSelect(type, forceState) {
             const selectContainer = document.getElementById(`${type}-select-container`);
             const menu = document.getElementById(`${type}-menu`);
@@ -1763,7 +2152,6 @@
             }
 
             if (shouldShow) {
-                // 關閉另一個展開中的選擇器，保持畫面乾淨
                 const otherType = type === 'location' ? 'category' : 'location';
                 toggleInlineSelect(otherType, false);
 
@@ -1792,7 +2180,6 @@
             const container = document.getElementById(`${type}-manager`);
             container.innerHTML = '';
             
-            // 建立快速新增欄位
             const addRow = document.createElement('div');
             addRow.className = 'manager-add-row';
             
@@ -1826,7 +2213,6 @@
             addRow.appendChild(addBtn);
             container.appendChild(addRow);
             
-            // 建立獨立滾動的現有選項清單
             const listDiv = document.createElement('div');
             listDiv.className = 'manager-list';
             
@@ -1878,7 +2264,6 @@
 
         function deleteLocationOption(loc) {
             appState.locations = appState.locations.filter(l => l !== loc);
-            // 若目前選取的剛好被刪除，則重設為預設項
             if (selectedLocation === loc) {
                 selectedLocation = appState.locations[0] || '';
             }
@@ -1889,7 +2274,6 @@
 
         function deleteCategoryOption(cat) {
             appState.categories = appState.categories.filter(c => c !== cat);
-            // 若目前選取的剛好被刪除，則重設為預設項
             if (selectedCategory === cat) {
                 selectedCategory = appState.categories[0] || '';
             }
@@ -1899,7 +2283,7 @@
         }
 
         // --------------------------
-        // 渲染主清單
+        // 渲染行李清單
         // --------------------------
         function renderGroupedList() {
             groupedItemsContainer.innerHTML = '';
@@ -1970,17 +2354,408 @@
             updateStats();
         }
 
+        // ----------------------------------------------------
+        // 旅程規劃時間軸 (Journey Itinerary)
+        // ----------------------------------------------------
+
+        // 語意自動偵測 URL
+        function detectAndGetUrl(text) {
+            if (!text) return '';
+            const urlRegex = /(https?:\/\/[^\s]+)/gi;
+            const matches = text.match(urlRegex);
+            return matches ? matches[0] : '';
+        }
+
+        // 預解析連結卡片預覽
+        function createLinkPreviewHtml(url) {
+            if (!url) return '';
+            let cleanedUrl = url.trim();
+            if (!/^https?:\/\//i.test(cleanedUrl)) {
+                cleanedUrl = 'https://' + cleanedUrl;
+            }
+
+            let domain = '';
+            try {
+                domain = new URL(cleanedUrl).hostname;
+            } catch (e) {
+                domain = cleanedUrl;
+            }
+
+            let previewTitle = "造訪活動連結";
+            let svgIcon = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+            `;
+
+            if (domain.includes('google.com/maps') || domain.includes('maps.google') || domain.includes('goo.gl/maps')) {
+                previewTitle = "Google 地圖導航定點";
+                svgIcon = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                `;
+            } else if (domain.includes('airbnb') || domain.includes('booking') || domain.includes('agoda') || domain.includes('hotel')) {
+                previewTitle = "住宿旅宿預訂頁面";
+                svgIcon = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                `;
+            } else if (domain.includes('flight') || domain.includes('airline') || domain.includes('skyscanner') || domain.includes('evaair') || domain.includes('china-airlines')) {
+                previewTitle = "班機機票確認詳情";
+                svgIcon = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1.1.1-1.4.5l-.3.3c-.4.4-.4 1 .1 1.2l7.8 3.9-3.9 3.9-3.3-.8c-.4-.1-.8.1-1 .4l-.3.3c-.3.3-.3.8.1 1l4.8 2.4 2.4 4.8c.2.4.7.4 1 .1l.3-.3c.3-.3.4-.7.4-1l-.8-3.3 3.9-3.9 3.9 7.8c.2.5.8.5 1.2.1l.3-.3c.4-.3.6-.9.5-1.4z"></path>
+                    </svg>
+                `;
+            }
+
+            return `
+                <a href="${escapeHtml(cleanedUrl)}" target="_blank" class="link-preview-box">
+                    <div class="link-preview-icon">${svgIcon}</div>
+                    <div class="link-preview-details">
+                        <div class="link-preview-title">${escapeHtml(previewTitle)}</div>
+                        <div class="link-preview-url">${escapeHtml(domain)}</div>
+                    </div>
+                </a>
+            `;
+        }
+
+        // 即時保存旅程修改與網址提取偵測
+        function updateJourneyNode(id, field, value) {
+            appState.itineraries = appState.itineraries.map(node => {
+                if (node.id === id) {
+                    const updatedNode = { ...node };
+                    updatedNode[field] = value;
+                    return updatedNode;
+                }
+                return node;
+            });
+            saveState();
+
+            // 若更新的是文字紀事，動態在卡片內顯示對應提取的網址卡片預覽
+            if (field === 'text') {
+                const detectedUrl = detectAndGetUrl(value);
+                const currentLink = appState.itineraries.find(n => n.id === id)?.link || '';
+                
+                if (detectedUrl !== currentLink) {
+                    appState.itineraries = appState.itineraries.map(node => {
+                        if (node.id === id) {
+                            return { ...node, link: detectedUrl };
+                        }
+                        return node;
+                    });
+                    saveState();
+
+                    const nodeCard = document.querySelector(`[data-id="${id}"]`);
+                    if (nodeCard) {
+                        let previewWrapper = nodeCard.querySelector('.link-preview-wrapper');
+                        if (!previewWrapper) {
+                            previewWrapper = document.createElement('div');
+                            previewWrapper.className = 'link-preview-wrapper';
+                            nodeCard.appendChild(previewWrapper);
+                        }
+                        previewWrapper.innerHTML = createLinkPreviewHtml(detectedUrl);
+                    }
+                }
+            }
+        }
+
+        // 即時響應紀事輸入 (確保輸入時無任何欄位變形)
+        function handleTextareaInput(nodeId, text, el) {
+            updateJourneyNode(nodeId, 'text', text);
+            autoResizeTextarea(el);
+        }
+
+        // 輸入過濾：只允許數字，更新 state，並動態保存
+        function handleNumericInput(e, id, field) {
+            const rawVal = e.target.value;
+            const cleanVal = rawVal.replace(/[^0-9]/g, '');
+            if (e.target.value !== cleanVal) {
+                e.target.value = cleanVal;
+            }
+            updateJourneyNode(id, field, cleanVal);
+        }
+
+        // ----------------------------------------------------
+        // 旅程規劃附件模組 (IndexedDB 儲存附件)
+        // ----------------------------------------------------
+        let activeAttachmentNodeId = null;
+
+        function triggerAttachmentUpload(nodeId) {
+            activeAttachmentNodeId = nodeId;
+            document.getElementById('timeline-attachment-input').click();
+        }
+
+        function handleAttachmentUpload(event) {
+            const file = event.target.files[0];
+            if (!file || !activeAttachmentNodeId) return;
+
+            const MAX_SIZE = 12 * 1024 * 1024; // 上限 12MB
+            if (file.size > MAX_SIZE) {
+                showToast("檔案過大，請上傳小於 12MB 的附件檔案！");
+                event.target.value = '';
+                return;
+            }
+
+            saveAttachmentToDB(activeAttachmentNodeId, file).then(meta => {
+                appState.itineraries = appState.itineraries.map(node => {
+                    if (node.id === activeAttachmentNodeId) {
+                        return { ...node, attachment: meta };
+                    }
+                    return node;
+                });
+                saveState();
+                renderJourneyTimeline();
+                showToast(`附件「${file.name}」上傳成功！`);
+            }).catch(err => {
+                console.error("附件存入 DB 失敗:", err);
+                showToast("上傳附件失敗，請更換檔案後再試");
+            }).finally(() => {
+                event.target.value = '';
+                activeAttachmentNodeId = null;
+            });
+        }
+
+        function saveAttachmentToDB(nodeId, file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Data = e.target.result;
+                    openDB().then(db => {
+                        const transaction = db.transaction('fonts', 'readwrite');
+                        const store = transaction.objectStore('fonts');
+                        store.put({ 
+                            id: 'attach_' + nodeId, 
+                            data: base64Data, 
+                            name: file.name, 
+                            type: file.type,
+                            size: file.size
+                        });
+                        transaction.oncomplete = () => resolve({ name: file.name, type: file.type, size: file.size });
+                        transaction.onerror = () => reject(transaction.error);
+                    });
+                };
+                reader.onerror = (err) => reject(err);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function openAttachment(nodeId) {
+            openDB().then(db => {
+                const transaction = db.transaction('fonts', 'readonly');
+                const store = transaction.objectStore('fonts');
+                const request = store.get('attach_' + nodeId);
+                request.onsuccess = () => {
+                    const record = request.result;
+                    if (record) {
+                        try {
+                            const newTab = window.open();
+                            if (newTab) {
+                                newTab.document.write(`<iframe src="${record.data}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                            } else {
+                                throw new Error("Popup blocked");
+                            }
+                        } catch (e) {
+                            // 當新分頁阻擋時進行下載降級
+                            const link = document.createElement('a');
+                            link.href = record.data;
+                            link.download = record.name;
+                            link.click();
+                        }
+                    } else {
+                        showToast("找不到對應的附件檔案！");
+                    }
+                };
+            });
+        }
+
+        function removeAttachment(nodeId) {
+            appState.itineraries = appState.itineraries.map(node => {
+                if (node.id === nodeId) {
+                    const updated = { ...node };
+                    delete updated.attachment;
+                    return updated;
+                }
+                return node;
+            });
+            saveState();
+            deleteAttachmentFromDB(nodeId).then(() => {
+                renderJourneyTimeline();
+                showToast("已成功移除附件");
+            });
+        }
+
+        function deleteAttachmentFromDB(nodeId) {
+            return openDB().then(db => {
+                return new Promise((resolve) => {
+                    const transaction = db.transaction('fonts', 'readwrite');
+                    const store = transaction.objectStore('fonts');
+                    store.delete('attach_' + nodeId);
+                    transaction.oncomplete = () => resolve();
+                });
+            });
+        }
+
         // --------------------------
-        // 一鍵封存功能
+        // 渲染旅程時間軸 (預設大小為方形且保持空白)
+        // --------------------------
+        function renderJourneyTimeline() {
+            const wrapper = document.getElementById('timeline-nodes-wrapper');
+            const emptyState = document.getElementById('journey-empty-state');
+            const stats = document.getElementById('journey-stats-text');
+            wrapper.innerHTML = '';
+
+            const list = appState.itineraries || [];
+            stats.innerText = `${list.length} 個旅程節點`;
+
+            if (list.length === 0) {
+                emptyState.style.display = 'flex';
+                document.getElementById('journey-timeline').style.display = 'none';
+                return;
+            }
+            emptyState.style.display = 'none';
+            document.getElementById('journey-timeline').style.display = 'block';
+
+            list.forEach(node => {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'timeline-node';
+
+                const dateVal = node.dateDigits || '';
+                const timeVal = node.timeDigits || '';
+                const textVal = node.text || '';
+                const linkVal = node.link || '';
+
+                const previewHtml = linkVal ? createLinkPreviewHtml(linkVal) : '';
+                
+                let attachmentHtml = '';
+                if (node.attachment) {
+                    attachmentHtml = `
+                        <div class="attachment-preview-box" onclick="openAttachment(${node.id})" title="點擊開啟附件檔案">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--accent); flex-shrink: 0;">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                            </svg>
+                            <div class="attachment-details">
+                                <span class="attachment-name">${escapeHtml(node.attachment.name)}</span>
+                                <span class="attachment-size">${(node.attachment.size / 1024).toFixed(1)} KB</span>
+                            </div>
+                            <button class="attachment-remove-btn" onclick="event.stopPropagation(); removeAttachment(${node.id})" title="移除此附件">✕</button>
+                        </div>
+                    `;
+                }
+
+                nodeDiv.innerHTML = `
+                    <div class="timeline-time-block">
+                        <input type="text" 
+                               class="timeline-time-input date-field" 
+                               placeholder="" 
+                               value="${escapeHtml(dateVal)}" 
+                               oninput="handleNumericInput(event, ${node.id}, 'dateDigits')" 
+                               maxlength="8" 
+                               inputmode="numeric" 
+                               pattern="[0-9]*" 
+                               aria-label="修改日期" />
+                        <input type="text" 
+                               class="timeline-time-input time-field" 
+                               placeholder="" 
+                               value="${escapeHtml(timeVal)}" 
+                               oninput="handleNumericInput(event, ${node.id}, 'timeDigits')" 
+                               maxlength="8" 
+                               inputmode="numeric" 
+                               pattern="[0-9]*" 
+                               aria-label="修改時間" />
+                    </div>
+                    <div class="timeline-content-card" data-id="${node.id}">
+                        <!-- 右側垂直動作欄：刪除與附件迴紋針完美上下對齊 -->
+                        <div class="timeline-actions-column">
+                            <button class="timeline-delete-btn" onclick="deleteJourneyItem(${node.id})" title="刪除此行程節點">✕</button>
+                            <button class="timeline-attach-btn" onclick="triggerAttachmentUpload(${node.id})" title="新增附件檔案">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <textarea class="timeline-editable-text" 
+                                  placeholder="在此輸入旅程記事..." 
+                                  rows="2"
+                                  oninput="handleTextareaInput(${node.id}, this.value, this);"
+                                  aria-label="修改記事內容">${escapeHtml(textVal)}</textarea>
+                        
+                        <div class="link-preview-wrapper" style="width:100%; margin-top:2px;">
+                            ${previewHtml}
+                        </div>
+
+                        <div class="attachment-preview-wrapper" style="width:100%;">
+                            ${attachmentHtml}
+                        </div>
+                    </div>
+                `;
+                wrapper.appendChild(nodeDiv);
+                
+                const ta = nodeDiv.querySelector('.timeline-editable-text');
+                autoResizeTextarea(ta);
+            });
+        }
+
+        // 自動調整 TextArea 的高度適配內容
+        function autoResizeTextarea(el) {
+            if (!el) return;
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+        }
+
+        // 新增空白行程節點 (方形空白時間區塊)
+        function addNewTimelineNode() {
+            const newNode = {
+                id: Date.now(),
+                dateDigits: '',
+                timeDigits: '',
+                text: '',
+                link: ''
+            };
+
+            if (!appState.itineraries) appState.itineraries = [];
+            appState.itineraries.push(newNode);
+            
+            saveState();
+            renderJourneyTimeline();
+            showToast('已新增空白行程節點，請直接輸入');
+
+            setTimeout(() => {
+                const journeyPage = document.getElementById('page-journey');
+                journeyPage.scrollTo({
+                    top: journeyPage.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+
+        // 刪除行程節點 (一併從 IndexedDB 清除該節點關聯附件)
+        function deleteJourneyItem(id) {
+            appState.itineraries = appState.itineraries.filter(node => node.id !== id);
+            saveState();
+            deleteAttachmentFromDB(id).then(() => {
+                renderJourneyTimeline();
+                showToast('行程節點已刪除');
+            });
+        }
+
+        // --------------------------
+        // 行李一鍵封存
         // --------------------------
         function openArchiveModal() {
             if (appState.items.length === 0) {
-                showToast('當前清單無任何物品，無法進行封存！');
+                showToast('當前清單無任何行李，無法進行封存！');
                 return;
             }
             const today = new Date();
             const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-            document.getElementById('archive-name-input').value = `${dateStr} 旅行清單`;
+            document.getElementById('archive-name-input').value = `${dateStr} 行李備份`;
             document.getElementById('archive-modal').classList.add('show');
         }
 
@@ -1990,7 +2765,7 @@
 
         function submitArchive() {
             const nameInput = document.getElementById('archive-name-input');
-            const archiveName = nameInput.value.trim() || '未命名旅行清單';
+            const archiveName = nameInput.value.trim() || '未命名行李清單';
 
             const today = new Date();
             const formattedDate = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
@@ -2010,12 +2785,57 @@
             renderGroupedList();
             renderArchiveRecords();
 
-            switchPage(2);
-            showToast('已成功一鍵封存！');
+            switchPage(3); 
+            showToast('行李清單已成功封存！');
         }
 
         // --------------------------
-        // 歷史封存紀錄渲染
+        // 旅程規劃一鍵封存
+        // --------------------------
+        function openJourneyArchiveModal() {
+            if (!appState.itineraries || appState.itineraries.length === 0) {
+                showToast('當前時間軸無任何行程，無法進行封存！');
+                return;
+            }
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            document.getElementById('journey-archive-name-input').value = `${dateStr} 旅程規劃備份`;
+            document.getElementById('journey-archive-modal').classList.add('show');
+        }
+
+        function closeJourneyArchiveModal() {
+            document.getElementById('journey-archive-modal').classList.remove('show');
+        }
+
+        function submitJourneyArchive() {
+            const nameInput = document.getElementById('journey-archive-name-input');
+            const archiveName = nameInput.value.trim() || '未命名旅程規劃';
+
+            const today = new Date();
+            const formattedDate = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
+
+            const newArchive = {
+                id: Date.now(),
+                name: archiveName,
+                date: formattedDate,
+                itineraries: JSON.parse(JSON.stringify(appState.itineraries))
+            };
+
+            if (!appState.journeyArchives) appState.journeyArchives = [];
+            appState.journeyArchives.unshift(newArchive);
+            appState.itineraries = [];
+
+            saveState();
+            closeJourneyArchiveModal();
+            renderJourneyTimeline();
+            renderJourneyArchiveRecords();
+
+            switchPage(3); 
+            showToast('旅程規劃時間軸已封存！');
+        }
+
+        // --------------------------
+        // 歷史行李封存紀錄渲染
         // --------------------------
         function renderArchiveRecords() {
             const container = document.getElementById('archive-list');
@@ -2034,7 +2854,6 @@
                 card.className = 'archive-card';
 
                 const total = arc.items.length;
-                const completedCount = arc.items.filter(i => i.completed).length;
 
                 const arcLocations = [...new Set(arc.items.map(item => item.location || '其他位置'))].sort((a, b) => 
                     a.localeCompare(b, 'zh-Hant')
@@ -2048,9 +2867,6 @@
 
                     const groupItems = arc.items.filter(item => (item.location || '其他位置') === loc);
                     const sortedGroupItems = [...groupItems].sort((a, b) => {
-                        if (a.completed !== b.completed) {
-                            return a.completed - b.completed;
-                        }
                         const catCompare = (a.category || '').localeCompare(b.category || '', 'zh-Hant');
                         if (catCompare !== 0) return catCompare;
                         return (a.text || '').localeCompare(b.text || '', 'zh-Hant');
@@ -2059,12 +2875,10 @@
                     sortedGroupItems.forEach(item => {
                         const catStyle = getTagStyle(item.category);
                         itemsListHtml += `
-                            <li class="archive-item-bullet">
+                            <li class="archive-item-bullet" style="padding: 6px 0;">
                                 <div class="archive-item-left">
-                                    <span class="${item.completed ? 'archive-item-checked' : 'archive-item-unchecked'}">
-                                        ${item.completed ? '✓' : '○'}
-                                    </span>
-                                    <span class="${item.completed ? 'archive-item-text-completed' : ''}">${escapeHtml(item.text)}</span>
+                                    <span style="color: var(--accent); margin-right: 8px;">•</span>
+                                    <span>${escapeHtml(item.text)}</span>
                                 </div>
                                 <div class="archive-item-tags">
                                     <span class="archive-item-tag" style="${catStyle}">${escapeHtml(item.category)}</span>
@@ -2078,7 +2892,7 @@
                     <div class="archive-card-header">
                         <div class="archive-info">
                             <span class="archive-name">${escapeHtml(arc.name)}</span>
-                            <span class="archive-date">${arc.date} • 已打包 ${completedCount}/${total} 項</span>
+                            <span class="archive-date">${arc.date} • 共 ${total} 項物品</span>
                         </div>
                         <div class="archive-actions">
                             <button class="archive-action-btn archive-btn-restore" onclick="restoreArchive(${arc.id})">還原</button>
@@ -2096,10 +2910,73 @@
             });
         }
 
+        // --------------------------
+        // 歷史旅程封存紀錄渲染
+        // --------------------------
+        function renderJourneyArchiveRecords() {
+            const container = document.getElementById('journey-archive-list');
+            const emptyState = document.getElementById('journey-archive-empty-state');
+            container.innerHTML = '';
+
+            const archives = appState.journeyArchives || [];
+            if (archives.length === 0) {
+                emptyState.style.display = 'flex';
+                return;
+            }
+            emptyState.style.display = 'none';
+
+            archives.forEach(arc => {
+                const card = document.createElement('div');
+                card.className = 'archive-card';
+
+                const total = arc.itineraries.length;
+
+                const sortedItineraries = [...arc.itineraries].sort((a, b) => {
+                    const dateA = parseInt(a.dateDigits) || 0;
+                    const dateB = parseInt(b.dateDigits) || 0;
+                    if (dateA !== dateB) return dateA - dateB;
+                    return (parseInt(a.timeDigits) || 0) - (parseInt(b.timeDigits) || 0);
+                });
+
+                let journeyListHtml = '';
+                sortedItineraries.forEach(node => {
+                    const dateDisplay = node.dateDigits ? `${node.dateDigits.substring(0,2)}/${node.dateDigits.substring(2,4)}` : '未定';
+                    const timeDisplay = node.timeDigits ? `${node.timeDigits.substring(0,2)}:${node.timeDigits.substring(2,4)}` : '--:--';
+
+                    journeyListHtml += `
+                        <li style="display: flex; gap: 12px; font-size: 0.85rem; padding: 6px 0; border-bottom: 1px solid #fafbfa;">
+                            <span style="font-weight: 700; color: var(--accent); flex-shrink: 0; min-width: 80px;">[${dateDisplay} ${timeDisplay}]</span>
+                            <span style="flex: 1; word-break: break-all;">${escapeHtml(node.text)}</span>
+                        </li>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="archive-card-header">
+                        <div class="archive-info">
+                            <span class="archive-name">${escapeHtml(arc.name)}</span>
+                            <span class="archive-date">${arc.date} • 共 ${total} 個節點</span>
+                        </div>
+                        <div class="archive-actions">
+                            <button class="archive-action-btn archive-btn-restore" onclick="restoreJourneyArchive(${arc.id})">還原</button>
+                            <button class="archive-action-btn archive-btn-delete" onclick="deleteJourneyArchive(${arc.id})">刪除</button>
+                        </div>
+                    </div>
+                    <button class="archive-details-toggle" onclick="toggleArchiveDetails(this)">
+                        <span>展開 (共 ${total} 項)</span> ▾
+                    </button>
+                    <ul class="archive-items-list" style="list-style: none;">
+                        ${journeyListHtml}
+                    </ul>
+                `;
+                container.appendChild(card);
+            });
+        }
+
         function toggleArchiveDetails(btn) {
             const list = btn.nextElementSibling;
             const isShowing = list.classList.toggle('show');
-            const bullets = list.querySelectorAll('.archive-item-bullet');
+            const bullets = list.querySelectorAll('li');
             const itemsCount = bullets.length;
             btn.innerHTML = `<span>${isShowing ? '收合' : `展開 (共 ${itemsCount} 項)`}</span> ${isShowing ? '▴' : '▾'}`;
         }
@@ -2108,7 +2985,7 @@
             appState.archives = appState.archives.filter(arc => arc.id !== id);
             saveState();
             renderArchiveRecords();
-            showToast('封存紀錄已刪除');
+            showToast('行李封存紀錄已刪除');
         }
 
         function restoreArchive(id) {
@@ -2132,7 +3009,29 @@
             renderGroupedList();
 
             switchPage(0);
-            showToast(`已成功還原封存旅行「${arc.name}」的行李項目！`);
+            showToast(`已成功還原「${arc.name}」的行李項目！`);
+        }
+
+        function deleteJourneyArchive(id) {
+            appState.journeyArchives = appState.journeyArchives.filter(arc => arc.id !== id);
+            saveState();
+            renderJourneyArchiveRecords();
+            showToast('旅程封存紀錄已刪除');
+        }
+
+        function restoreJourneyArchive(id) {
+            const arc = appState.journeyArchives.find(a => a.id === id);
+            if (!arc) return;
+
+            const restoredItineraries = JSON.parse(JSON.stringify(arc.itineraries));
+            if (!appState.itineraries) appState.itineraries = [];
+            appState.itineraries = [...appState.itineraries, ...restoredItineraries];
+
+            saveState();
+            renderJourneyTimeline();
+
+            switchPage(2); 
+            showToast(`已成功還原「${arc.name}」的行程時間軸節點！`);
         }
 
         // --------------------------
@@ -2176,7 +3075,7 @@
         }
 
         // --------------------------
-        // 新增行李處理邏輯 (停留在原地並顯示彈跳確認窗)
+        // 新增行李處理邏輯
         // --------------------------
         function addItem() {
             const text = itemInput.value.trim();
@@ -2185,7 +3084,6 @@
             let finalLocation = selectedLocation;
             let finalCategory = selectedCategory;
 
-            // 處理「新增放置位置」自訂值
             if (finalLocation === '__new__') {
                 const customLocInput = document.getElementById('location-custom-input');
                 const customLocValue = customLocInput.value.trim();
@@ -2194,7 +3092,6 @@
                     if (!appState.locations.includes(finalLocation)) {
                         appState.locations.push(finalLocation);
                     }
-                    // 保留此新增值作為下次預設
                     selectedLocation = finalLocation;
                 } else {
                     finalLocation = '未分類位置';
@@ -2202,7 +3099,6 @@
                 }
             }
 
-            // 處理「新增物品分類」自訂值
             if (finalCategory === '__new__') {
                 const customCatInput = document.getElementById('category-custom-input');
                 const customCatValue = customCatInput.value.trim();
@@ -2211,7 +3107,6 @@
                     if (!appState.categories.includes(finalCategory)) {
                         appState.categories.push(finalCategory);
                     }
-                    // 保留此新增值作為下次預設
                     selectedCategory = finalCategory;
                 } else {
                     finalCategory = '其他備用';
@@ -2229,7 +3124,6 @@
 
             appState.items.push(newItem);
             
-            // 僅重置物品名稱輸入欄與隱藏自訂輸入槽，保留放置位置及分類選擇以利下次直接利用
             itemInput.value = '';
             document.getElementById('location-custom-input').value = '';
             document.getElementById('category-custom-input').value = '';
@@ -2237,32 +3131,32 @@
             document.getElementById('category-custom').classList.remove('show');
 
             saveState();
-            populateCustomSelects(); // 重繪自訂選項條
-            renderGroupedList(); // 背後同步更新清單
+            populateCustomSelects(); 
+            renderGroupedList(); 
 
-            // 彈出精美自訂彈跳確認視窗
             openAddedModal(text);
         }
 
         let addedModalTimeout = null;
 
-        // 打開新增成功彈跳視窗
         function openAddedModal(itemName) {
             document.getElementById('added-modal-item-name').innerText = `「${itemName}」已成功歸入「${selectedLocation}」的「${selectedCategory}」中！`;
             const modal = document.getElementById('added-modal');
             modal.classList.add('show');
             
-            // 1.8 秒後自動隱藏，維持極佳的流暢度和盲打體驗
             if (addedModalTimeout) clearTimeout(addedModalTimeout);
             addedModalTimeout = setTimeout(() => {
                 closeAddedModal();
             }, 1800);
         }
 
-        // 關閉新增成功彈跳視窗
         function closeAddedModal() {
             if (addedModalTimeout) clearTimeout(addedModalTimeout);
             document.getElementById('added-modal').classList.remove('show');
+        }
+
+        function closeJourneyArchiveModal() {
+            document.getElementById('journey-archive-modal').classList.remove('show');
         }
 
         // --------------------------
@@ -2275,7 +3169,6 @@
             }
         });
 
-        // 點選空白處自動收合內嵌下拉選單
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.custom-inline-select') && !e.target.closest('.manage-btn') && !e.target.closest('.manager-container')) {
                 toggleInlineSelect('location', false);
@@ -2285,7 +3178,9 @@
 
         populateCustomSelects();
         renderGroupedList();
+        renderJourneyTimeline();
         renderArchiveRecords();
+        renderJourneyArchiveRecords();
 
         loadFontsFromDB().then(savedFonts => {
             savedFonts.forEach(f => {
