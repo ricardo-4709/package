@@ -2121,23 +2121,6 @@
             });
         }
 
-        function deleteCustomFont(fontId) {
-            deleteFontFromDB(fontId).then(() => {
-                appState.customFontRecords = (appState.customFontRecords || []).filter(r => r.id !== fontId);
-                if (appState.selectedFont === fontId) {
-                    changeAppFont('system');
-                    document.getElementById('font-trigger-text').innerText = FONT_LABELS['system'];
-                }
-                saveState();
-                renderFontOptions(); // 重新產生選單，移除已刪除字型
-                renderUploadedFontsList();
-                showToast("自訂字型已成功刪除");
-            }).catch(err => {
-                console.error("刪除自訂字型失敗: ", err);
-                showToast("刪除自訂字型失敗");
-            });
-        }
-
         // --------------------------
         // 分頁切換邏輯 (0:清單, 1:新增, 2:旅程, 3:設定)
         // --------------------------
@@ -2820,14 +2803,14 @@
                     <div class="timeline-time-block">
                         <input type="text" 
                                class="timeline-time-input date-field" 
-                               placeholder="月/日" 
+                               placeholder="" 
                                value="${escapeHtml(dateVal)}" 
                                oninput="handleNumericInput(event, ${node.id}, 'dateDigits')" 
                                maxlength="30" 
                                aria-label="修改日期" />
                         <input type="text" 
                                class="timeline-time-input time-field" 
-                               placeholder="時間" 
+                               placeholder="" 
                                value="${escapeHtml(timeVal)}" 
                                oninput="handleNumericInput(event, ${node.id}, 'timeDigits')" 
                                maxlength="30" 
@@ -3090,13 +3073,15 @@
 
                 let journeyListHtml = '';
                 sortedItineraries.forEach(node => {
-                    // 解除為純數字過濾後，可能不再是 dateDigits 字數，此處相容原格式並安全顯示
-                    const dateDisplay = node.dateDigits ? escapeHtml(node.dateDigits) : '未定';
-                    const timeDisplay = node.timeDigits ? escapeHtml(node.timeDigits) : '--:--';
+                    const dateDisplay = node.dateDigits ? escapeHtml(node.dateDigits) : '';
+                    const timeDisplay = node.timeDigits ? escapeHtml(node.timeDigits) : '';
+                    const timeTag = (dateDisplay || timeDisplay) 
+                        ? `<span style="font-weight: 700; color: var(--accent); flex-shrink: 0; min-width: 80px;">[${dateDisplay}${dateDisplay && timeDisplay ? ' ' : ''}${timeDisplay}]</span>` 
+                        : '';
 
                     journeyListHtml += `
                         <li style="display: flex; gap: 12px; font-size: 0.85rem; padding: 6px 0; border-bottom: 1px solid #fafbfa;">
-                            <span style="font-weight: 700; color: var(--accent); flex-shrink: 0; min-width: 80px;">[${dateDisplay} ${timeDisplay}]</span>
+                            ${timeTag}
                             <span style="flex: 1; word-break: break-all;">${escapeHtml(node.text)}</span>
                         </li>
                     `;
