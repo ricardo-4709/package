@@ -1343,7 +1343,6 @@
             color: white;
         }
     </style>
-  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
  </head>
  
  <body style="background: rgb(247, 248, 246);">
@@ -1805,13 +1804,19 @@
             });
         }
 
+        // 【修復】loadFontsFromDB 內部排除非字型格式的 attachment 檔案
         function loadFontsFromDB() {
             return openDB().then(db => {
                 return new Promise((resolve) => {
                     const transaction = db.transaction('fonts', 'readonly');
                     const store = transaction.objectStore('fonts');
                     const getRequest = store.getAll();
-                    getRequest.onsuccess = () => resolve(getRequest.result || []);
+                    getRequest.onsuccess = () => {
+                        const allRecords = getRequest.result || [];
+                        // 只載入不是以 "attach_"（旅行附件）開頭的純字型資料
+                        const fontsOnly = allRecords.filter(item => item.id && !item.id.startsWith('attach_'));
+                        resolve(fontsOnly);
+                    };
                     getRequest.onerror = () => resolve([]);
                 });
             });
@@ -1932,9 +1937,7 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // --------------------------
-        // 【修復 1】動態渲染字型選單（系統字型 ＋ 導入的裝置字型）
-        // --------------------------
+        // 動態渲染字型選單（系統字型 ＋ 導入的裝置字型）
         function renderFontOptions() {
             const container = document.getElementById('font-options');
             if (!container) return;
@@ -3337,33 +3340,49 @@
         renderArchiveRecords();
         renderJourneyArchiveRecords();
 
+        // 【修復】非同步字型載入流程
         loadFontsFromDB().then(savedFonts => {
-            savedFonts.forEach(f => {
+            const fontLoadPromises = savedFonts.map(f => {
+                if (!(f.data instanceof Blob)) {
+                    return Promise.resolve(); // 確保資料是 Blob 才轉換，避免意外拋錯
+                }
                 const url = URL.createObjectURL(f.data);
                 const fontFace = new FontFace(f.id, `url(${url})`);
-                fontFace.load().then(loadedFace => {
+                return fontFace.load().then(loadedFace => {
                     document.fonts.add(loadedFace);
                     URL.revokeObjectURL(url);
                 }).catch(err => {
-                    console.warn("啟動載入自訂字體出錯:", err);
+                    console.warn("啟動載入自訂字體出錯:", f.id, err);
                     URL.revokeObjectURL(url);
                 });
             });
 
-            // 初始化與解析自訂/系統字型選擇
+            // 等待所有自訂字型完全註冊完畢
+            return Promise.all(fontLoadPromises);
+        }).then(() => {
+            // 所有自訂字型準備就緒後，再安全套用已選取的字型設定，並更新 UI
             if (FONT_MAP[appState.selectedFont] || appState.selectedFont === 'system') {
                 changeAppFont(appState.selectedFont);
                 document.getElementById('font-trigger-text').innerText = FONT_LABELS[appState.selectedFont] || appState.selectedFont;
             } else {
-                // 如果是先前已儲存的自訂字型
                 const savedFontRec = appState.customFontRecords.find(r => r.id === appState.selectedFont);
                 if (savedFontRec) {
                     changeAppFont(savedFontRec.id);
                     document.getElementById('font-trigger-text').innerText = savedFontRec.name + ' (自訂)';
+                } else {
+                    changeAppFont('system');
+                    document.getElementById('font-trigger-text').innerText = FONT_LABELS['system'];
                 }
             }
 
             // 動態初始化渲染字型下拉選單
+            renderFontOptions();
+            renderUploadedFontsList();
+        }).catch(err => {
+            console.error("處理自訂字型啟動異常:", err);
+            // 萬一有異常，回退至系統預設
+            changeAppFont('system');
+            document.getElementById('font-trigger-text').innerText = FONT_LABELS['system'];
             renderFontOptions();
             renderUploadedFontsList();
         });
