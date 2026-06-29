@@ -3064,12 +3064,8 @@
                 card.className = 'archive-card';
                 const total = arc.itineraries.length;
 
-                const sortedItineraries = [...arc.itineraries].sort((a, b) => {
-                    const dateA = parseInt(a.dateDigits) || 0;
-                    const dateB = parseInt(b.dateDigits) || 0;
-                    if (dateA !== dateB) return dateA - dateB;
-                    return (parseInt(a.timeDigits) || 0) - (parseInt(b.timeDigits) || 0);
-                });
+                // 修正功能：直接採用原有的 itineraries 陣列，不透過日期與時間進行重新排序，以維持使用者原本的輸入順序
+                const sortedItineraries = arc.itineraries || [];
 
                 let journeyListHtml = '';
                 sortedItineraries.forEach(node => {
