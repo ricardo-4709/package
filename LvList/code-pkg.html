@@ -1508,6 +1508,7 @@
        <button class="btn-custom" onclick="goBackFromSettings()" style="background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 600; font-style: normal; font-size: 14px;">返回</button>
       </header>
       
+      <!-- 字型風格設定卡片 -->
       <div class="form-card" style="margin-bottom: 16px; background: rgb(255, 255, 255);">
        <div class="form-group">
         <label class="form-label" style="font-size: 15px; font-weight: 700; color: rgb(58, 63, 71); font-style: normal;">字型風格設定</label>
@@ -1534,6 +1535,33 @@
          <input type="file" id="font-file-input" accept=".ttf,.otf,.woff,.woff2" style="display: none;" onchange="handleFontUpload(event)">
         </div>
         <div id="uploaded-fonts-list" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;"></div>
+       </div>
+      </div>
+      
+      <!-- 資料備份與還原卡片 (新增功能) -->
+      <div class="form-card" style="margin-bottom: 16px; background: rgb(255, 255, 255);">
+       <div class="form-group">
+        <label class="form-label" style="font-size: 15px; font-weight: 700; color: rgb(58, 63, 71); font-style: normal;">資料備份與還原</label>
+        <p style="font-size: 12px; color: rgb(142, 148, 159); margin-bottom: 10px; line-height: 1.4; font-weight: 400; font-style: normal;">匯出您當前的所有資料（包含清單、時間軸行程、歷史備份、自訂字型及上傳附件），或從備份檔還原，以便在轉移裝置時不丟失。</p>
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+         <button class="btn-custom" onclick="exportBackupData()" style="flex: 1 1 0%; text-align: center; background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 600; font-style: normal; font-size: 14px; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+           <polyline points="7 10 12 15 17 10"></polyline>
+           <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          匯出備份檔案
+         </button>
+         <button class="btn-custom" onclick="document.getElementById('backup-file-input').click()" style="flex: 1 1 0%; text-align: center; background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 600; font-style: normal; font-size: 14px; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+           <polyline points="17 8 12 3 7 8"></polyline>
+           <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          匯入備份檔案
+         </button>
+        </div>
+        <input type="file" id="backup-file-input" accept=".json" style="display: none;" onchange="handleBackupImport(event)">
        </div>
       </div>
       
@@ -1663,6 +1691,19 @@
     <p id="added-modal-item-name" style="font-size: 14px; color: rgb(142, 148, 159); margin-bottom: 20px; line-height: 1.4; word-break: break-all;"></p>
     <div class="modal-actions" style="margin-top: 0; justify-content: center; width: 100%;">
      <button class="modal-btn modal-btn-confirm" onclick="closeAddedModal()" style="width: 100%; padding: 12px; font-weight: 600; background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-style: normal; font-size: 14px;">確定</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- 匯入備份確認彈跳視窗 (新增) -->
+  <div id="import-confirm-modal" class="modal-overlay" style="background: rgba(0, 0, 0, 0.4);">
+   <div class="modal-card" style="background: rgb(255, 255, 255);">
+    <h3 style="color: rgb(58, 63, 71); font-weight: 600; font-size: 18px; margin-bottom: 12px;">確認還原備份資料？</h3>
+    <p style="color: #cca4a4; font-weight: 700; margin-bottom: 12px; font-size: 14px; line-height: 1.5;">⚠️ 警告：此操作將會完全清空並取代您當前裝置上的所有行李清單、時間軸規劃行程、封存紀錄以及匯入的自訂字型與附件！</p>
+    <p style="color: rgb(142, 148, 159); font-weight: 400; font-style: normal; font-size: 13px; line-height: 1.4;">匯入完成後，系統會自動重新整理頁面以重新載入資料。</p>
+    <div class="modal-actions" style="margin-top: 24px;">
+     <button class="modal-btn modal-btn-cancel" onclick="closeImportConfirmModal()" style="background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 500; font-size: 14px;">取消</button>
+     <button class="modal-btn modal-btn-confirm" onclick="executeImportBackup()" style="background: #cca4a4; color: white; font-weight: 600; font-size: 14px;">確認覆蓋還原</button>
     </div>
    </div>
   </div>
@@ -1804,7 +1845,7 @@
             });
         }
 
-        // 【修復】loadFontsFromDB 內部排除非字型格式的 attachment 檔案
+        // loadFontsFromDB 內部排除非字型格式的 attachment 檔案
         function loadFontsFromDB() {
             return openDB().then(db => {
                 return new Promise((resolve) => {
@@ -1917,7 +1958,7 @@
         function changeAppFont(fontKey) {
             let fontValue = FONT_MAP[fontKey];
             if (!fontValue) {
-                fontValue = `"${fontKey}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+                fontValue = `"${fontKey}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
             }
             document.documentElement.style.setProperty('--font-family', fontValue);
             appState.selectedFont = fontKey;
@@ -2888,6 +2929,187 @@
         }
 
         // --------------------------
+        // 行泥/旅程備份與還原功能
+        // --------------------------
+        // 工具：將 Blob 轉換為 Base64 字串
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        // 工具：將 Base64 字串還原為 Blob
+        function base64ToBlob(base64Str) {
+            const parts = base64Str.split(';base64,');
+            const contentType = parts[0].split(':')[1];
+            const raw = window.atob(parts[1]);
+            const rawLength = raw.length;
+            const uInt8Array = new Uint8Array(rawLength);
+            for (let i = 0; i < rawLength; ++i) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+            return new Blob([uInt8Array], { type: contentType });
+        }
+
+        // 讀取 IndexedDB fonts store 的所有資料
+        function getAllDbRecords() {
+            return openDB().then(db => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction('fonts', 'readonly');
+                    const store = transaction.objectStore('fonts');
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result || []);
+                    request.onerror = () => reject(request.error);
+                });
+            });
+        }
+
+        // 匯出備份 JSON 檔案
+        async function exportBackupData() {
+            showToast('正在封裝備份資料，請稍候...');
+            try {
+                const dbRecords = await getAllDbRecords();
+                const processedRecords = [];
+                
+                // 處理 IndexedDB 中的 Blob（例如自訂字型），將其轉換成可 JSON 序列化的 Base64
+                for (const rec of dbRecords) {
+                    let dataValue = rec.data;
+                    if (dataValue instanceof Blob) {
+                        dataValue = await blobToBase64(dataValue);
+                    }
+                    processedRecords.push({
+                        id: rec.id,
+                        data: dataValue,
+                        name: rec.name || null,
+                        type: rec.type || null,
+                        size: rec.size || null
+                    });
+                }
+
+                const backupObject = {
+                    version: 1,
+                    timestamp: Date.now(),
+                    appState: appState,
+                    dbRecords: processedRecords
+                };
+
+                const jsonString = JSON.stringify(backupObject);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const today = new Date();
+                const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `旅程清單備份_${dateStr}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('備份檔案已成功導出下載！');
+            } catch (err) {
+                console.error("導出備份失敗:", err);
+                showToast("導出備份中途出錯，請再試一次！");
+            }
+        }
+
+        // 監聽並讀取匯入的 JSON 備份檔案
+        let pendingImportBackup = null;
+
+        function handleBackupImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    // 驗證基本結構
+                    if (!backup.appState || !backup.appState.items) {
+                        showToast('匯入失敗：這不是一個正確的備份格式！');
+                        return;
+                    }
+                    pendingImportBackup = backup;
+                    // 開啟自訂的匯入警告視窗
+                    document.getElementById('import-confirm-modal').classList.add('show');
+                } catch (err) {
+                    console.error(err);
+                    showToast('解析備份檔案失敗，請確保是正確的備份格式！');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // 清空欄位以便重複選擇同檔
+        }
+
+        function closeImportConfirmModal() {
+            pendingImportBackup = null;
+            document.getElementById('import-confirm-modal').classList.remove('show');
+        }
+
+        // 執行資料覆蓋與資料還原
+        async function executeImportBackup() {
+            if (!pendingImportBackup) return;
+            const backup = pendingImportBackup;
+            
+            showToast('資料還原中，請勿關閉網頁...');
+            try {
+                // 1. 還原 localStorage (appState)
+                localStorage.setItem('packing_app_state', JSON.stringify(backup.appState));
+
+                // 2. 還原 IndexedDB 
+                const db = await openDB();
+                
+                await new Promise((resolve, reject) => {
+                    const transaction = db.transaction('fonts', 'readwrite');
+                    const store = transaction.objectStore('fonts');
+                    const clearReq = store.clear();
+                    clearReq.onsuccess = () => resolve();
+                    clearReq.onerror = () => reject(clearReq.error);
+                });
+
+                // 將備份的資料還原寫入 IndexedDB
+                if (backup.dbRecords && Array.isArray(backup.dbRecords)) {
+                    for (const rec of backup.dbRecords) {
+                        let finalData = rec.data;
+                        
+                        // 若為字型檔案 Blob，將 Base64 還原為 Blob 保存
+                        if (rec.id && !rec.id.startsWith('attach_') && typeof finalData === 'string' && finalData.startsWith('data:')) {
+                            finalData = base64ToBlob(finalData);
+                        }
+
+                        await new Promise((resolve, reject) => {
+                            const transaction = db.transaction('fonts', 'readwrite');
+                            const store = transaction.objectStore('fonts');
+                            const putReq = store.put({
+                                id: rec.id,
+                                data: finalData,
+                                name: rec.name || undefined,
+                                type: rec.type || undefined,
+                                size: rec.size || undefined
+                            });
+                            putReq.onsuccess = () => resolve();
+                            putReq.onerror = () => reject(putReq.error);
+                        });
+                    }
+                }
+
+                showToast('還原成功！系統即將重新啟動...');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
+            } catch (err) {
+                console.error("還原程序異常:", err);
+                showToast("還原失敗，可能是不相容的備份或資料毀損。");
+                closeImportConfirmModal();
+            }
+        }
+
+        // --------------------------
         // 行李一鍵封存
         // --------------------------
         function openArchiveModal() {
@@ -3321,7 +3543,7 @@
         renderArchiveRecords();
         renderJourneyArchiveRecords();
 
-        // 【修復】非同步字型載入流程
+        // 非同步字型載入流程
         loadFontsFromDB().then(savedFonts => {
             const fontLoadPromises = savedFonts.map(f => {
                 if (!(f.data instanceof Blob)) {
