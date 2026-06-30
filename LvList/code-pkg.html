@@ -989,18 +989,18 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            padding-bottom: 20px;
+            padding-bottom: 10px;
         }
 
         .archive-card {
-            background: var(--card-bg);
+            background: var(--bg-color);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 16px;
-            box-shadow: var(--shadow-subtle);
+            padding: 14px;
+            box-shadow: none;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .archive-card-header {
@@ -1018,30 +1018,30 @@
         }
 
         .archive-name {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             color: var(--text-main);
             word-break: break-all;
         }
 
         .archive-date {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-muted);
         }
 
         .archive-actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-shrink: 0;
         }
 
         .archive-action-btn {
             background: none;
             border: none;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
             transition: background 0.2s;
         }
@@ -1067,7 +1067,7 @@
         }
 
         .archive-details-toggle {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             background: none;
             border: none;
@@ -1107,20 +1107,20 @@
         }
 
         .archive-group-title {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 600;
             color: #5c665b;
             padding: 2px 0 2px 8px;
             border-left: 3px solid var(--accent); 
-            margin-top: 12px;
-            margin-bottom: 6px;
+            margin-top: 8px;
+            margin-bottom: 4px;
             display: inline-block;
         }
 
         .archive-item-bullet {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-main);
-            padding: 6px 0;
+            padding: 4px 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -1148,7 +1148,7 @@
         .archive-item-tag {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
             font-size: 0.65rem;
-            padding: 2px 6px;
+            padding: 1px 4px;
             border-radius: 4px;
             font-weight: 600;
         }
@@ -1262,8 +1262,8 @@
             text-align: center;
             color: var(--text-muted);
             margin: auto 0;
-            padding: 40px 0;
-            font-size: 0.95rem;
+            padding: 20px 0;
+            font-size: 0.85rem;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1534,11 +1534,10 @@
          <button class="btn-custom" onclick="document.getElementById('font-file-input').click()" style="flex: 1 1 0%; text-align: center; background: rgb(232, 235, 231); color: rgb(92, 102, 91); font-weight: 600; font-style: normal; font-size: 14px;">選擇自訂字型檔案</button>
          <input type="file" id="font-file-input" accept=".ttf,.otf,.woff,.woff2" style="display: none;" onchange="handleFontUpload(event)">
         </div>
-        <div id="uploaded-fonts-list" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;"></div>
        </div>
       </div>
       
-      <!-- 資料備份與還原卡片 (新增功能) -->
+      <!-- 資料備份與還原卡片 -->
       <div class="form-card" style="margin-bottom: 16px; background: rgb(255, 255, 255);">
        <div class="form-group">
         <label class="form-label" style="font-size: 15px; font-weight: 700; color: rgb(58, 63, 71); font-style: normal;">資料備份與還原</label>
@@ -1565,7 +1564,7 @@
        </div>
       </div>
       
-      <!-- 行李一鍵封存卡片 -->
+      <!-- 行李一鍵封存卡片 (已整合摺疊行李封存紀錄) -->
       <div class="form-card" style="margin-bottom: 16px; background: rgb(255, 255, 255);">
        <div class="form-group">
         <label class="form-label" style="font-size: 15px; font-weight: 700; color: rgb(58, 63, 71); font-style: normal;">封存當前行李</label>
@@ -1574,9 +1573,27 @@
          <span style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">一鍵封存當前行李</span>
         </button>
        </div>
+       <div class="form-group" style="margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 12px;">
+        <button class="archive-details-toggle" id="toggle-baggage-archive-btn" onclick="toggleBaggageArchiveCollapse()" style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: none; font-size: 0.9rem; font-weight: 600; color: var(--accent); cursor: pointer; padding: 4px 0;">
+          <span>查看歷史行李封存紀錄 (共 0 筆)</span>
+          <svg class="chevron-svg" id="baggage-archive-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition: transform 0.25s;">
+           <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div id="baggage-archive-collapsible" style="max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0.25, 1, 0.5, 1); margin-top: 0;">
+          <div id="archive-empty-state" class="empty-state" style="display: flex; padding: 16px 0; color: rgb(142, 148, 159); font-size: 14px;">
+            <svg class="empty-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+              <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+            </svg>
+            <div style="font-size: 13px;">目前沒有任何歷史行李封存紀錄</div>
+          </div>
+          <div class="archive-list-container" id="archive-list" style="margin-top: 8px;"></div>
+        </div>
+       </div>
       </div>
       
-      <!-- 旅程時間軸一鍵封存卡片 -->
+      <!-- 旅程時間軸一鍵封存卡片 (已整合摺疊旅程封存紀錄) -->
       <div class="form-card" style="margin-bottom: 24px; background: rgb(255, 255, 255);">
        <div class="form-group">
         <label class="form-label" style="font-size: 15px; font-weight: 700; color: rgb(58, 63, 71); font-style: normal;">封存當前旅程時間軸</label>
@@ -1585,34 +1602,26 @@
          <span style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">一鍵封存當前旅程規劃</span>
         </button>
        </div>
-      </div>
-      
-      <!-- 歷史行李封存列表 -->
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
-       <h2 style="font-size: 18px; font-weight: 600; color: rgb(58, 63, 71); letter-spacing: 0.5px; font-style: normal;">行李封存紀錄列表</h2>
-       <div id="archive-empty-state" class="empty-state" style="display: flex; padding: 24px 0px; color: rgb(142, 148, 159); font-size: 15px;">
-        <svg class="empty-svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-         <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
-         <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
-        </svg>
-        <div style="font-size: 14px; color: rgb(142, 148, 159); font-weight: 400; font-style: normal;">目前沒有任何歷史行李封存紀錄</div>
+       <div class="form-group" style="margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 12px;">
+        <button class="archive-details-toggle" id="toggle-journey-archive-btn" onclick="toggleJourneyArchiveCollapse()" style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: none; font-size: 0.9rem; font-weight: 600; color: var(--accent); cursor: pointer; padding: 4px 0;">
+          <span>查看歷史旅程規劃封存紀錄 (共 0 筆)</span>
+          <svg class="chevron-svg" id="journey-archive-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition: transform 0.25s;">
+           <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div id="journey-archive-collapsible" style="max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0.25, 1, 0.5, 1); margin-top: 0;">
+          <div id="journey-archive-empty-state" class="empty-state" style="display: flex; padding: 16px 0; color: rgb(142, 148, 159); font-size: 14px;">
+            <svg class="empty-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+             <line x1="16" y1="2" x2="16" y2="6"></line>
+             <line x1="8" y1="2" x2="8" y2="6"></line>
+             <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <div style="font-size: 13px;">目前沒有任何歷史旅程封存紀錄</div>
+          </div>
+          <div class="archive-list-container" id="journey-archive-list" style="margin-top: 8px;"></div>
+        </div>
        </div>
-       <div class="archive-list-container" id="archive-list"></div>
-      </div>
-      
-      <!-- 歷史旅程時間軸封存列表 -->
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 24px; border-top: 1px dashed var(--border-color); padding-top: 20px; margin-bottom: 24px;">
-       <h2 style="font-size: 18px; font-weight: 600; color: rgb(58, 63, 71); letter-spacing: 0.5px; font-style: normal;">旅程規劃封存紀錄列表</h2>
-       <div id="journey-archive-empty-state" class="empty-state" style="display: flex; padding: 24px 0px; color: rgb(142, 148, 159); font-size: 15px;">
-        <svg class="empty-svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-         <line x1="16" y1="2" x2="16" y2="6"></line>
-         <line x1="8" y1="2" x2="8" y2="6"></line>
-         <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-        <div style="font-size: 14px; color: rgb(142, 148, 159); font-weight: 400; font-style: normal;">目前沒有任何歷史旅程封存紀錄</div>
-       </div>
-       <div class="archive-list-container" id="journey-archive-list"></div>
       </div>
      </div>
      
@@ -1695,7 +1704,7 @@
    </div>
   </div>
 
-  <!-- 匯入備份確認彈跳視窗 (新增) -->
+  <!-- 匯入備份確認彈跳視窗 -->
   <div id="import-confirm-modal" class="modal-overlay" style="background: rgba(0, 0, 0, 0.4);">
    <div class="modal-card" style="background: rgb(255, 255, 255);">
     <h3 style="color: rgb(58, 63, 71); font-weight: 600; font-size: 18px; margin-bottom: 12px;">確認還原備份資料？</h3>
@@ -1958,7 +1967,7 @@
         function changeAppFont(fontKey) {
             let fontValue = FONT_MAP[fontKey];
             if (!fontValue) {
-                fontValue = `"${fontKey}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+                fontValue = `"${fontKey}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
             }
             document.documentElement.style.setProperty('--font-family', fontValue);
             appState.selectedFont = fontKey;
@@ -1978,7 +1987,7 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // 動態渲染字型選單（系統字型 ＋ 導入的裝置字型）
+        // 動態渲染字型選單（系統字型 ＋ 導入的裝置字型與刪除按鈕）
         function renderFontOptions() {
             const container = document.getElementById('font-options');
             if (!container) return;
@@ -2020,7 +2029,7 @@
                 container.appendChild(div);
             });
             
-            // 2. 產生已匯入自訂字型選項
+            // 2. 產生已匯入自訂字型選項（並將「✕」刪除鍵直接整合在行內選項右側）
             const records = appState.customFontRecords || [];
             records.forEach(rec => {
                 const isSelected = appState.selectedFont === rec.id;
@@ -2030,15 +2039,19 @@
                 const displayName = rec.name + ' (自訂)';
                 
                 if (isSelected) {
-                    div.style.cssText = 'background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-weight: 600; font-size: 14px;';
+                    div.style.cssText = 'background: rgb(154, 168, 153); color: rgb(255, 255, 255); font-weight: 600; font-size: 14px; position: relative; padding-right: 48px;';
                     div.innerHTML = `
-                        <span style="color: rgb(255, 255, 255); font-weight: 600; font-style: normal; font-size: 14px;">${escapeHtml(displayName)}</span>
-                        <span style="font-weight: 700; color: rgb(255, 255, 255);">✓</span>
+                        <span style="color: rgb(255, 255, 255); font-weight: 600; font-style: normal; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 250px;">${escapeHtml(displayName)}</span>
+                        <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 8px; align-items: center; z-index: 5;">
+                            <span style="font-weight: 700; color: rgb(255, 255, 255);">✓</span>
+                            <button onclick="event.stopPropagation(); deleteCustomFont('${rec.id}')" style="background:none; border:none; color:white; font-size:1.15rem; cursor:pointer; padding: 2px 4px; line-height: 1;" title="刪除此字型">✕</button>
+                        </div>
                     `;
                 } else {
-                    div.style.cssText = 'color: rgb(58, 63, 71); font-size: 14px;';
+                    div.style.cssText = 'color: rgb(58, 63, 71); font-size: 14px; position: relative; padding-right: 32px;';
                     div.innerHTML = `
-                        <span style="font-weight: 400; font-style: normal; font-size: 14px;">${escapeHtml(displayName)}</span>
+                        <span style="font-weight: 400; font-style: normal; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 280px;">${escapeHtml(displayName)}</span>
+                        <button onclick="event.stopPropagation(); deleteCustomFont('${rec.id}')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background:none; border:none; color:var(--danger); font-size:1.15rem; cursor:pointer; padding: 2px 4px; line-height: 1; z-index: 5;" title="刪除此字型">✕</button>
                     `;
                 }
                 
@@ -2047,6 +2060,26 @@
                     selectFontOption(rec.id);
                 });
                 container.appendChild(div);
+            });
+        }
+
+        // 刪除自訂字型
+        function deleteCustomFont(id) {
+            deleteFontFromDB(id).then(() => {
+                appState.customFontRecords = (appState.customFontRecords || []).filter(r => r.id !== id);
+                
+                // 如果刪除的剛好是當前選用的字型，還原至 system
+                if (appState.selectedFont === id) {
+                    changeAppFont('system');
+                    document.getElementById('font-trigger-text').innerText = FONT_LABELS['system'];
+                }
+                
+                saveState();
+                renderFontOptions();
+                showToast('自訂字型已成功刪除');
+            }).catch(err => {
+                console.error("刪除字型失敗:", err);
+                showToast('刪除字型失敗');
             });
         }
 
@@ -2059,7 +2092,6 @@
             if (shouldShow) {
                 toggleInlineSelect('location', false);
                 toggleInlineSelect('category', false);
-                // 每次展開時動態重構列表，確保最新上傳的字型顯示
                 renderFontOptions();
                 container.classList.add('open');
                 container.classList.add('active');
@@ -2074,11 +2106,8 @@
         // 選擇字型
         function selectFontOption(fontValue) {
             changeAppFont(fontValue);
-            
-            // 重新渲染字型選項以更新選中狀態（✓標記與樣式）
             renderFontOptions();
             
-            // 解析並更新按鈕顯示文字
             let label = FONT_LABELS[fontValue];
             if (!label) {
                 const rec = appState.customFontRecords.find(r => r.id === fontValue);
@@ -2125,7 +2154,6 @@
                     changeAppFont(fontName);
                     document.getElementById('font-trigger-text').innerText = rawName + ' (自訂)';
                     renderFontOptions();
-                    renderUploadedFontsList();
                     showToast(`成功導入字型：${rawName}`);
                 }).catch(err => {
                     URL.revokeObjectURL(url);
@@ -2138,27 +2166,6 @@
                 uploadBtn.innerText = originalBtnText;
                 uploadBtn.disabled = false;
                 event.target.value = '';
-            });
-        }
-
-        function renderUploadedFontsList() {
-            const container = document.getElementById('uploaded-fonts-list');
-            container.innerHTML = '';
-            const records = appState.customFontRecords || [];
-
-            if (records.length === 0) {
-                container.innerHTML = `<p style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; text-align: center; margin-top: 4px;">尚未導入任何外部裝置字型</p>`;
-                return;
-            }
-
-            records.forEach(rec => {
-                const row = document.createElement('div');
-                row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: var(--bg-color); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);';
-                row.innerHTML = `
-                    <span style="font-size: 0.8rem; font-weight: 500; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 260px;">${escapeHtml(rec.name)}</span>
-                    <button onclick="deleteCustomFont('${rec.id}')" style="background:none; border:none; color:var(--danger); font-size:0.85rem; cursor:pointer; padding:2px 6px;" aria-label="刪除此字體">✕</button>
-                `;
-                container.appendChild(row);
             });
         }
 
@@ -2199,6 +2206,39 @@
             }
             saveState();
             renderGroupedList();
+        }
+
+        // ----------------------------------------------------
+        // 切換行李封存與旅程規劃紀錄的摺疊收合狀態
+        // ----------------------------------------------------
+        function toggleBaggageArchiveCollapse() {
+            const content = document.getElementById('baggage-archive-collapsible');
+            const chevron = document.getElementById('baggage-archive-chevron');
+            const isCollapsed = content.style.maxHeight === '0px' || content.style.maxHeight === '';
+            
+            if (isCollapsed) {
+                content.style.maxHeight = '500px';
+                content.style.overflowY = 'auto';
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.maxHeight = '0px';
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function toggleJourneyArchiveCollapse() {
+            const content = document.getElementById('journey-archive-collapsible');
+            const chevron = document.getElementById('journey-archive-chevron');
+            const isCollapsed = content.style.maxHeight === '0px' || content.style.maxHeight === '';
+            
+            if (isCollapsed) {
+                content.style.maxHeight = '500px';
+                content.style.overflowY = 'auto';
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.maxHeight = '0px';
+                chevron.style.transform = 'rotate(0deg)';
+            }
         }
 
         function goBackFromSettings() {
@@ -2475,7 +2515,7 @@
         }
 
         // --------------------------
-        // 渲染行李清單 (已優化收合功能)
+        // 渲染行李清單
         // --------------------------
         function renderGroupedList() {
             groupedItemsContainer.innerHTML = '';
@@ -2497,7 +2537,6 @@
                 const groupDiv = document.createElement('div');
                 groupDiv.className = `location-group ${isCollapsed ? 'collapsed' : ''}`;
 
-                // 標頭整合點擊折合事件
                 const headerDiv = document.createElement('div');
                 headerDiv.className = 'group-header';
                 headerDiv.setAttribute('onclick', `toggleLocationGroup('${escapeHtml(loc)}')`);
@@ -2512,7 +2551,6 @@
                 const itemList = document.createElement('ul');
                 itemList.className = 'item-list';
                 
-                // 如果是收合狀態，則隱藏清單
                 if (isCollapsed) {
                     itemList.style.display = 'none';
                 }
@@ -2929,9 +2967,8 @@
         }
 
         // --------------------------
-        // 行泥/旅程備份與還原功能
+        // 行李/旅程備份與還原功能
         // --------------------------
-        // 工具：將 Blob 轉換為 Base64 字串
         function blobToBase64(blob) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -2941,7 +2978,6 @@
             });
         }
 
-        // 工具：將 Base64 字串還原為 Blob
         function base64ToBlob(base64Str) {
             const parts = base64Str.split(';base64,');
             const contentType = parts[0].split(':')[1];
@@ -2954,7 +2990,6 @@
             return new Blob([uInt8Array], { type: contentType });
         }
 
-        // 讀取 IndexedDB fonts store 的所有資料
         function getAllDbRecords() {
             return openDB().then(db => {
                 return new Promise((resolve, reject) => {
@@ -2967,14 +3002,12 @@
             });
         }
 
-        // 匯出備份 JSON 檔案
         async function exportBackupData() {
             showToast('正在封裝備份資料，請稍候...');
             try {
                 const dbRecords = await getAllDbRecords();
                 const processedRecords = [];
                 
-                // 處理 IndexedDB 中的 Blob（例如自訂字型），將其轉換成可 JSON 序列化的 Base64
                 for (const rec of dbRecords) {
                     let dataValue = rec.data;
                     if (dataValue instanceof Blob) {
@@ -3018,7 +3051,6 @@
             }
         }
 
-        // 監聽並讀取匯入的 JSON 備份檔案
         let pendingImportBackup = null;
 
         function handleBackupImport(event) {
@@ -3029,13 +3061,11 @@
             reader.onload = function(e) {
                 try {
                     const backup = JSON.parse(e.target.result);
-                    // 驗證基本結構
                     if (!backup.appState || !backup.appState.items) {
                         showToast('匯入失敗：這不是一個正確的備份格式！');
                         return;
                     }
                     pendingImportBackup = backup;
-                    // 開啟自訂的匯入警告視窗
                     document.getElementById('import-confirm-modal').classList.add('show');
                 } catch (err) {
                     console.error(err);
@@ -3043,7 +3073,7 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // 清空欄位以便重複選擇同檔
+            event.target.value = '';
         }
 
         function closeImportConfirmModal() {
@@ -3051,17 +3081,13 @@
             document.getElementById('import-confirm-modal').classList.remove('show');
         }
 
-        // 執行資料覆蓋與資料還原
         async function executeImportBackup() {
             if (!pendingImportBackup) return;
             const backup = pendingImportBackup;
             
             showToast('資料還原中，請勿關閉網頁...');
             try {
-                // 1. 還原 localStorage (appState)
                 localStorage.setItem('packing_app_state', JSON.stringify(backup.appState));
-
-                // 2. 還原 IndexedDB 
                 const db = await openDB();
                 
                 await new Promise((resolve, reject) => {
@@ -3072,12 +3098,10 @@
                     clearReq.onerror = () => reject(clearReq.error);
                 });
 
-                // 將備份的資料還原寫入 IndexedDB
                 if (backup.dbRecords && Array.isArray(backup.dbRecords)) {
                     for (const rec of backup.dbRecords) {
                         let finalData = rec.data;
                         
-                        // 若為字型檔案 Blob，將 Base64 還原為 Blob 保存
                         if (rec.id && !rec.id.startsWith('attach_') && typeof finalData === 'string' && finalData.startsWith('data:')) {
                             finalData = base64ToBlob(finalData);
                         }
@@ -3195,7 +3219,7 @@
         }
 
         // --------------------------
-        // 歷史行李封存紀錄渲染
+        // 歷史行李封存紀錄渲染 (已更新整合摺疊)
         // --------------------------
         function renderArchiveRecords() {
             const container = document.getElementById('archive-list');
@@ -3203,6 +3227,10 @@
             container.innerHTML = '';
 
             const archives = appState.archives || [];
+            
+            // 更新展開鈕的筆數資訊
+            document.querySelector('#toggle-baggage-archive-btn span').innerText = `查看歷史行李封存紀錄 (共 ${archives.length} 筆)`;
+
             if (archives.length === 0) {
                 emptyState.style.display = 'flex';
                 return;
@@ -3231,9 +3259,9 @@
                     sortedGroupItems.forEach(item => {
                         const catStyle = getTagStyle(item.category);
                         itemsListHtml += `
-                            <li class="archive-item-bullet" style="padding: 6px 0;">
+                            <li class="archive-item-bullet">
                                 <div class="archive-item-left">
-                                    <span style="color: var(--accent); margin-right: 8px;">•</span>
+                                    <span style="color: var(--accent); margin-right: 6px;">•</span>
                                     <span>${escapeHtml(item.text)}</span>
                                 </div>
                                 <div class="archive-item-tags">
@@ -3267,7 +3295,7 @@
         }
 
         // --------------------------
-        // 歷史旅程封存紀錄渲染
+        // 歷史旅程封存紀錄渲染 (已更新整合摺疊)
         // --------------------------
         function renderJourneyArchiveRecords() {
             const container = document.getElementById('journey-archive-list');
@@ -3275,6 +3303,10 @@
             container.innerHTML = '';
 
             const archives = appState.journeyArchives || [];
+            
+            // 更新展開鈕的筆數資訊
+            document.querySelector('#toggle-journey-archive-btn span').innerText = `查看歷史旅程規劃封存紀錄 (共 ${archives.length} 筆)`;
+
             if (archives.length === 0) {
                 emptyState.style.display = 'flex';
                 return;
@@ -3286,7 +3318,6 @@
                 card.className = 'archive-card';
                 const total = arc.itineraries.length;
 
-                // 修正功能：直接採用原有的 itineraries 陣列，不透過日期與時間進行重新排序，以維持使用者原本的輸入順序
                 const sortedItineraries = arc.itineraries || [];
 
                 let journeyListHtml = '';
@@ -3294,11 +3325,11 @@
                     const dateDisplay = node.dateDigits ? escapeHtml(node.dateDigits) : '';
                     const timeDisplay = node.timeDigits ? escapeHtml(node.timeDigits) : '';
                     const timeTag = (dateDisplay || timeDisplay) 
-                        ? `<span style="font-weight: 700; color: var(--accent); flex-shrink: 0; min-width: 80px;">[${dateDisplay}${dateDisplay && timeDisplay ? ' ' : ''}${timeDisplay}]</span>` 
+                        ? `<span style="font-weight: 700; color: var(--accent); flex-shrink: 0; min-width: 70px;">[${dateDisplay}${dateDisplay && timeDisplay ? ' ' : ''}${timeDisplay}]</span>` 
                         : '';
 
                     journeyListHtml += `
-                        <li style="display: flex; gap: 12px; font-size: 0.85rem; padding: 6px 0; border-bottom: 1px solid #fafbfa;">
+                        <li style="display: flex; gap: 8px; font-size: 0.8rem; padding: 4px 0; border-bottom: 1px solid #fafbfa;">
                             ${timeTag}
                             <span style="flex: 1; word-break: break-all;">${escapeHtml(node.text)}</span>
                         </li>
@@ -3333,6 +3364,12 @@
             const bullets = list.querySelectorAll('li');
             const itemsCount = bullets.length;
             btn.innerHTML = `<span>${isShowing ? '收合' : `展開 (共 ${itemsCount} 項)`}</span> ${isShowing ? '▴' : '▾'}`;
+            
+            // 當高度展開或變動時，需要手動自適應其父容器高度
+            const collapsible = btn.closest('#baggage-archive-collapsible') || btn.closest('#journey-archive-collapsible');
+            if (collapsible) {
+                collapsible.style.maxHeight = '1000px'; 
+            }
         }
 
         function deleteArchive(id) {
@@ -3516,7 +3553,6 @@
             }
         });
 
-        // 解決 iOS 鍵盤彈出時的畫面滾動問題
         const inputElements = document.querySelectorAll('input[type="text"], textarea');
         inputElements.forEach(input => {
             input.addEventListener('focus', (e) => {
@@ -3547,7 +3583,7 @@
         loadFontsFromDB().then(savedFonts => {
             const fontLoadPromises = savedFonts.map(f => {
                 if (!(f.data instanceof Blob)) {
-                    return Promise.resolve(); // 確保資料是 Blob 才轉換，避免意外拋錯
+                    return Promise.resolve(); 
                 }
                 const url = URL.createObjectURL(f.data);
                 const fontFace = new FontFace(f.id, `url(${url})`);
@@ -3560,10 +3596,8 @@
                 });
             });
 
-            // 等待所有自訂字型完全註冊完畢
             return Promise.all(fontLoadPromises);
         }).then(() => {
-            // 所有自訂字型準備就緒後，再安全套用已選取的字型設定，並更新 UI
             if (FONT_MAP[appState.selectedFont] || appState.selectedFont === 'system') {
                 changeAppFont(appState.selectedFont);
                 document.getElementById('font-trigger-text').innerText = FONT_LABELS[appState.selectedFont] || appState.selectedFont;
@@ -3578,16 +3612,12 @@
                 }
             }
 
-            // 動態初始化渲染字型下拉選單
             renderFontOptions();
-            renderUploadedFontsList();
         }).catch(err => {
             console.error("處理自訂字型啟動異常:", err);
-            // 萬一有異常，回退至系統預設
             changeAppFont('system');
             document.getElementById('font-trigger-text').innerText = FONT_LABELS['system'];
             renderFontOptions();
-            renderUploadedFontsList();
         });
   </script>
  </body>
